@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+
+<html lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title class="">Portfolio - House of Memoir</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "primary-container": "#000613",
+                "secondary-fixed": "#ffe088",
+                "on-secondary-container": "#342800",
+                "paper-white": "#FFF8F5",
+                "on-background": "#e4e2e3",
+                "inverse-primary": "#555f70",
+                "primary": "#bdc7da",
+                "surface-container": "#1f1f21",
+                "on-error-container": "#ffdad6",
+                "on-error": "#690005",
+                "outline": "#8f9096",
+                "on-secondary": "#3c2f00",
+                "on-tertiary-fixed": "#1d1b1a",
+                "on-secondary-fixed": "#241a00",
+                "inverse-surface": "#e4e2e3",
+                "error": "#ffb4ab",
+                "surface-container-lowest": "#0e0e0f",
+                "surface-bright": "#39393a",
+                "on-surface": "#e4e2e3",
+                "surface": "#131314",
+                "outline-variant": "#44474c",
+                "background": "#131314",
+                "primary-fixed-dim": "#bdc7da",
+                "error-container": "#93000a",
+                "on-surface-variant": "#c5c6cc",
+                "surface-container-low": "#1b1b1d",
+                "tertiary-container": "#070605",
+                "primary-fixed": "#d9e3f7",
+                "secondary-fixed-dim": "#e9c349",
+                "ink-dim": "#75777D",
+                "tertiary": "#cbc5c3",
+                "on-primary-fixed-variant": "#3d4757",
+                "inverse-on-surface": "#303031",
+                "surface-tint": "#bdc7da",
+                "surface-variant": "#353536",
+                "secondary": "#e9c349",
+                "on-tertiary": "#33302e",
+                "surface-dim": "#131314",
+                "on-tertiary-fixed-variant": "#494644",
+                "surface-container-highest": "#353536",
+                "on-primary-fixed": "#121c2a",
+                "on-secondary-fixed-variant": "#574500",
+                "tertiary-fixed": "#e8e1de",
+                "on-tertiary-container": "#7b7775",
+                "secondary-container": "#af8d11",
+                "on-primary-container": "#6e788a",
+                "heritage-navy": "#000613",
+                "on-primary": "#273140",
+                "tertiary-fixed-dim": "#cbc5c3",
+                "surface-container-high": "#2a2a2b",
+                "gold-accent": "#D4AF37"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "gutter": "24px",
+                "unit": "8px",
+                "section-gap": "128px",
+                "margin-desktop": "80px",
+                "margin-mobile": "20px",
+                "container-max": "1200px"
+        },
+        "fontFamily": {
+                "display-lg": [
+                        "Playfair Display"
+                ],
+                "headline-md": [
+                        "Playfair Display"
+                ],
+                "caption": [
+                        "Inter"
+                ],
+                "headline-lg": [
+                        "Playfair Display"
+                ],
+                "label-md": [
+                        "Inter"
+                ],
+                "headline-lg-mobile": [
+                        "Playfair Display"
+                ],
+                "body-lg": [
+                        "Inter"
+                ],
+                "body-md": [
+                        "Inter"
+                ]
+        },
+        "fontSize": {
+                "display-lg": [
+                        "64px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-md": [
+                        "32px",
+                        {
+                                "lineHeight": "1.3",
+                                "fontWeight": "600"
+                        }
+                ],
+                "caption": [
+                        "12px",
+                        {
+                                "lineHeight": "1.4",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "1.4",
+                                "letterSpacing": "0.1em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "1.6",
+                                "fontWeight": "400"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .text-truncate-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .book-card:hover .book-actions {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+        }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+    </style>
+</head>
+<body class="bg-[#f9f9ff] text-[#111827] font-body-md antialiased min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="sticky top-0 w-full z-50 bg-[#f9f9ff]/90 backdrop-blur-md border-b border-gray-200 shadow-sm animate-fade-in-up">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-between items-center h-20">
+<a class="font-headline-md text-headline-md text-[#111827] tracking-tight" href="#">
+<div class="flex items-center gap-3">
+<img alt="House of Memoir Logo" class="h-16 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VzsfuRh-KKnC61w55ByraZk7ITo88Ag8SlhvETLNElPFBeLD3As3SF7p_3ZjjOrM0Irj3UjTK09kud7tH94FWX8YOj8cn4W3OISOV4VuWV3_UFLPytx_Pex6YaIyae9McYTqe5KqWomaIx0E0xmX55wKjQ7U1UjWc9txwJa6cUoq2OA8aEzPBxz59CqoPktdj8l-hS6QdYfcw3cHkeaimxDYNYBsm5ySytIblko5orIevoJBeNC8gprmM"/>
+<div class="flex flex-col justify-center">
+<span class="font-headline-md text-[24px] text-[#111827] leading-none font-bold">House of Memoir</span>
+<span class="font-label-md text-[11px] text-[#1978e5] mt-1 tracking-widest uppercase">Write Your Legacy. Words Never Die</span>
+</div>
+</div>
+</a>
+<div class="hidden md:flex font-label-md text-label-md gap-8">
+<a class="text-gray-600 hover:text-[#1978e5] transition-colors duration-300" href="#">Home</a>
+<a class="text-gray-600 hover:text-[#1978e5] transition-colors duration-300" href="#">About</a>
+<a class="text-gray-600 hover:text-[#1978e5] transition-colors duration-300" href="#">Services</a>
+<a class="text-gray-600 hover:text-[#1978e5] transition-colors duration-300" href="#">Appointment and Enquiry</a>
+<a class="text-[#1978e5] border-b-2 border-[#1978e5] pb-1" href="#">Portfolio</a>
+<a class="text-gray-600 hover:text-[#1978e5] transition-colors duration-300" href="#">Testimonials</a>
+</div>
+<button class="hidden md:block bg-[#1978e5] text-white font-label-md text-label-md px-8 py-2.5 rounded-full transition-all hover:bg-[#1978e5]/90 active:scale-95 shadow-sm">
+                Submit Manuscript
+            </button>
+<button class="md:hidden text-[#111827]">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop w-full py-16 md:py-24">
+<!-- Header Section -->
+<header class="mb-16 md:mb-24 text-center max-w-3xl mx-auto animate-fade-in-up">
+<h1 class="font-display-lg text-display-lg text-[#111827] mb-6">Our Publications</h1>
+<p class="font-body-lg text-body-lg text-gray-600">A curated selection of defining works across disciplines. Explore our collection of meticulously crafted physical and digital volumes.</p>
+</header>
+<!-- Filters -->
+<div class="flex flex-wrap justify-center gap-4 mb-16 animate-fade-in-up delay-100">
+<button class="px-6 py-2 border border-[#1978e5] rounded-full font-label-md text-label-md text-white bg-[#1978e5] transition-colors">All Works</button>
+<button class="px-6 py-2 border border-gray-300 rounded-full font-label-md text-label-md text-gray-700 hover:bg-gray-100 transition-colors">Fiction</button>
+<button class="px-6 py-2 border border-gray-300 rounded-full font-label-md text-label-md text-gray-700 hover:bg-gray-100 transition-colors">Non-Fiction</button>
+<button class="px-6 py-2 border border-gray-300 rounded-full font-label-md text-label-md text-gray-700 hover:bg-gray-100 transition-colors">Poetry</button>
+<button class="px-6 py-2 border border-gray-300 rounded-full font-label-md text-label-md text-gray-700 hover:bg-gray-100 transition-colors">Academic</button>
+</div>
+<!-- Book Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-16 gap-x-gutter">
+<!-- Book Card 1 -->
+<article class="group relative flex flex-col h-full bg-white rounded-lg border border-gray-200 hover:border-[#1978e5]/50 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden animate-fade-in-up delay-100">
+<div class="aspect-[2/3] w-full bg-gray-50 overflow-hidden relative p-8 flex items-center justify-center">
+<img alt="The Silent Echo Cover" class="w-full h-full object-contain filter drop-shadow-xl transition-transform duration-500 group-hover:scale-105" data-alt="A high-quality, photorealistic mockup of a hardcover book titled 'The Silent Echo'. The book features a minimalist cover design with a deep navy blue background, elegant gold foil typography, and subtle abstract geometric patterns. It rests slightly angled on a pristine, textured cream-colored surface. The lighting is soft and diffused, creating a premium, modern editorial aesthetic suitable for a high-end publishing portfolio." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDINzsJ4Msv0xstTY_-9WM0NHXGWfvBjBeWBoLUhpBLMRnTEgZGcDG5Tnx2R5yzXzskVeppxQVcQrqKvKtTPSpMLHj0D5_68RFwQWD1J94CEwV39IZUpA3hPRW_h4uEzaBd3xTkYySDdgibqpzOFLG8Dg8CT33G52EP8AZ9JM95yQ5kcgPiYztjl-uaX8sMwoHjBspEkimOjb1d0q8vARK9PIqSM0_JyJTSckHeAY6NVhgnTmElzOyu"/>
+<div class="absolute inset-0 bg-[#1978e5]/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center gap-4 backdrop-blur-sm p-6">
+<button class="w-full max-w-[200px] bg-white text-[#1978e5] font-label-md text-label-md py-3 rounded shadow-md hover:bg-gray-50 transition-colors">Buy Now</button>
+<button class="w-full max-w-[200px] border border-white text-white font-label-md text-label-md py-3 rounded hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="visibility">visibility</span> Preview
+                        </button>
+</div>
+</div>
+<div class="p-6 flex flex-col flex-grow">
+<div class="mb-3 flex justify-between items-start">
+<span class="text-[#1978e5] font-label-md text-label-md tracking-widest uppercase">Fiction</span>
+<span class="font-body-md text-body-md text-gray-900 font-semibold">$28.00</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-[#111827] mb-2 line-clamp-2">The Silent Echo</h2>
+<p class="font-body-md text-body-md text-gray-600 text-truncate-3 mb-6 flex-grow">A profound exploration of silence and sound in the modern era. This award-winning novel weaves a tapestry of interwoven lives struggling to find meaning in a deafening world.</p>
+<div class="pt-4 border-t border-gray-200">
+<span class="font-body-md text-body-md text-[#111827] font-medium">By Elena Rostova</span>
+</div>
+</div>
+</article>
+<!-- Book Card 2 -->
+<article class="group relative flex flex-col h-full bg-white rounded-lg border border-gray-200 hover:border-[#1978e5]/50 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden animate-fade-in-up delay-200">
+<div class="aspect-[2/3] w-full bg-gray-50 overflow-hidden relative p-8 flex items-center justify-center">
+<img alt="Architects of Tomorrow Cover" class="w-full h-full object-contain filter drop-shadow-xl transition-transform duration-500 group-hover:scale-105" data-alt="A premium, highly detailed mockup of a non-fiction book titled 'Architects of Tomorrow'. The cover is off-white with stark, minimalist black typography and a subtle, embossed blueprint-style line drawing. It is presented on a clean, light-mode background with soft, directional lighting that highlights the matte texture of the paper cover, embodying a sophisticated, intellectual design language." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAM4DNoQB_PQkV_nxJn6D1BH8ObCGyRo0L6HALgZp5eoz8BnKxulaEqddHc4uHcW5S83vWzsAXXQdxq0JN6EnqrqcuXtAKX5lhEFwhMwABcIvdrYTOJeE-QfYrL-XKXphaw8AjZa6KLy4Gmtz-bsyf5P_BgFS0DPHiqoG7fJw4ifV0sMRXO1CI7_KASmIsUZFUj1wKVKCbn_gJZ8tgCV07ZR7MC5iNxz3D0D11CqYHJsM_DMmmyIhQo"/>
+<div class="absolute inset-0 bg-[#1978e5]/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center gap-4 backdrop-blur-sm p-6">
+<button class="w-full max-w-[200px] bg-white text-[#1978e5] font-label-md text-label-md py-3 rounded shadow-md hover:bg-gray-50 transition-colors">Buy Now</button>
+<button class="w-full max-w-[200px] border border-white text-white font-label-md text-label-md py-3 rounded hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="visibility">visibility</span> Preview
+                        </button>
+</div>
+</div>
+<div class="p-6 flex flex-col flex-grow">
+<div class="mb-3 flex justify-between items-start">
+<span class="text-[#1978e5] font-label-md text-label-md tracking-widest uppercase">Non-Fiction</span>
+<span class="font-body-md text-body-md text-gray-900 font-semibold">$34.00</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-[#111827] mb-2 line-clamp-2">Architects of Tomorrow</h2>
+<p class="font-body-md text-body-md text-gray-600 text-truncate-3 mb-6 flex-grow">An analytical dive into the societal shifts driven by artificial intelligence. Required reading for understanding the structural foundations of our impending future.</p>
+<div class="pt-4 border-t border-gray-200">
+<span class="font-body-md text-body-md text-[#111827] font-medium">By Dr. Julian Vance</span>
+</div>
+</div>
+</article>
+<!-- Book Card 3 -->
+<article class="group relative flex flex-col h-full bg-white rounded-lg border border-gray-200 hover:border-[#1978e5]/50 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden animate-fade-in-up delay-300">
+<div class="aspect-[2/3] w-full bg-gray-50 overflow-hidden relative p-8 flex items-center justify-center">
+<img alt="Whispers in the Glass Cover" class="w-full h-full object-contain filter drop-shadow-xl transition-transform duration-500 group-hover:scale-105" data-alt="An elegant mockup of a poetry collection book titled 'Whispers in the Glass'. The cover features a rich burgundy background with delicate, gold-leaf floral illustrations and classic serif typography. The book is standing slightly open on a polished marble surface under warm, gentle gallery lighting, reflecting a luxurious, classical publishing aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIymbZ1GFAfE6uyF100yGfH4JCjoazOaLdvU0el4e31yZMjOnHudWoDOOYO7JkxAeJ2tiwKoJ2IhLu9M653cl0eBwPOdbOIjXifVct1Lbkn2ihIQ6DegUetSIvcCyCkKCW-Bc_A42ih93ayF6rUikYYi66VIlsvOpiQEXAjRp5Y_qzHbeM963ZgvYioaNajg0JyIAgTsy1rucJfhFHjJQ4z4fKlb0tNmv6ibadn8KhLkxmGGlVfMRT"/>
+<div class="absolute inset-0 bg-[#1978e5]/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center gap-4 backdrop-blur-sm p-6">
+<button class="w-full max-w-[200px] bg-white text-[#1978e5] font-label-md text-label-md py-3 rounded shadow-md hover:bg-gray-50 transition-colors">Buy Now</button>
+<button class="w-full max-w-[200px] border border-white text-white font-label-md text-label-md py-3 rounded hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="visibility">visibility</span> Preview
+                        </button>
+</div>
+</div>
+<div class="p-6 flex flex-col flex-grow">
+<div class="mb-3 flex justify-between items-start">
+<span class="text-[#1978e5] font-label-md text-label-md tracking-widest uppercase">Poetry</span>
+<span class="font-body-md text-body-md text-gray-900 font-semibold">$22.00</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-[#111827] mb-2 line-clamp-2">Whispers in the Glass</h2>
+<p class="font-body-md text-body-md text-gray-600 text-truncate-3 mb-6 flex-grow">A delicate collection of verses capturing the fragility of memory and the resilience of the human spirit. Masterfully composed and beautifully bound.</p>
+<div class="pt-4 border-t border-gray-200">
+<span class="font-body-md text-body-md text-[#111827] font-medium">By Clara Hughes</span>
+</div>
+</div>
+</article>
+</div>
+<!-- Pagination -->
+<div class="mt-16 flex justify-center items-center gap-2 animate-fade-in-up delay-300">
+<button class="w-10 h-10 flex items-center justify-center border border-gray-300 text-gray-600 rounded hover:bg-gray-100 transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center border border-[#1978e5] bg-[#1978e5] text-white rounded font-label-md text-label-md">1</button>
+<button class="w-10 h-10 flex items-center justify-center border border-gray-300 text-gray-600 rounded hover:bg-gray-100 transition-colors font-label-md text-label-md">2</button>
+<button class="w-10 h-10 flex items-center justify-center border border-gray-300 text-gray-600 rounded hover:bg-gray-100 transition-colors font-label-md text-label-md">3</button>
+<span class="text-gray-600">...</span>
+<button class="w-10 h-10 flex items-center justify-center border border-gray-300 text-gray-600 rounded hover:bg-gray-100 transition-colors font-label-md text-label-md">8</button>
+<button class="w-10 h-10 flex items-center justify-center border border-gray-300 text-gray-600 rounded hover:bg-gray-100 transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-white text-[#111827] w-full pt-16 pb-8 border-t border-gray-200 animate-fade-in-up">
+<div class="max-w-container-max mx-auto px-margin-desktop grid grid-cols-1 md:grid-cols-4 gap-gutter">
+<div class="col-span-1 md:col-span-2 mb-8 md:mb-0">
+<div class="mb-6 flex items-center gap-4">
+<img alt="House of Memoir Logo" class="w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VzsfuRh-KKnC61w55ByraZk7ITo88Ag8SlhvETLNElPFBeLD3As3SF7p_3ZjjOrM0Irj3UjTK09kud7tH94FWX8YOj8cn4W3OISOV4VuWV3_UFLPytx_Pex6YaIyae9McYTqe5KqWomaIx0E0xmX55wKjQ7U1UjWc9txwJa6cUoq2OA8aEzPBxz59CqoPktdj8l-hS6QdYfcw3cHkeaimxDYNYBsm5ySytIblko5orIevoJBeNC8gprmM" style="height: 100px;"/>
+<div class="flex flex-col justify-center">
+<span class="font-headline-md text-[28px] text-[#111827] leading-none font-bold">House of Memoir</span>
+<span class="font-label-md text-[12px] text-[#1978e5] mt-1 tracking-widest uppercase">Write Your Legacy. Words Never Die</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-gray-600 max-w-sm">Elevating the written word through uncompromising editorial standards and timeless design.</p>
+</div>
+<div class="flex flex-col gap-4">
+<a class="font-body-md text-body-md text-gray-600 hover:text-[#1978e5] transition-colors" href="#">Privacy Policy</a>
+<a class="font-body-md text-body-md text-gray-600 hover:text-[#1978e5] transition-colors" href="#">Terms of Service</a>
+<a class="font-body-md text-body-md text-gray-600 hover:text-[#1978e5] transition-colors" href="#">FAQ</a>
+</div>
+<div class="flex flex-col gap-4">
+<a class="font-body-md text-body-md text-gray-600 hover:text-[#1978e5] transition-colors" href="#">Careers</a>
+<a class="font-body-md text-body-md text-gray-600 hover:text-[#1978e5] transition-colors" href="#">Contact</a>
+</div>
+</div>
+<div class="max-w-container-max mx-auto px-margin-desktop mt-16 pt-8 border-t border-gray-200">
+<p class="font-body-md text-body-md text-gray-500 text-sm">© 2024 House of Memoir. All rights reserved.</p>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,116 @@
+/* Custom Stylesheet for House of Memoir */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  opacity: 0;
+  animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-scale-up {
+  animation: scaleUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* Custom Ambient Shadows */
+.ambient-shadow {
+  box-shadow: 0 10px 40px -10px rgba(0, 6, 19, 0.08);
+}
+
+.card-border {
+  border: 1px solid rgba(25, 120, 229, 0.12);
+}
+
+/* Minimalist Form Inputs */
+.input-minimal {
+  border-bottom: 1px solid rgba(142, 144, 153, 0.4);
+  transition: all 0.3s ease;
+}
+
+.input-minimal:focus {
+  border-bottom-color: #1978e5;
+  outline: none;
+  box-shadow: none;
+}
+
+/* Multi-step form step hiding/showing */
+.form-step {
+  display: none;
+}
+
+.form-step.active {
+  display: block;
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* Accordion Smooth Height */
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Book Card Hover Effect */
+.book-card {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.book-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px -15px rgba(25, 120, 229, 0.15);
+}
+
+/* Modal Overlay */
+.modal-backdrop {
+  background: rgba(0, 6, 19, 0.65);
+  backdrop-filter: blur(6px);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f9f9ff;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #1978e5;
+}

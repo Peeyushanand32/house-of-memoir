@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+
+<html lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title class="">Appointment and Enquiry | House of Memoir</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    theme: {
+      extend: {
+        "colors": {
+                "primary-container": "#f1f5f9",
+                "secondary-fixed": "#1565c0",
+                "on-secondary-container": "#1e293b",
+                "paper-white": "#ffffff",
+                "on-background": "#1e293b",
+                "inverse-primary": "#cbd5e1",
+                "primary": "#3b82f6",
+                "surface-container": "#f8fafc",
+                "on-error-container": "#991b1b",
+                "on-error": "#ffffff",
+                "outline": "#94a3b8",
+                "on-secondary": "#ffffff",
+                "on-tertiary-fixed": "#1e293b",
+                "on-secondary-fixed": "#ffffff",
+                "inverse-surface": "#1e293b",
+                "error": "#ef4444",
+                "surface-container-lowest": "#ffffff",
+                "surface-bright": "#ffffff",
+                "on-surface": "#0f172a",
+                "surface": "#ffffff",
+                "outline-variant": "#cbd5e1",
+                "background": "#f9f9ff",
+                "primary-fixed-dim": "#60a5fa",
+                "error-container": "#fee2e2",
+                "on-surface-variant": "#475569",
+                "surface-container-low": "#ffffff",
+                "tertiary-container": "#f1f5f9",
+                "primary-fixed": "#bfdbfe",
+                "secondary-fixed-dim": "#1e40af",
+                "ink-dim": "#64748b",
+                "tertiary": "#64748b",
+                "on-primary-fixed-variant": "#1e3a8a",
+                "inverse-on-surface": "#f1f5f9",
+                "surface-tint": "#1978e5",
+                "surface-variant": "#e2e8f0",
+                "secondary": "#1978e5",
+                "on-tertiary": "#ffffff",
+                "surface-dim": "#f8fafc",
+                "on-tertiary-fixed-variant": "#334155",
+                "surface-container-highest": "#e2e8f0",
+                "on-primary-fixed": "#1e3a8a",
+                "on-secondary-fixed-variant": "#ffffff",
+                "tertiary-fixed": "#e2e8f0",
+                "on-tertiary-container": "#334155",
+                "secondary-container": "#dbeafe",
+                "on-primary-container": "#1e3a8a",
+                "heritage-navy": "#f9f9ff",
+                "on-primary": "#ffffff",
+                "tertiary-fixed-dim": "#cbd5e1",
+                "surface-container-high": "#f1f5f9",
+                "gold-accent": "#1978e5"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "gutter": "24px",
+                "unit": "8px",
+                "section-gap": "128px",
+                "margin-desktop": "80px",
+                "margin-mobile": "20px",
+                "container-max": "1200px"
+        },
+        "fontFamily": {
+                "display-lg": [
+                        "Playfair Display"
+                ],
+                "headline-md": [
+                        "Playfair Display"
+                ],
+                "caption": [
+                        "Inter"
+                ],
+                "headline-lg": [
+                        "Playfair Display"
+                ],
+                "label-md": [
+                        "Inter"
+                ],
+                "headline-lg-mobile": [
+                        "Playfair Display"
+                ],
+                "body-lg": [
+                        "Inter"
+                ],
+                "body-md": [
+                        "Inter"
+                ]
+        },
+        "fontSize": {
+                "display-lg": [
+                        "64px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-md": [
+                        "32px",
+                        {
+                                "lineHeight": "1.3",
+                                "fontWeight": "600"
+                        }
+                ],
+                "caption": [
+                        "12px",
+                        {
+                                "lineHeight": "1.4",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "1.4",
+                                "letterSpacing": "0.1em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "1.6",
+                                "fontWeight": "400"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        body { background-color: theme('colors.heritage-navy'); color: theme('colors.on-background'); }
+        .ambient-shadow { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06); }
+        .input-minimal { border-bottom: 1px solid theme('colors.outline-variant'); transition: border-color 0.3s ease; }
+        .input-minimal:focus { border-bottom-color: theme('colors.secondary'); outline: none; box-shadow: none; }
+        .form-step { display: none; }
+        .form-step.active { display: block; animation: fadeInUp 0.5s ease-out forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col bg-heritage-navy text-on-surface">
+<!-- TopNavBar -->
+<nav class="bg-heritage-navy/90 backdrop-blur-md sticky top-0 w-full z-50 border-b border-surface-variant/50">
+<div class="max-w-container-max mx-auto px-margin-desktop flex justify-between items-center h-24">
+<div class="flex items-center"><div class="flex items-center gap-4"><img alt="House of Memoir Logo" class="h-16 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VzsfuRh-KKnC61w55ByraZk7ITo88Ag8SlhvETLNElPFBeLD3As3SF7p_3ZjjOrM0Irj3UjTK09kud7tH94FWX8YOj8cn4W3OISOV4VuWV3_UFLPytx_Pex6YaIyae9McYTqe5KqWomaIx0E0xmX55wKjQ7U1UjWc9txwJa6cUoq2OA8aEzPBxz59CqoPktdj8l-hS6QdYfcw3cHkeaimxDYNYBsm5ySytIblko5orIevoJBeNC8gprmM"/><div class="flex flex-col justify-center"><span class="font-headline-md text-headline-md text-on-surface leading-none mb-1">House of Memoir</span><span class="font-caption text-caption text-secondary tracking-widest uppercase opacity-90 font-semibold">Write Your Legacy. Words Never Die</span></div></div></div>
+<div class="hidden md:flex font-label-md text-label-md gap-8">
+<a class="text-on-surface-variant hover:text-secondary transition-colors duration-300" href="#">Home</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors duration-300" href="#">About</a><a class="text-on-surface-variant hover:text-secondary transition-colors duration-300" href="#">Services</a>
+<a class="text-secondary border-b-2 border-secondary pb-1" href="#">Appointment and Enquiry</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors duration-300" href="#">Portfolio</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors duration-300" href="#">Testimonials</a>
+</div>
+<button class="font-label-md text-label-md bg-secondary text-heritage-navy px-8 py-3 rounded hover:bg-secondary-fixed transition-all duration-300 active:scale-95">Submit Manuscript</button>
+</div>
+</nav>
+<!-- Main Canvas -->
+<main class="flex-grow max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-24 w-full">
+<!-- Header Section -->
+<header class="mb-16 md:mb-24 text-center max-w-3xl mx-auto" style="animation: fadeInUp 0.8s ease-out forwards;">
+<h1 class="font-display-lg text-display-lg text-on-surface mb-6">Appointment and Enquiry</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Whether you are submitting a manuscript for our review or scheduling a private consultation with our editorial team, we are honored to consider your work.</p>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+<!-- Left Column: Form & Booking (Takes up 7 columns on large screens) -->
+<div class="lg:col-span-7 space-y-12">
+<!-- Submission Form Widget -->
+<section class="bg-surface-container-low p-8 md:p-12 border border-surface-variant/60 rounded ambient-shadow relative overflow-hidden" style="animation: fadeInUp 1s ease-out forwards; animation-delay: 0.2s;">
+<!-- Subtle Decorative Background Element -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-secondary/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2">Manuscript Submission</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-8">Please provide the necessary details for our initial review process.</p>
+<!-- Progress Indicator -->
+<div class="flex items-center gap-4 mb-8">
+<div class="flex-1 h-1 bg-secondary rounded"></div>
+<div class="flex-1 h-1 bg-surface-variant rounded" id="step-2-indicator"></div>
+<div class="flex-1 h-1 bg-surface-variant rounded" id="step-3-indicator"></div>
+</div>
+<form class="relative z-10" id="submission-form">
+<!-- Step 1: Author Details -->
+<div class="form-step active" id="step-1">
+<h3 class="font-label-md text-label-md text-secondary uppercase tracking-widest mb-6">Author Information</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+<div class="flex flex-col">
+<label class="font-caption text-caption text-on-surface-variant mb-2">First Name</label>
+<input class="input-minimal bg-transparent border-0 border-b py-2 font-body-md text-body-md text-on-surface" placeholder="Jane" type="text"/>
+</div>
+<div class="flex flex-col">
+<label class="font-caption text-caption text-on-surface-variant mb-2">Last Name</label>
+<input class="input-minimal bg-transparent border-0 border-b py-2 font-body-md text-body-md text-on-surface" placeholder="Doe" type="text"/>
+</div>
+<div class="flex flex-col md:col-span-2">
+<label class="font-caption text-caption text-on-surface-variant mb-2">Email Address</label>
+<input class="input-minimal bg-transparent border-0 border-b py-2 font-body-md text-body-md text-on-surface" placeholder="author@example.com" type="email"/>
+</div>
+</div>
+<div class="flex justify-end">
+<button class="bg-secondary text-heritage-navy font-label-md text-label-md px-8 py-3 rounded hover:bg-secondary-fixed transition-colors" onclick="nextStep(2)" type="button">Continue</button>
+</div>
+</div>
+<!-- Step 2: Manuscript Details -->
+<div class="form-step" id="step-2">
+<h3 class="font-label-md text-label-md text-secondary uppercase tracking-widest mb-6">Manuscript Details</h3>
+<div class="space-y-6 mb-8">
+<div class="flex flex-col">
+<label class="font-caption text-caption text-on-surface-variant mb-2">Working Title</label>
+<input class="input-minimal bg-transparent border-0 border-b py-2 font-body-md text-body-md text-on-surface" placeholder="The Silent Echo" type="text"/>
+</div>
+<div class="flex flex-col">
+<label class="font-caption text-caption text-on-surface-variant mb-2">Genre</label>
+<select class="input-minimal bg-transparent border-0 border-b py-2 font-body-md text-body-md text-on-surface appearance-none focus:ring-0 bg-surface-container-low">
+<option>Literary Fiction</option>
+<option>Historical Fiction</option>
+<option>Memoir</option>
+<option>Poetry</option>
+</select>
+</div>
+<div class="flex flex-col">
+<label class="font-caption text-caption text-on-surface-variant mb-2">Synopsis (Max 500 words)</label>
+<textarea class="input-minimal bg-transparent border-0 border-b py-2 font-body-md text-body-md text-on-surface resize-none h-24" placeholder="Briefly describe the narrative arc..."></textarea>
+</div>
+</div>
+<div class="flex justify-between">
+<button class="text-on-surface-variant font-label-md text-label-md px-6 py-3 hover:text-secondary transition-colors" onclick="prevStep(1)" type="button">Back</button>
+<button class="bg-secondary text-heritage-navy font-label-md text-label-md px-8 py-3 rounded hover:bg-secondary-fixed transition-colors" onclick="nextStep(3)" type="button">Continue</button>
+</div>
+</div>
+<!-- Step 3: Upload -->
+<div class="form-step" id="step-3">
+<h3 class="font-label-md text-label-md text-secondary uppercase tracking-widest mb-6">Upload Document</h3>
+<div class="border-2 border-dashed border-outline-variant rounded p-12 text-center mb-8 hover:border-secondary transition-colors cursor-pointer group bg-surface-container-low">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant group-hover:text-secondary transition-colors mb-4">upload_file</span>
+<p class="font-body-md text-body-md text-on-surface mb-2">Drag and drop your manuscript here</p>
+<p class="font-caption text-caption text-on-surface-variant">Accepted formats: .doc, .docx, .pdf (Max 10MB)</p>
+</div>
+<div class="flex justify-between">
+<button class="text-on-surface-variant font-label-md text-label-md px-6 py-3 hover:text-secondary transition-colors" onclick="prevStep(2)" type="button">Back</button>
+<button class="bg-secondary text-heritage-navy font-label-md text-label-md px-8 py-3 rounded hover:bg-secondary-fixed transition-colors" type="submit">Submit Application</button>
+</div>
+</div>
+</form>
+</section>
+</div>
+<!-- Right Column: Booking & FAQ (Takes up 5 columns) -->
+<div class="lg:col-span-5 space-y-12">
+<!-- Booking Widget -->
+<section class="bg-surface-container-lowest text-on-surface p-8 md:p-12 border border-surface-variant/60 rounded ambient-shadow relative overflow-hidden" style="animation: fadeInUp 1s ease-out forwards; animation-delay: 0.4s;">
+<div class="relative z-10">
+<h2 class="font-headline-md text-headline-md mb-2 text-on-surface">Book a Consultation</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-8">Schedule a 1-on-1 session with an acquiring editor.</p>
+<!-- Simple Calendar UI Simulation -->
+<div class="bg-surface-container-low rounded p-6 mb-6 border border-surface-variant/60">
+<div class="flex justify-between items-center mb-6">
+<span class="material-symbols-outlined cursor-pointer hover:text-secondary transition-colors">chevron_left</span>
+<span class="font-label-md text-label-md font-bold uppercase tracking-widest text-on-surface">October 2024</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-secondary transition-colors">chevron_right</span>
+</div>
+<div class="grid grid-cols-7 gap-2 text-center font-caption text-caption mb-2 text-on-surface-variant">
+<div class="">S</div><div class="">M</div><div class="">T</div><div class="">W</div><div class="">T</div><div class="">F</div><div class="">S</div>
+</div>
+<div class="grid grid-cols-7 gap-2 text-center font-body-md text-body-md">
+<div class="opacity-30 text-on-surface">29</div><div class="opacity-30 text-on-surface">30</div>
+<div class="py-1 cursor-pointer hover:bg-secondary/10 rounded text-on-surface">1</div>
+<div class="py-1 cursor-pointer hover:bg-secondary/10 rounded text-on-surface">2</div>
+<div class="py-1 cursor-pointer bg-secondary text-heritage-navy rounded font-bold">3</div>
+<div class="py-1 cursor-pointer hover:bg-secondary/10 rounded text-on-surface">4</div>
+<div class="py-1 cursor-pointer hover:bg-secondary/10 rounded text-on-surface">5</div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-3 mb-8">
+<button class="border border-outline-variant py-2 rounded font-label-md text-label-md hover:bg-surface-container-high transition-colors text-on-surface">09:00</button>
+<button class="bg-secondary text-heritage-navy py-2 rounded font-label-md text-label-md font-bold">11:30</button>
+<button class="border border-outline-variant py-2 rounded font-label-md text-label-md hover:bg-surface-container-high transition-colors text-on-surface">14:00</button>
+</div>
+<button class="w-full bg-secondary text-heritage-navy font-label-md text-label-md py-3 rounded hover:bg-secondary-fixed transition-colors">Confirm Appointment</button>
+</div>
+</section>
+<!-- FAQ Accordion -->
+<section class="bg-surface-container-low p-8 border border-surface-variant/60 rounded ambient-shadow" style="animation: fadeInUp 1s ease-out forwards; animation-delay: 0.6s;">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-6">Frequent Inquiries</h2>
+<div class="space-y-4">
+<div class="border-b border-surface-variant pb-4">
+<button class="w-full flex justify-between items-center text-left focus:outline-none" onclick="toggleAccordion('faq1', this)">
+<span class="font-label-md text-label-md text-on-surface">What is the typical response time?</span>
+<span class="material-symbols-outlined text-on-surface-variant transition-transform duration-300">expand_more</span>
+</button>
+<div class="accordion-content" id="faq1">
+<p class="font-body-md text-body-md text-on-surface-variant pt-4">Our editorial board typically reviews submissions within 6 to 8 weeks. You will receive an email notification regarding our decision.</p>
+</div>
+</div>
+<div class="border-b border-surface-variant pb-4">
+<button class="w-full flex justify-between items-center text-left focus:outline-none" onclick="toggleAccordion('faq2', this)">
+<span class="font-label-md text-label-md text-on-surface">Do you accept unagented submissions?</span>
+<span class="material-symbols-outlined text-on-surface-variant transition-transform duration-300">expand_more</span>
+</button>
+<div class="accordion-content" id="faq2">
+<p class="font-body-md text-body-md text-on-surface-variant pt-4">Yes, House of Memoir prides itself on discovering new voices directly. No literary agent is required to submit your manuscript.</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- Support Floating Widget -->
+<div class="fixed bottom-8 right-8 z-50">
+<button class="bg-secondary text-heritage-navy p-4 rounded-full shadow-lg hover:scale-105 transition-transform flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">chat</span>
+</button>
+</div>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest w-full pt-16 pb-8 border-t border-surface-variant/50">
+<div class="max-w-container-max mx-auto px-margin-desktop grid grid-cols-1 md:grid-cols-4 gap-gutter">
+<div class="col-span-1 md:col-span-1">
+<div class="mb-6 flex items-center gap-4"><img alt="House of Memoir Logo" class="h-24 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VzsfuRh-KKnC61w55ByraZk7ITo88Ag8SlhvETLNElPFBeLD3As3SF7p_3ZjjOrM0Irj3UjTK09kud7tH94FWX8YOj8cn4W3OISOV4VuWV3_UFLPytx_Pex6YaIyae9McYTqe5KqWomaIx0E0xmX55wKjQ7U1UjWc9txwJa6cUoq2OA8aEzPBxz59CqoPktdj8l-hS6QdYfcw3cHkeaimxDYNYBsm5ySytIblko5orIevoJBeNC8gprmM"/><div class="flex flex-col justify-center"><span class="font-headline-md text-headline-md text-on-surface leading-none">House of Memoir</span><span class="font-caption text-caption text-secondary tracking-wider uppercase font-semibold">Write Your Legacy. Words Never Die</span></div></div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">© 2024 House of Memoir. All rights reserved.</p>
+</div>
+<div class="col-span-1 md:col-span-3 flex flex-wrap gap-6 md:justify-end items-start font-body-md text-body-md">
+<a class="text-on-surface-variant hover:text-secondary transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors opacity-80 hover:opacity-100" href="#">FAQ</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors opacity-80 hover:opacity-100" href="#">Careers</a>
+<a class="text-secondary font-bold opacity-80 hover:opacity-100" href="#">Contact</a>
+</div>
+</div>
+</footer>
+<script>
+        function nextStep(step) {
+            document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step-${step}`).classList.add('active');
+            
+            // Update indicators
+            if(step >= 2) document.getElementById('step-2-indicator').classList.replace('bg-surface-variant', 'bg-secondary');
+            if(step >= 3) document.getElementById('step-3-indicator').classList.replace('bg-surface-variant', 'bg-secondary');
+        }
+
+        function prevStep(step) {
+            document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step-${step}`).classList.add('active');
+            
+            // Update indicators
+            if(step < 3) document.getElementById('step-3-indicator').classList.replace('bg-secondary', 'bg-surface-variant');
+            if(step < 2) document.getElementById('step-2-indicator').classList.replace('bg-secondary', 'bg-surface-variant');
+        }
+
+        function toggleAccordion(id, btn) {
+            const content = document.getElementById(id);
+            const icon = btn.querySelector('.material-symbols-outlined');
+            
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+    </script>
+</body></html>

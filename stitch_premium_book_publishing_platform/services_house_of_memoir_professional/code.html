@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title class="">Service</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-secondary": "#ffffff",
+                "inverse-surface": "#34302c",
+                "on-background": "#1e1b18",
+                "on-secondary-container": "#666643",
+                "surface": "#f9f9ff",
+                "primary": "#1978e5",
+                "primary-fixed-dim": "#afc8f0",
+                "on-tertiary-fixed-variant": "#574500",
+                "tertiary-fixed": "#ffe088",
+                "secondary": "#60603e",
+                "outline-variant": "#c4c6cf",
+                "secondary-fixed-dim": "#cac99f",
+                "on-tertiary-fixed": "#241a00",
+                "surface-container-low": "#fbf2ed",
+                "error-container": "#ffdad6",
+                "inverse-on-surface": "#f8efea",
+                "tertiary-container": "#1978e5",
+                "on-surface": "#1e1b18",
+                "primary-fixed": "#d4e3ff",
+                "surface-dim": "#e1d8d4",
+                "tertiary": "#735c00",
+                "surface-container-lowest": "#ffffff",
+                "on-secondary-fixed": "#1d1d03",
+                "on-surface-variant": "#43474e",
+                "surface-tint": "#476083",
+                "outline": "#74777f",
+                "surface-variant": "#e9e1dc",
+                "on-primary-fixed": "#001c3a",
+                "error": "#ba1a1a",
+                "surface-container": "#f5ece7",
+                "primary-container": "#f0f5ff",
+                "secondary-container": "#e6e5b9",
+                "on-tertiary-container": "#ffffff",
+                "surface-container-highest": "#e9e1dc",
+                "tertiary-fixed-dim": "#e9c349",
+                "on-primary-container": "#1978e5",
+                "inverse-primary": "#afc8f0",
+                "on-secondary-fixed-variant": "#484828",
+                "on-primary": "#ffffff",
+                "surface-container-high": "#efe6e2",
+                "on-error": "#ffffff",
+                "on-tertiary": "#ffffff",
+                "background": "#f9f9ff",
+                "surface-bright": "#f9f9ff",
+                "on-primary-fixed-variant": "#2f486a",
+                "secondary-fixed": "#e6e5b9",
+                "on-error-container": "#93000a"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "container-max": "1280px",
+                "margin-mobile": "16px",
+                "unit": "8px",
+                "margin-desktop": "64px",
+                "gutter": "24px"
+        },
+        "fontFamily": {
+                "caption": [
+                        "Inter"
+                ],
+                "body-md": [
+                        "Inter"
+                ],
+                "headline-md": [
+                        "Playfair Display"
+                ],
+                "body-lg": [
+                        "Inter"
+                ],
+                "label-md": [
+                        "Inter"
+                ],
+                "display-lg": [
+                        "Playfair Display"
+                ],
+                "headline-lg-mobile": [
+                        "Playfair Display"
+                ],
+                "headline-lg": [
+                        "Playfair Display"
+                ]
+        },
+        "fontSize": {
+                "caption": [
+                        "12px",
+                        {
+                                "lineHeight": "1.4",
+                                "fontWeight": "400"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "32px",
+                        {
+                                "lineHeight": "1.3",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "1.6",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "1.4",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "display-lg": [
+                        "64px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .ambient-shadow {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        .thin-border {
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .luxury-button {
+            transition: all 0.3s ease;
+        }
+        .luxury-button:hover {
+            background-color: #1259a8; 
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(25, 120, 229, 0.2);
+        }
+        
+        /* Cinematic Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            opacity: 0;
+        }
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased selection:bg-tertiary-container selection:text-on-tertiary-container">
+<!-- TopNavBar -->
+<nav class="bg-background/90 backdrop-blur-md sticky top-0 w-full z-50 border-b border-black/5 shadow-sm animate-fade-in-up">
+<div class="max-w-container-max mx-auto px-margin-desktop flex justify-between items-center h-20">
+<a class="font-headline-md text-headline-md text-on-background tracking-tight" href="#"><div class="flex items-center gap-4"><img alt="House of Memoir Logo" class="h-16 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VzsfuRh-KKnC61w55ByraZk7ITo88Ag8SlhvETLNElPFBeLD3As3SF7p_3ZjjOrM0Irj3UjTK09kud7tH94FWX8YOj8cn4W3OISOV4VuWV3_UFLPytx_Pex6YaIyae9McYTqe5KqWomaIx0E0xmX55wKjQ7U1UjWc9txwJa6cUoq2OA8aEzPBxz59CqoPktdj8l-hS6QdYfcw3cHkeaimxDYNYBsm5ySytIblko5orIevoJBeNC8gprmM"/><div class="flex flex-col justify-center"><span class="font-headline-md text-headline-md text-on-background leading-none">House of Memoir</span><span class="font-label-md text-[10px] uppercase text-primary tracking-[0.2em] mt-1">Write Your Legacy. Words Never Die</span></div></div></a>
+<div class="hidden md:flex items-center font-label-md text-label-md gap-8"><a class="text-on-background/70 hover:text-primary transition-colors duration-300" href="#">Home</a><a class="text-on-background/70 hover:text-primary transition-colors duration-300" href="#">About</a><a class="text-on-background/70 hover:text-primary transition-colors duration-300" href="#">Services</a><a class="text-primary border-b-2 border-primary pb-1" href="#">Appointment and Enquiry</a><a class="text-on-background/70 hover:text-primary transition-colors duration-300" href="#">Portfolio</a><a class="text-on-background/70 hover:text-primary transition-colors duration-300" href="#">Testimonials</a></div>
+<button class="hidden md:block bg-primary text-white font-label-md text-label-md px-8 py-3 rounded-full luxury-button active:scale-95 transition-all">
+                Submit Manuscript
+            </button>
+<button class="md:hidden text-primary">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</div>
+</nav>
+<main class="w-full">
+<!-- Hero Section -->
+<section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-24 md:py-32 flex flex-col items-center text-center animate-fade-in-up stagger-1">
+<span class="font-label-md text-label-md text-primary uppercase tracking-widest border border-primary px-4 py-1 rounded-full mb-8">Our Expertise</span>
+<h1 class="font-display-lg text-display-lg text-on-background mb-6 max-w-3xl">Crafting Masterpieces, Start to Finish.</h1>
+<p class="font-body-lg text-body-lg text-on-background/80 max-w-2xl mb-12">From the first developmental edit to global distribution, House of Memoir provides comprehensive publishing services tailored for discerning authors who demand excellence in every detail.</p>
+</section>
+<!-- Services Bento Grid -->
+<section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop pb-32">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Manuscript Assessment -->
+<div class="md:col-span-2 bg-white p-8 rounded-lg thin-border ambient-shadow relative overflow-hidden group animate-fade-in-up stagger-1">
+<div class="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-primary to-transparent pointer-events-none"></div>
+<span class="material-symbols-outlined text-4xl text-primary mb-6" data-icon="edit_document">edit_document</span>
+<h3 class="font-headline-md text-headline-md text-on-background mb-4">Manuscript Assessment</h3>
+<p class="font-body-md text-body-md text-on-background/80 max-w-lg mb-8">
+                        A rigorous, structural evaluation of your work. Our veteran editors analyze pacing, character arc, and thematic resonance, providing actionable insights to elevate your narrative to its highest potential.
+                    </p>
+<ul class="space-y-3 font-body-md text-body-md text-on-background/80">
+<li class="flex items-center"><span class="material-symbols-outlined mr-2 text-primary" data-icon="check">check</span> Structural Analysis</li>
+<li class="flex items-center"><span class="material-symbols-outlined mr-2 text-primary" data-icon="check">check</span> Character Development Review</li>
+<li class="flex items-center"><span class="material-symbols-outlined mr-2 text-primary" data-icon="check">check</span> Detailed Editorial Letter</li>
+</ul>
+</div>
+<!-- Cover Design -->
+<div class="bg-white p-8 rounded-lg thin-border ambient-shadow relative animate-fade-in-up stagger-2">
+<span class="material-symbols-outlined text-4xl text-primary mb-6" data-icon="brush">brush</span>
+<h3 class="font-headline-md text-headline-md text-on-background mb-4">Cover Design</h3>
+<p class="font-body-md text-body-md text-on-background/80 mb-8">
+                        Bespoke visual identities. We design covers that serve as premium packaging for your literary art, ensuring shelf appeal and digital prominence.
+                    </p>
+<div class="h-32 w-full bg-surface-container rounded thin-border mb-4 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A sophisticated, minimalist book cover mockup leaning against a raw concrete wall. The design features elegant serif typography and a subtle geometric gold foil stamp. Soft, natural studio lighting creates a premium, high-contrast light mode aesthetic, emphasizing the texture of fine paper." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBx3Ys-DDZTk8OjvGfPkzrsDZ1Q5R-uZogUdPe1G7hZtQ6vrKv1v_C_fTGxYuVNc68mDjczBu5xMe7wPgP3VTjdvfssA8ZJoWOYaNWxvY_w5bW17D5Xn5HWfpWVRuYMMsUx2KAiPVtjXSXvZFtEQaQ2SdvNApCJjlZ54nUkbxBGRB1nIhBg6RnGIhdH5Xrgbv9cEehIzS-aTsw3wT7J8VPx7D5g_pLJxzNdKTVtCbm4JrtVzcgBSqx4"/>
+</div>
+</div>
+<!-- Formatting -->
+<div class="bg-white p-8 rounded-lg thin-border ambient-shadow animate-fade-in-up stagger-3">
+<span class="material-symbols-outlined text-4xl text-primary mb-6" data-icon="auto_awesome_mosaic">auto_awesome_mosaic</span>
+<h3 class="font-headline-md text-headline-md text-on-background mb-4">Interior Formatting</h3>
+<p class="font-body-md text-body-md text-on-background/80">
+                        Typesetting in the classical tradition. Flawless margins, elegant drop caps, and perfect justification for both print and digital formats, ensuring a luxurious reading experience.
+                    </p>
+</div>
+<!-- ISBN/Copyright & Distribution -->
+<div class="md:col-span-2 bg-primary text-white p-8 rounded-lg thin-border ambient-shadow flex flex-col md:flex-row gap-8 animate-fade-in-up stagger-4">
+<div class="flex-1">
+<span class="material-symbols-outlined text-4xl text-white/80 mb-6" data-icon="copyright">copyright</span>
+<h3 class="font-headline-md text-headline-md text-white mb-4">ISBN &amp; Copyright</h3>
+<p class="font-body-md text-body-md text-white/80">
+                            Navigating the legalities of publishing. We handle all registration, metadata optimization, and copyright filing to protect your intellectual property globally.
+                        </p>
+</div>
+<div class="hidden md:block w-px bg-white/20"></div>
+<div class="flex-1">
+<span class="material-symbols-outlined text-4xl text-white/80 mb-6" data-icon="public">public</span>
+<h3 class="font-headline-md text-headline-md text-white mb-4">Global Distribution</h3>
+<p class="font-body-md text-body-md text-white/80">
+                            Placement in over 40,000 retail networks worldwide. From independent bookstores to major online retailers, we ensure your book is accessible everywhere.
+                        </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Pricing/Package Table -->
+<section class="bg-white border-t border-black/5 py-32 animate-fade-in-up stagger-1">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="text-center mb-16">
+<h2 class="font-display-lg text-display-lg text-on-background mb-4">Publishing Packages</h2>
+<p class="font-body-lg text-body-lg text-on-background/80 max-w-2xl mx-auto">Transparent tiers designed to support authors at every stage of their journey.</p>
+</div>
+<div class="overflow-x-auto pb-8">
+<table class="w-full text-left border-collapse min-w-[800px]">
+<thead>
+<tr>
+<th class="w-1/4 p-6 border-b border-black/5 font-headline-md text-headline-md text-on-background">Features</th>
+<th class="w-1/4 p-6 border-b border-black/5 bg-surface-container rounded-t-lg animate-fade-in-up stagger-2">
+<div class="font-label-md text-label-md text-primary uppercase tracking-widest mb-2">The Digital</div>
+<div class="font-headline-md text-headline-md text-on-background">Essential</div>
+</th>
+<th class="w-1/4 p-6 border-b border-primary/30 bg-primary text-white rounded-t-lg shadow-lg relative transform scale-105 z-10 animate-fade-in-up stagger-3">
+<div class="absolute -top-3 right-4 bg-white text-primary font-label-md text-[10px] px-2 py-1 rounded-full uppercase tracking-wider">Most Popular</div>
+<div class="font-label-md text-label-md text-white/80 uppercase tracking-widest mb-2">The Print</div>
+<div class="font-headline-md text-headline-md text-white">Standard</div>
+</th>
+<th class="w-1/4 p-6 border-b border-black/5 bg-surface-container rounded-t-lg animate-fade-in-up stagger-4">
+<div class="font-label-md text-label-md text-primary uppercase tracking-widest mb-2">The Archive</div>
+<div class="font-headline-md text-headline-md text-on-background">Premium</div>
+</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md text-on-background/80">
+<!-- Feature Rows -->
+<tr class="border-b border-black/5 hover:bg-black/5 transition-colors">
+<td class="p-6 font-medium text-on-background">Manuscript Evaluation</td>
+<td class="p-6 bg-surface-container/50 text-center"><span class="material-symbols-outlined text-outline" data-icon="remove">remove</span></td>
+<td class="p-6 bg-primary text-center text-white border-x border-white/20"><span class="material-symbols-outlined" data-icon="check">check</span></td>
+<td class="p-6 bg-surface-container/50 text-center text-primary"><span class="material-symbols-outlined" data-icon="check">check</span></td>
+</tr>
+<tr class="border-b border-black/5 hover:bg-black/5 transition-colors">
+<td class="p-6 font-medium text-on-background">Custom Cover Design</td>
+<td class="p-6 bg-surface-container/50 text-center text-on-background">E-book Only</td>
+<td class="p-6 bg-primary text-center text-white border-x border-white/20">Print &amp; E-book</td>
+<td class="p-6 bg-surface-container/50 text-center text-on-background">Hardcover, Print &amp; E-book</td>
+</tr>
+<tr class="border-b border-black/5 hover:bg-black/5 transition-colors">
+<td class="p-6 font-medium text-on-background">Interior Formatting</td>
+<td class="p-6 bg-surface-container/50 text-center text-primary"><span class="material-symbols-outlined" data-icon="check">check</span></td>
+<td class="p-6 bg-primary text-center text-white border-x border-white/20"><span class="material-symbols-outlined" data-icon="check">check</span></td>
+<td class="p-6 bg-surface-container/50 text-center text-on-background">Bespoke Typesetting</td>
+</tr>
+<tr class="border-b border-black/5 hover:bg-black/5 transition-colors">
+<td class="p-6 font-medium text-on-background">ISBN &amp; Copyright</td>
+<td class="p-6 bg-surface-container/50 text-center text-primary"><span class="material-symbols-outlined" data-icon="check">check</span></td>
+<td class="p-6 bg-primary text-center text-white border-x border-white/20"><span class="material-symbols-outlined" data-icon="check">check</span></td>
+<td class="p-6 bg-surface-container/50 text-center text-primary"><span class="material-symbols-outlined" data-icon="check">check</span></td>
+</tr>
+<tr class="border-b border-black/5 hover:bg-black/5 transition-colors">
+<td class="p-6 font-medium text-on-background">Global Distribution</td>
+<td class="p-6 bg-surface-container/50 text-center text-on-background">Digital Retailers</td>
+<td class="p-6 bg-primary text-center text-white border-x border-white/20">Full Retail Network</td>
+<td class="p-6 bg-surface-container/50 text-center text-on-background">Full Network + Libraries</td>
+</tr>
+<!-- Action Row -->
+<tr>
+<td class="p-6"></td>
+<td class="p-6 bg-surface-container rounded-b-lg text-center">
+<button class="w-full py-3 px-4 border border-primary text-primary font-label-md text-label-md rounded hover:bg-primary hover:text-white transition-colors">Inquire</button>
+</td>
+<td class="p-6 bg-primary rounded-b-lg text-center shadow-lg relative transform scale-105 z-10 border-x border-b border-primary/30">
+<button class="w-full py-3 px-4 bg-white text-primary font-label-md text-label-md rounded hover:bg-gray-100 transition-colors">Select Standard</button>
+</td>
+<td class="p-6 bg-surface-container rounded-b-lg text-center">
+<button class="w-full py-3 px-4 border border-primary text-primary font-label-md text-label-md rounded hover:bg-primary hover:text-white transition-colors">Inquire</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-white text-on-background w-full pt-16 pb-8 border-t border-black/5 animate-fade-in-up stagger-2">
+<div class="max-w-container-max mx-auto px-margin-desktop grid grid-cols-1 md:grid-cols-4 gap-gutter">
+<div class="col-span-1 md:col-span-1 flex flex-col items-start">
+<div class="flex items-center gap-4 mb-6"><img alt="House of Memoir Logo" class="h-[100px] w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VzsfuRh-KKnC61w55ByraZk7ITo88Ag8SlhvETLNElPFBeLD3As3SF7p_3ZjjOrM0Irj3UjTK09kud7tH94FWX8YOj8cn4W3OISOV4VuWV3_UFLPytx_Pex6YaIyae9McYTqe5KqWomaIx0E0xmX55wKjQ7U1UjWc9txwJa6cUoq2OA8aEzPBxz59CqoPktdj8l-hS6QdYfcw3cHkeaimxDYNYBsm5ySytIblko5orIevoJBeNC8gprmM"/><div class="flex flex-col justify-center"><span class="font-headline-md text-headline-md text-on-background leading-none">House of Memoir</span><span class="font-label-md text-[10px] uppercase text-primary tracking-[0.2em] mt-1">Write Your Legacy. Words Never Die</span></div></div>
+<p class="font-body-md text-body-md text-on-background/80 mb-6">
+                     Elevating the art of the book.
+                 </p>
+<p class="font-body-md text-body-md text-on-background/80 mt-auto">© 2024 House of Memoir. All rights reserved.</p>
+</div>
+<div class="col-span-1 flex flex-col space-y-3 font-body-md text-body-md">
+<a class="text-on-background/70 hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="text-on-background/70 hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="text-on-background/70 hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">FAQ</a>
+<a class="text-on-background/70 hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Careers</a>
+<a class="text-on-background/70 hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Contact</a>
+</div>
+<div class="col-span-1 md:col-span-2 flex flex-col justify-end items-end md:items-start text-on-background/70">
+<!-- Additional branding or newsletter could go here to balance grid -->
+</div>
+</div>
+</footer>
+</body></html>

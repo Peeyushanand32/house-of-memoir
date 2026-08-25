@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title class="">House of Memoir - Turn Your Manuscript Into a Bestseller</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "background": "#f9f9ff",
+                "on-background": "#1a1b20",
+                "primary": "#1978e5",
+                "on-primary": "#ffffff",
+                "primary-container": "#ffffff",
+                "on-primary-container": "#1a1b20",
+                "tertiary-fixed": "#1978e5",
+                "on-tertiary-fixed": "#ffffff",
+                "tertiary-fixed-dim": "#1460b8",
+                "surface": "#ffffff",
+                "on-surface": "#1a1b20",
+                "surface-container-lowest": "#ffffff",
+                "surface-container": "#f0f4f8",
+                "surface-container-high": "#e4e9f2",
+                "outline": "#8e9099",
+                "outline-variant": "#c4c6cf",
+                "error": "#ba1a1a",
+                "on-error": "#ffffff",
+                "error-container": "#ffdad6",
+                "on-error-container": "#410002"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "margin-desktop": "64px",
+                "margin-mobile": "16px",
+                "unit": "8px",
+                "container-max": "1280px",
+                "gutter": "24px"
+        },
+        "fontFamily": {
+                "display-lg": [
+                        "Playfair Display"
+                ],
+                "label-md": [
+                        "Inter"
+                ],
+                "caption": [
+                        "Inter"
+                ],
+                "headline-md": [
+                        "Playfair Display"
+                ],
+                "headline-lg-mobile": [
+                        "Playfair Display"
+                ],
+                "headline-lg": [
+                        "Playfair Display"
+                ],
+                "body-lg": [
+                        "Inter"
+                ],
+                "body-md": [
+                        "Inter"
+                ]
+        },
+        "fontSize": {
+                "display-lg": [
+                        "64px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "1.4",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "caption": [
+                        "12px",
+                        {
+                                "lineHeight": "1.4",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "32px",
+                        {
+                                "lineHeight": "1.3",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "1.6",
+                                "fontWeight": "400"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        body {
+            background-color: #f9f9ff; /* primary */
+            color: #1a1b20; /* on-primary */
+        }
+        .ambient-shadow {
+            box-shadow: 0 4px 30px rgba(25, 120, 229, 0.05); /* subtle blue glow */
+        }
+        .card-border {
+            border: 1px solid rgba(25, 120, 229, 0.15); /* subtle blue border */
+        }
+        
+        /* Cinematic Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in-up {
+            opacity: 0;
+            animation: fadeInUp 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+        .delay-400 { animation-delay: 400ms; }
+        .delay-500 { animation-delay: 500ms; }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased min-h-screen flex flex-col bg-background text-on-background">
+<!-- TopNavBar -->
+<header class="bg-background/90 backdrop-blur-md sticky top-0 w-full z-50 border-b border-tertiary-fixed/10 shadow-sm transition-all duration-300">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-between items-center py-4">
+<!-- Brand -->
+<a class="font-headline-md text-headline-md text-on-background tracking-tight animate-fade-in-up" href="#"><div class="flex items-center gap-3"><img alt="House of Memoir Logo" class="h-16 w-auto object-contain brightness-0" src="https://lh3.googleusercontent.com/aida/AEtjO1VzsfuRh-KKnC61w55ByraZk7ITo88Ag8SlhvETLNElPFBeLD3As3SF7p_3ZjjOrM0Irj3UjTK09kud7tH94FWX8YOj8cn4W3OISOV4VuWV3_UFLPytx_Pex6YaIyae9McYTqe5KqWomaIx0E0xmX55wKjQ7U1UjWc9txwJa6cUoq2OA8aEzPBxz59CqoPktdj8l-hS6QdYfcw3cHkeaimxDYNYBsm5ySytIblko5orIevoJBeNC8gprmM"/><div class="flex flex-col justify-center"><span class="font-headline-md text-headline-md leading-none font-bold text-on-background">House of Memoir</span><span class="text-[10px] tracking-[0.2em] uppercase mt-1 font-label-md text-tertiary-fixed">Write Your Legacy. Words Never Die</span></div></div></a>
+<!-- Navigation Links (Desktop) -->
+<nav class="hidden md:flex items-center gap-8 animate-fade-in-up delay-100">
+<a class="font-label-md text-label-md text-tertiary-fixed border-b-2 border-tertiary-fixed pb-1 scale-95 active:scale-90 transition-transform" href="#">Home</a>
+<a class="font-label-md text-label-md text-on-background/70 hover:text-tertiary-fixed transition-colors duration-300 scale-95 active:scale-90 transition-transform" href="#">About</a>
+<a class="font-label-md text-label-md text-on-background/70 hover:text-tertiary-fixed transition-colors duration-300 scale-95 active:scale-90 transition-transform" href="#">Services</a>
+<a class="font-label-md text-label-md text-on-background/70 hover:text-tertiary-fixed transition-colors duration-300 scale-95 active:scale-90 transition-transform" href="#">Appointment and Enquiry</a>
+<a class="font-label-md text-label-md text-on-background/70 hover:text-tertiary-fixed transition-colors duration-300 scale-95 active:scale-90 transition-transform" href="#">Portfolio</a>
+<a class="font-label-md text-label-md text-on-background/70 hover:text-tertiary-fixed transition-colors duration-300 scale-95 active:scale-90 transition-transform" href="#">Testimonials</a>
+</nav>
+<!-- Trailing Action -->
+<div class="hidden md:block animate-fade-in-up delay-200">
+<a class="font-label-md text-label-md bg-tertiary-fixed text-on-tertiary-fixed px-6 py-3 rounded hover:bg-tertiary-fixed/90 transition-colors duration-300 scale-95 active:scale-90 transition-transform" href="#">
+                    Submit Manuscript
+                </a>
+</div>
+<!-- Mobile Menu Toggle -->
+<button class="md:hidden text-tertiary-fixed animate-fade-in-up delay-200">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<main class="flex-grow">
+<!-- Hero Section -->
+<section class="py-24 md:py-32 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto flex flex-col md:flex-row items-center gap-gutter overflow-hidden">
+<div class="w-full md:w-1/2 flex flex-col gap-unit">
+<h1 class="font-display-lg text-display-lg text-on-background max-w-2xl animate-fade-in-up">Turn Your Manuscript Into a Bestseller</h1>
+<p class="font-body-lg text-body-lg text-on-background/80 max-w-lg mt-4 mb-8 animate-fade-in-up delay-100">House of Memoir provides end-to-end editorial, design, and distribution services for discerning authors seeking professional excellence.</p>
+<div class="flex flex-wrap gap-4 animate-fade-in-up delay-200">
+<button class="font-label-md text-label-md bg-tertiary-fixed text-on-tertiary-fixed px-8 py-4 rounded hover:bg-tertiary-fixed-dim transition-colors shadow-sm">
+                        Submit Manuscript
+                    </button>
+<button class="font-label-md text-label-md bg-primary-container border border-tertiary-fixed/30 text-on-primary-container px-8 py-4 rounded hover:bg-primary-container/80 transition-colors shadow-sm">
+                        Book a Free Consultation
+                    </button>
+</div>
+</div>
+<div class="w-full md:w-1/2 mt-12 md:mt-0 relative h-[500px] animate-fade-in-up delay-300">
+<img class="w-full h-full object-cover rounded-lg ambient-shadow card-border opacity-90" data-alt="A beautifully crafted, minimalist hardcover book lying on a rich wooden desk, illuminated by soft natural light from a nearby window. The setting implies a focused, professional editorial environment. The color palette emphasizes warm creams, deep navies, and subtle gold accents. The mood is intellectual, calm, and premium." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwpcoYH3t__5Gg3DN4DjY4JhhWgcq1EZQHlWxt_8wQoLSfhL1wHtM28E5aqjb-Wj4LiSW7OLCXRs8DKQeRZ70FwWPLtLshflSTpVl31simt1NxcY51vXSTxSP8R3STmPpA3PlCIJpQuwbxMC5t7EqpuDuoME_EJ0xJuw3ULeqbWtnh9DiwmNQr7fiUHZbbBtFX2Tmv4atE70hWZo9GOjRPIfxgYDl2SYhNa157DR7eEe6d40BljAT6"/>
+</div>
+</section>
+<!-- Feature Grid (Bento style) -->
+<section class="py-24 bg-primary-container px-margin-mobile md:px-margin-desktop overflow-hidden border-y border-tertiary-fixed/10">
+<div class="max-w-container-max mx-auto">
+<h2 class="font-headline-lg text-headline-lg text-tertiary-fixed mb-16 text-center animate-fade-in-up">The House of Memoir Advantage</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Feature 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-8 card-border ambient-shadow flex flex-col items-start gap-4 hover:-translate-y-2 transition-transform duration-500 animate-fade-in-up delay-100">
+<div class="w-12 h-12 rounded-full bg-primary-container border border-tertiary-fixed/20 flex items-center justify-center text-tertiary-fixed">
+<span class="material-symbols-outlined">edit_document</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mt-4">End-to-End Publishing</h3>
+<p class="font-body-md text-body-md text-on-surface/70">From developmental editing to final typography, our dedicated team manages every meticulous detail of your book's creation.</p>
+</div>
+<!-- Feature 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-8 card-border ambient-shadow flex flex-col items-start gap-4 hover:-translate-y-2 transition-transform duration-500 animate-fade-in-up delay-200">
+<div class="w-12 h-12 rounded-full bg-primary-container border border-tertiary-fixed/20 flex items-center justify-center text-tertiary-fixed">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mt-4">100% Royalty</h3>
+<p class="font-body-md text-body-md text-on-surface/70">Maintain total control over your intellectual property and retain all earnings from your sales across every format.</p>
+</div>
+<!-- Feature 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-8 card-border ambient-shadow flex flex-col items-start gap-4 hover:-translate-y-2 transition-transform duration-500 animate-fade-in-up delay-300">
+<div class="w-12 h-12 rounded-full bg-primary-container border border-tertiary-fixed/20 flex items-center justify-center text-tertiary-fixed">
+<span class="material-symbols-outlined">public</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mt-4">Global Distribution</h3>
+<p class="font-body-md text-body-md text-on-surface/70">Ensure your work reaches readers worldwide through our established network of premium global retail partners.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Section -->
+<section class="py-24 px-margin-mobile md:px-margin-desktop bg-background overflow-hidden">
+<div class="max-w-container-max mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-center divide-y md:divide-y-0 md:divide-x divide-tertiary-fixed/20">
+<div class="flex flex-col gap-2 py-4 animate-fade-in-up delay-100">
+<span class="font-display-lg text-display-lg text-tertiary-fixed">500+</span>
+<span class="font-label-md text-label-md text-on-background/70 uppercase tracking-widest">Books Published</span>
+</div>
+<div class="flex flex-col gap-2 py-4 animate-fade-in-up delay-200">
+<span class="font-display-lg text-display-lg text-tertiary-fixed">350</span>
+<span class="font-label-md text-label-md text-on-background/70 uppercase tracking-widest">Active Authors</span>
+</div>
+<div class="flex flex-col gap-2 py-4 animate-fade-in-up delay-300">
+<span class="font-display-lg text-display-lg text-tertiary-fixed">120</span>
+<span class="font-label-md text-label-md text-on-background/70 uppercase tracking-widest">Global Reach (Countries)</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-primary-container w-full pt-16 pb-8 flat no shadows text-on-primary-container border-t border-tertiary-fixed/10">
+<div class="max-w-container-max mx-auto px-margin-desktop grid grid-cols-1 md:grid-cols-4 gap-gutter animate-fade-in-up">
+<!-- Brand Column -->
+<div class="flex flex-col gap-4">
+<a class="font-headline-md text-headline-md text-on-primary-container" href="#"><div class="flex items-center gap-4"><img alt="House of Memoir Logo" class="h-[100px] w-auto object-contain brightness-0" src="https://lh3.googleusercontent.com/aida/AEtjO1VzsfuRh-KKnC61w55ByraZk7ITo88Ag8SlhvETLNElPFBeLD3As3SF7p_3ZjjOrM0Irj3UjTK09kud7tH94FWX8YOj8cn4W3OISOV4VuWV3_UFLPytx_Pex6YaIyae9McYTqe5KqWomaIx0E0xmX55wKjQ7U1UjWc9txwJa6cUoq2OA8aEzPBxz59CqoPktdj8l-hS6QdYfcw3cHkeaimxDYNYBsm5ySytIblko5orIevoJBeNC8gprmM"/><div class="flex flex-col justify-center"><span class="font-headline-md text-headline-md leading-none font-bold text-on-primary-container">House of Memoir</span><span class="text-[10px] tracking-[0.2em] uppercase mt-1 font-label-md text-tertiary-fixed">Write Your Legacy. Words Never Die</span></div></div></a>
+<p class="font-caption text-caption text-on-primary-container/70 mt-2">
+                    Crafting literary excellence for the modern era.
+                </p>
+</div>
+<!-- Links Columns -->
+<div class="flex flex-col gap-3">
+<a class="font-body-md text-body-md text-on-primary-container/70 hover:text-tertiary-fixed transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="font-body-md text-body-md text-on-primary-container/70 hover:text-tertiary-fixed transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+</div>
+<div class="flex flex-col gap-3">
+<a class="font-body-md text-body-md text-on-primary-container/70 hover:text-tertiary-fixed transition-colors opacity-80 hover:opacity-100" href="#">FAQ</a>
+<a class="font-body-md text-body-md text-on-primary-container/70 hover:text-tertiary-fixed transition-colors opacity-80 hover:opacity-100" href="#">Careers</a>
+<a class="font-body-md text-body-md text-on-primary-container/70 hover:text-tertiary-fixed transition-colors opacity-80 hover:opacity-100" href="#">Contact</a>
+</div>
+</div>
+<div class="max-w-container-max mx-auto px-margin-desktop mt-16 pt-8 border-t border-tertiary-fixed/10 animate-fade-in-up delay-200">
+<p class="font-caption text-caption text-on-primary-container/50 text-center">© 2024 House of Memoir. All rights reserved.</p>
+</div>
+</footer>
+</body></html>

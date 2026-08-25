@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Publishing Services | House of Memoir</title>
+  <meta name="description" content="Explore our bespoke publishing services: Developmental Editing, Custom Typography, Archival Hardcover Binding, and Worldwide Distribution."/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css"/>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#f9f9ff",
+            "on-background": "#1a1b20",
+            "primary": "#1978e5",
+            "heritage-navy": "#000613"
+          },
+          fontFamily: {
+            display: ["Playfair Display", "serif"],
+            sans: ["Inter", "sans-serif"]
+          },
+          spacing: {
+            "margin-desktop": "64px",
+            "margin-mobile": "16px",
+            "container-max": "1280px"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-background text-on-background antialiased flex flex-col min-h-screen font-sans">
+
+  <!-- Navigation -->
+  <header class="bg-white/90 backdrop-blur-md sticky top-0 w-full z-50 border-b border-gray-200 shadow-sm animate-fade-in-up">
+    <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-between items-center h-20">
+      <!-- Brand Logo -->
+      <a href="index.html" class="flex items-center gap-3.5 group">
+        <img src="logo.png" alt="House of Memoir Logo" class="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300"/>
+        <div class="flex flex-col justify-center">
+          <span class="font-display text-2xl font-bold text-[#c59b27] leading-none tracking-tight group-hover:text-[#1978e5] transition-colors">House of Memoir</span>
+          <span class="text-[10px] tracking-[0.2em] uppercase mt-1 font-bold text-gray-900">Write Your Legacy Words Never Die</span>
+        </div>
+      </a>
+      <!-- Desktop Navigation Links -->
+      <nav class="hidden md:flex items-center gap-2 lg:gap-3 font-sans text-sm font-semibold">
+        <a href="index.html" class="text-gray-700 hover:text-[#1978e5] hover:bg-gray-100/80 px-3 py-2 rounded-xl transition-all">Home</a>
+        <a href="about.html" class="text-gray-700 hover:text-[#1978e5] hover:bg-gray-100/80 px-3 py-2 rounded-xl transition-all">About</a>
+        <a href="services.html" class="bg-[#1978e5]/10 text-[#1978e5] font-bold px-3.5 py-2 rounded-xl border border-[#1978e5]/20 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-base">design_services</span>
+          Services
+        </a>
+        <a href="portfolio.html" class="text-gray-700 hover:text-[#1978e5] hover:bg-gray-100/80 px-3 py-2 rounded-xl transition-all">Portfolio</a>
+        <a href="testimonials.html" class="text-gray-700 hover:text-[#1978e5] hover:bg-gray-100/80 px-3 py-2 rounded-xl transition-all">Testimonials</a>
+        <a href="appointment.html" class="text-gray-700 hover:text-[#1978e5] hover:bg-gray-100/80 px-3 py-2 rounded-xl transition-all">Appointment/Query</a>
+      </nav>
+
+      <!-- Header Action Button -->
+      <div class="hidden md:flex items-center gap-3">
+        <button data-open-manuscript-modal class="font-sans font-semibold text-xs uppercase tracking-wider bg-[#1978e5] text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-md active:scale-95 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-base">upload_file</span>
+          Submit Manuscript
+        </button>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button data-mobile-menu-toggle class="md:hidden text-gray-900 p-2 focus:outline-none hover:text-[#1978e5] transition-colors">
+        <span class="material-symbols-outlined text-3xl">menu</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Menu -->
+  <div id="mobile-menu" class="fixed inset-0 z-50 bg-[#000613]/95 backdrop-blur-lg hidden flex-col justify-between p-6 text-white transition-all">
+    <div class="flex justify-between items-center border-b border-white/10 pb-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-[#1978e5] flex items-center justify-center font-display font-bold">HM</div>
+        <span class="font-display text-xl font-bold">House of Memoir</span>
+      </div>
+      <button id="close-mobile-menu" class="text-white p-2">
+        <span class="material-symbols-outlined text-3xl">close</span>
+      </button>
+    </div>
+    <div class="flex flex-col gap-6 font-display text-2xl py-8">
+      <a href="index.html" class="hover:text-[#1978e5] transition-colors">Home</a>
+      <a href="about.html" class="hover:text-[#1978e5] transition-colors">About Us</a>
+      <a href="services.html" class="text-[#1978e5] font-bold">Services</a>
+      <a href="appointment.html" class="hover:text-[#1978e5] transition-colors">Appointment/Query</a>
+      <a href="portfolio.html" class="hover:text-[#1978e5] transition-colors">Portfolio</a>
+      <a href="testimonials.html" class="hover:text-[#1978e5] transition-colors">Testimonials</a>
+    </div>
+    <div class="pt-6 border-t border-white/10 flex flex-col gap-4">
+      <button data-open-manuscript-modal class="w-full bg-[#1978e5] text-white py-3.5 rounded font-sans font-semibold text-center">
+        Submit Manuscript
+      </button>
+    </div>
+  </div>
+
+  <main class="flex-grow">
+    <!-- Header Hero -->
+    <section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop pt-20 pb-16 text-center animate-fade-in-up">
+      <span class="text-xs font-bold uppercase tracking-widest text-[#1978e5]">Bespoke Publishing Solutions</span>
+      <h1 class="font-display text-4xl md:text-6xl font-bold text-gray-900 mt-2 mb-6">Mastery Across Every Stage of Publishing</h1>
+      <p class="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+        From early manuscript development to worldwide retail placement, we provide full spectrum editorial and production capabilities designed for legacy authors.
+      </p>
+    </section>
+
+    <!-- Services Grid -->
+    <section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <!-- Service 1: Editorial -->
+        <div class="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm flex flex-col justify-between hover:border-[#1978e5] transition-colors">
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-[#1978e5]/10 text-[#1978e5] flex items-center justify-center mb-6">
+              <span class="material-symbols-outlined text-3xl">rate_review</span>
+            </div>
+            <h3 class="font-display text-2xl font-bold text-gray-900 mb-3">Developmental Editing & Line Craft</h3>
+            <p class="text-gray-600 leading-relaxed mb-6">
+              Comprehensive structural evaluation of narrative arc, character depth, pace, and voice. Our acquiring editors refine raw drafts into polished literary prose.
+            </p>
+            <ul class="space-y-2 text-sm text-gray-700 mb-8">
+              <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check_circle</span> One-on-one editorial critique sessions</li>
+              <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check_circle</span> Line-by-line stylistic refinement</li>
+              <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check_circle</span> Fact-checking & structural narrative alignment</li>
+            </ul>
+          </div>
+          <button data-open-manuscript-modal class="w-full py-3 bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded hover:bg-[#1978e5] hover:text-white transition-colors">
+            Request Editorial Assessment
+          </button>
+        </div>
+
+        <!-- Service 2: Book Design -->
+        <div class="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm flex flex-col justify-between hover:border-[#1978e5] transition-colors">
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-[#1978e5]/10 text-[#1978e5] flex items-center justify-center mb-6">
+              <span class="material-symbols-outlined text-3xl">brush</span>
+            </div>
+            <h3 class="font-display text-2xl font-bold text-gray-900 mb-3">Archival Design & Typography</h3>
+            <p class="text-gray-600 leading-relaxed mb-6">
+              Custom book design adhering to museum-grade standards. We create bespoke cover art, ornamental drop caps, and balanced interior layouts.
+            </p>
+            <ul class="space-y-2 text-sm text-gray-700 mb-8">
+              <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check_circle</span> Custom dust jacket & cloth cover foil stamping</li>
+              <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check_circle</span> Archival acid-free paper selection</li>
+              <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check_circle</span> Custom ebook layout (ePub & Kindle formats)</li>
+            </ul>
+          </div>
+          <button data-open-manuscript-modal class="w-full py-3 bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded hover:bg-[#1978e5] hover:text-white transition-colors">
+            Explore Design Options
+          </button>
+        </div>
+
+        <!-- Service 3: Global Distribution -->
+        <div class="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm flex flex-col justify-between hover:border-[#1978e5] transition-colors">
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-[#1978e5]/10 text-[#1978e5] flex items-center justify-center mb-6">
+              <span class="material-symbols-outlined text-3xl">travel_explore</span>
+            </div>
+            <h3 class="font-display text-2xl font-bold text-gray-900 mb-3">Global Retail & Institutional Distribution</h3>
+            <p class="text-gray-600 leading-relaxed mb-6">
+              Worldwide distribution via Ingram, Barnes & Noble, Amazon, independent bookstores, and university library catalogs across 120+ countries.
+            </p>
+            <ul class="space-y-2 text-sm text-gray-700 mb-8">
+              <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check_circle</span> Full ISBN assignment & Library of Congress registration</li>
+              <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check_circle</span> Print-on-demand & hardcover bulk logistics</li>
+              <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check_circle</span> Direct 100% royalty deposit setup</li>
+            </ul>
+          </div>
+          <button data-open-manuscript-modal class="w-full py-3 bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded hover:bg-[#1978e5] hover:text-white transition-colors">
+            Inquire About Distribution
+          </button>
+        </div>
+
+        <!-- Service 4: PR & Launch -->
+        <div class="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm flex flex-col justify-between hover:border-[#1978e5] transition-colors">
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-[#1978e5]/10 text-[#1978e5] flex items-center justify-center mb-6">
+              <span class="material-symbols-outlined text-[#1978e5] text-3xl">campaign</span>
+            </div>
+            <h3 class="font-display text-2xl font-bold text-gray-900 mb-3">Author PR & Literary Marketing</h3>
+            <p class="text-gray-600 leading-relaxed mb-6">
+              Targeted media campaigns, review copy distribution to Kirkus, Publishers Weekly, and leading podcast interviews for maximum launch impact.
+            </p>
+            <ul class="space-y-2 text-sm text-gray-700 mb-8">
+              <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check_circle</span> Press release creation & media distribution</li>
+              <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check_circle</span> Editorial reviewer copy dispatch</li>
+              <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check_circle</span> Author website & press kit curation</li>
+            </ul>
+          </div>
+          <button data-open-manuscript-modal class="w-full py-3 bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded hover:bg-[#1978e5] hover:text-white transition-colors">
+            Consult Marketing Team
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Pricing Tiers -->
+    <section class="bg-[#000613] text-white py-24 px-margin-mobile md:px-margin-desktop mt-12">
+      <div class="max-w-container-max mx-auto">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+          <span class="text-xs font-bold uppercase tracking-widest text-[#1978e5]">Publishing Tiers</span>
+          <h2 class="font-display text-3xl md:text-5xl font-bold mt-2">Transparent Publishing Packages</h2>
+          <p class="text-gray-400 text-sm mt-3">All packages grant 100% royalty rights to the author with zero recurring fees.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          
+          <div class="bg-white/5 rounded-2xl p-8 border border-white/10 flex flex-col justify-between">
+            <div>
+              <h3 class="font-display text-2xl font-bold mb-2">Heritage Edition</h3>
+              <p class="text-xs text-gray-400 mb-6">Ideal for memoirs, poetry collections & debut fiction</p>
+              <div class="text-3xl font-bold text-[#1978e5] mb-6">$3,500 <span class="text-xs text-gray-400 font-normal">one-time</span></div>
+              <ul class="space-y-3 text-xs text-gray-300 mb-8">
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check</span> Professional Copyediting & Proofreading</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check</span> Custom Paperback & Ebook Cover Design</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check</span> Global Amazon & Barnes & Noble Distribution</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check</span> 100% Royalty Retention</li>
+              </ul>
+            </div>
+            <a href="appointment.html" class="w-full py-3 bg-[#1978e5] text-white text-center font-semibold text-xs rounded hover:bg-blue-600 transition-colors">Select Package</a>
+          </div>
+
+          <div class="bg-white/10 rounded-2xl p-8 border-2 border-[#1978e5] flex flex-col justify-between relative shadow-2xl scale-105">
+            <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#1978e5] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">Most Popular</span>
+            <div>
+              <h3 class="font-display text-2xl font-bold mb-2">Collector's Hardcover</h3>
+              <p class="text-xs text-gray-300 mb-6">Comprehensive package with cloth binding & editorial oversight</p>
+              <div class="text-3xl font-bold text-[#1978e5] mb-6">$6,800 <span class="text-xs text-gray-400 font-normal">one-time</span></div>
+              <ul class="space-y-3 text-xs text-gray-200 mb-8">
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check</span> Developmental & Line Editing by Senior Editor</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check</span> Premium Cloth Hardcover with Gold Foil Stamping</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check</span> Library of Congress & ISBN Registration</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check</span> Worldwide Bookstore & Academic Library Distribution</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check</span> Press Release & Initial Review Campaign</li>
+              </ul>
+            </div>
+            <a href="appointment.html" class="w-full py-3 bg-[#1978e5] text-white text-center font-semibold text-xs rounded hover:bg-blue-600 transition-colors shadow-lg">Select Package</a>
+          </div>
+
+          <div class="bg-white/5 rounded-2xl p-8 border border-white/10 flex flex-col justify-between">
+            <div>
+              <h3 class="font-display text-2xl font-bold mb-2">Bespoke Legacy</h3>
+              <p class="text-xs text-gray-400 mb-6">Full concierge service for high-profile memoirs & historical works</p>
+              <div class="text-3xl font-bold text-[#1978e5] mb-6">$12,500 <span class="text-xs text-gray-400 font-normal">one-time</span></div>
+              <ul class="space-y-3 text-xs text-gray-300 mb-8">
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check</span> Ghostwriting / Senior Co-Editing Assistance</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check</span> Custom Leather-bound Limited Edition Printing (100 Copies Included)</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check</span> Dedicated Publicist & Media Interview Booking</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#1978e5]">check</span> Audiobook Production & Narrator Casting</li>
+              </ul>
+            </div>
+            <a href="appointment.html" class="w-full py-3 bg-white/10 text-white border border-white/20 text-center font-semibold text-xs rounded hover:bg-white/20 transition-colors">Contact Concierge</a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-surface-container-lowest w-full pt-16 pb-8 text-on-primary-container border-t border-gray-200">
+    <div class="max-w-container-max mx-auto px-margin-desktop grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div class="flex flex-col gap-4">
+        <a href="index.html" class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[#000613] flex items-center justify-center text-white font-display font-bold">HM</div>
+          <span class="font-display text-xl font-bold text-[#c59b27]">House of Memoir</span>
+        </a>
+        <p class="text-xs text-gray-600 leading-relaxed">
+          Crafting literary excellence for the modern era. Dedicated to high-contrast editorial craft, author sovereignty, and timeless physical bookmaking.
+        </p>
+      </div>
+      <div class="flex flex-col gap-3">
+        <h4 class="font-bold text-sm uppercase tracking-wider text-gray-900 mb-1">Navigation</h4>
+        <a href="index.html" class="text-sm text-gray-600 hover:text-[#1978e5]">Home</a>
+        <a href="about.html" class="text-sm text-gray-600 hover:text-[#1978e5]">About Us</a>
+        <a href="services.html" class="text-sm text-gray-600 hover:text-[#1978e5]">Services & Pricing</a>
+        <a href="portfolio.html" class="text-sm text-gray-600 hover:text-[#1978e5]">Publications Portfolio</a>
+      </div>
+      <div class="flex flex-col gap-3">
+        <h4 class="font-bold text-sm uppercase tracking-wider text-gray-900 mb-1">For Authors</h4>
+        <a href="appointment.html" class="text-sm text-gray-600 hover:text-[#1978e5]">Manuscript Submission</a>
+        <a href="appointment.html" class="text-sm text-gray-600 hover:text-[#1978e5]">Schedule Consultation</a>
+        <a href="testimonials.html" class="text-sm text-gray-600 hover:text-[#1978e5]">Author Reviews</a>
+      </div>
+      <div class="flex flex-col gap-3">
+        <h4 class="font-bold text-sm uppercase tracking-wider text-gray-900 mb-1">Editorial Office</h4>
+        <p class="text-sm text-gray-600">750 Fifth Avenue, Suite 1400<br/>New York, NY 10019</p>
+        <p class="text-sm text-gray-600">Email: submissions@houseofmemoir.com</p>
+      </div>
+    </div>
+    <div class="max-w-container-max mx-auto px-margin-desktop mt-12 pt-6 border-t border-gray-200">
+      <p class="text-xs text-gray-500 text-center">© 2026 House of Memoir Publishing House. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Global Manuscript Submission Modal -->
+  <div id="manuscript-modal" class="fixed inset-0 z-50 modal-backdrop hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden border border-gray-200 animate-scale-up">
+      <div class="bg-[#000613] text-white p-6 flex justify-between items-center">
+        <div>
+          <h3 class="font-display text-2xl font-bold">Manuscript Submission</h3>
+          <p class="text-xs text-gray-400">Direct editorial review process</p>
+        </div>
+        <button id="close-manuscript-modal" class="text-gray-400 hover:text-white p-1">
+          <span class="material-symbols-outlined text-2xl">close</span>
+        </button>
+      </div>
+      <form id="modal-manuscript-form" class="p-6 space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Author Name *</label>
+            <input type="text" required class="w-full px-3 py-2 border border-gray-300 rounded focus:border-[#1978e5] text-sm" placeholder="Full Legal Name"/>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Email Address *</label>
+            <input type="email" required class="w-full px-3 py-2 border border-gray-300 rounded focus:border-[#1978e5] text-sm" placeholder="author@example.com"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Working Title *</label>
+            <input type="text" required class="w-full px-3 py-2 border border-gray-300 rounded focus:border-[#1978e5] text-sm" placeholder="Book Title"/>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Genre *</label>
+            <select required class="w-full px-3 py-2 border border-gray-300 rounded focus:border-[#1978e5] text-sm">
+              <option value="Memoir">Memoir & Biography</option>
+              <option value="Fiction">Literary Fiction</option>
+              <option value="Historical">Historical Non-Fiction</option>
+              <option value="Poetry">Poetry & Essays</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Synopsis</label>
+          <textarea rows="3" class="w-full px-3 py-2 border border-gray-300 rounded focus:border-[#1978e5] text-sm resize-none" placeholder="Brief summary of your manuscript..."></textarea>
+        </div>
+        <div id="manuscript-dropzone" class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-[#1978e5] cursor-pointer transition-colors">
+          <span class="material-symbols-outlined text-4xl text-[#1978e5]">upload_file</span>
+          <p class="text-sm font-semibold text-gray-800 mt-1">Upload Manuscript File (.pdf, .doc, .docx)</p>
+          <p id="file-upload-status" class="text-xs text-gray-500 mt-1">Click to browse or drag and drop file here</p>
+          <input type="file" id="manuscript-file-input" class="hidden" accept=".pdf,.doc,.docx"/>
+        </div>
+        <div class="flex justify-end gap-3 pt-2">
+          <button type="button" onclick="document.getElementById('manuscript-modal').classList.add('hidden')" class="px-5 py-2.5 text-sm text-gray-600 hover:text-gray-800">Cancel</button>
+          <button type="submit" class="bg-[#1978e5] text-white px-6 py-2.5 rounded font-semibold text-sm hover:bg-blue-700 shadow-md">Submit Application</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

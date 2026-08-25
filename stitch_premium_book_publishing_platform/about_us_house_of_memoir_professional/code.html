@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title class="">About Us | House of Memoir</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "surface-variant": "#e1e3ec",
+                "tertiary": "#0062a2",
+                "on-secondary-container": "#151b2c",
+                "on-primary-fixed-variant": "#004785",
+                "outline": "#74777f",
+                "surface-dim": "#d9dbe3",
+                "primary-fixed-dim": "#a2c9ff",
+                "on-error": "#ffffff",
+                "primary-container": "#d3e3fd",
+                "on-secondary-fixed-variant": "#3f4759",
+                "error": "#ba1a1a",
+                "on-surface-variant": "#44474f",
+                "tertiary-container": "#d0e4ff",
+                "on-tertiary": "#ffffff",
+                "inverse-primary": "#a2c9ff",
+                "on-tertiary-fixed-variant": "#004a7a",
+                "secondary-fixed-dim": "#c3c6cf",
+                "surface-container-highest": "#e1e3ec",
+                "secondary-fixed": "#dfe2eb",
+                "surface-tint": "#1978e5",
+                "error-container": "#ffdad6",
+                "on-primary": "#ffffff",
+                "surface-container": "#f0f2f9",
+                "on-primary-fixed": "#001a41",
+                "on-error-container": "#410002",
+                "on-tertiary-container": "#001d36",
+                "surface": "#f9f9ff",
+                "on-surface": "#1a1b20",
+                "inverse-on-surface": "#f1f0f4",
+                "surface-container-lowest": "#ffffff",
+                "on-secondary": "#ffffff",
+                "surface-bright": "#f9f9ff",
+                "outline-variant": "#c4c6d0",
+                "background": "#f9f9ff",
+                "secondary": "#575e71",
+                "on-tertiary-fixed": "#001d36",
+                "on-secondary-fixed": "#12192b",
+                "on-primary-container": "#001c38",
+                "tertiary-fixed-dim": "#99cbff",
+                "surface-container-low": "#f5f6fc",
+                "primary-fixed": "#d3e3fd",
+                "primary": "#1978e5",
+                "surface-container-high": "#ebebf2",
+                "inverse-surface": "#2f3036",
+                "tertiary-fixed": "#d0e4ff",
+                "on-background": "#1a1b20",
+                "secondary-container": "#dbe3f9"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "margin-desktop": "64px",
+                "margin-mobile": "16px",
+                "unit": "8px",
+                "container-max": "1280px",
+                "gutter": "24px"
+        },
+        "fontFamily": {
+                "display-lg": [
+                        "Playfair Display"
+                ],
+                "label-md": [
+                        "Inter"
+                ],
+                "caption": [
+                        "Inter"
+                ],
+                "headline-md": [
+                        "Playfair Display"
+                ],
+                "headline-lg-mobile": [
+                        "Playfair Display"
+                ],
+                "headline-lg": [
+                        "Playfair Display"
+                ],
+                "body-lg": [
+                        "Inter"
+                ],
+                "body-md": [
+                        "Inter"
+                ]
+        },
+        "fontSize": {
+                "display-lg": [
+                        "64px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "1.4",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "caption": [
+                        "12px",
+                        {
+                                "lineHeight": "1.4",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "32px",
+                        {
+                                "lineHeight": "1.3",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "1.6",
+                                "fontWeight": "400"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "400"
+                        }
+                ]
+        },
+        "boxShadow": {
+            'ambient': '0 4px 20px rgba(0, 0, 0, 0.05)'
+        },
+        "animation": {
+            'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+        },
+        "keyframes": {
+            fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+            }
+        }
+},
+    },
+  }
+</script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Staggered animation delays for the advisory board */
+        .stagger-1 { animation-delay: 0.2s; opacity: 0; }
+        .stagger-2 { animation-delay: 0.4s; opacity: 0; }
+        .stagger-3 { animation-delay: 0.6s; opacity: 0; }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased flex flex-col min-h-screen">
+<!-- TopNavBar Shared Component -->
+<header class="bg-surface/90 backdrop-blur-md sticky top-0 w-full z-50 border-b border-outline-variant/30 shadow-sm animate-fade-in-up">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-between items-center h-20">
+<a class="font-headline-md text-headline-md text-primary tracking-tight" href="#"><div class="flex items-center gap-4"><img alt="House of Memoir Logo" class="h-16 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VzsfuRh-KKnC61w55ByraZk7ITo88Ag8SlhvETLNElPFBeLD3As3SF7p_3ZjjOrM0Irj3UjTK09kud7tH94FWX8YOj8cn4W3OISOV4VuWV3_UFLPytx_Pex6YaIyae9McYTqe5KqWomaIx0E0xmX55wKjQ7U1UjWc9txwJa6cUoq2OA8aEzPBxz59CqoPktdj8l-hS6QdYfcw3cHkeaimxDYNYBsm5ySytIblko5orIevoJBeNC8gprmM"/><div class="flex flex-col justify-center"><span class="font-headline-md text-headline-md text-primary leading-none">House of Memoir</span><span class="font-label-md text-label-md tracking-widest uppercase mt-1 text-[10px] text-tertiary">Write Your Legacy. Words Never Die</span></div></div></a>
+<nav class="hidden md:flex gap-gutter">
+<a class="font-label-md text-label-md text-outline hover:text-primary transition-colors duration-300 scale-95 active:scale-90 transition-transform" href="#">Home</a>
+<a aria-current="page" class="font-label-md text-label-md text-primary border-b-2 border-primary pb-1 scale-95 active:scale-90 transition-transform" href="#">About</a><a class="font-label-md text-label-md text-outline hover:text-primary transition-colors duration-300 scale-95 active:scale-90 transition-transform" href="#">Services</a>
+<a class="font-label-md text-label-md text-outline hover:text-primary transition-colors duration-300 scale-95 active:scale-90 transition-transform" href="#">Appointment and Enquiry</a>
+<a class="font-label-md text-label-md text-outline hover:text-primary transition-colors duration-300 scale-95 active:scale-90 transition-transform" href="#">Portfolio</a>
+<a class="font-label-md text-label-md text-outline hover:text-primary transition-colors duration-300 scale-95 active:scale-90 transition-transform" href="#">Testimonials</a>
+</nav>
+<button class="hidden md:inline-flex items-center justify-center bg-primary text-on-primary px-6 py-3 rounded hover:bg-primary/90 transition-colors duration-300 font-label-md text-label-md uppercase tracking-wider shadow-sm">
+                Submit Manuscript
+            </button>
+<button class="md:hidden text-primary">
+<span class="material-symbols-outlined text-3xl" data-icon="menu">menu</span>
+</button>
+</div>
+</header>
+<main class="flex-grow">
+<!-- Hero Section -->
+<section class="py-[120px] max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-center animate-fade-in-up">
+<h1 class="font-display-lg text-display-lg text-primary mb-6">Our Narrative</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl mx-auto">Founded on the belief that every profound thought deserves an enduring form, House of Memoir bridges the classical elegance of traditional bookmaking with the precision of the digital age. We are curators of intellect, crafting objects of literary significance.</p>
+</section>
+<!-- Mission & Vision -->
+<section class="py-[80px] bg-surface-container-low border-y border-outline-variant/30">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-1 md:grid-cols-2 gap-gutter animate-fade-in-up">
+<!-- Mission Card -->
+<div class="bg-surface p-8 rounded border border-outline-variant/30 shadow-ambient flex flex-col h-full hover:border-primary/50 transition-colors duration-300">
+<span class="material-symbols-outlined text-4xl text-primary mb-6" data-icon="menu_book">menu_book</span>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-4">Our Mission</h2>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow">
+                        To elevate the written word by providing authors with a bespoke publishing experience. We are dedicated to producing works that are intellectually rigorous and aesthetically unmatched, treating every manuscript as a future classic.
+                    </p>
+</div>
+<!-- Vision Card -->
+<div class="bg-surface p-8 rounded border border-outline-variant/30 shadow-ambient flex flex-col h-full hover:border-primary/50 transition-colors duration-300">
+<span class="material-symbols-outlined text-4xl text-primary mb-6" data-icon="visibility">visibility</span>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-4">Our Vision</h2>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow">
+                        To become the definitive sanctuary for modern editorial prestige. We envision a world where the tactile luxury of reading is preserved and celebrated, creating a lasting legacy for thought leaders and storytellers across generations.
+                    </p>
+</div>
+</div>
+</section>
+<!-- Advisory Board -->
+<section class="py-[120px] max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="text-center mb-[80px] animate-fade-in-up">
+<h2 class="font-headline-lg md:font-headline-lg-mobile text-headline-lg md:text-headline-lg-mobile text-on-surface mb-4">The Advisory Board</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mx-auto">
+                    Guided by luminaries from the worlds of literature, design, and academia, ensuring our enduring commitment to excellence.
+                </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Team Member 1 -->
+<div class="group animate-fade-in-up stagger-1">
+<div class="relative overflow-hidden mb-6 rounded border border-outline-variant/30 shadow-ambient aspect-[3/4]">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A striking portrait of a sophisticated woman in her 50s, styled in modern editorial fashion. She wears a tailored charcoal blazer against a minimal, cream-colored studio backdrop. Soft, diffused lighting highlights her thoughtful expression, conveying authority and intellectual depth. High-end, pristine editorial photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAgl7UgXTq7WpWSyeag_07x_3xzx9DHjGWz89T-pXxqcmxD57qmAyDnvdTlpDKDK4TmlMq4Beb7Fn8low4iBkKaUa8oGabqgFcTo1TVvBPQJ_TtRsjnRG-1C2HPIL_Z1H-vH2sxXafKyNUXPkDYhtp4XjZY2hF2YlY34nL0ZYmfNQxNIv9XRPEiN_qdDwhIdHdyFT-ct2z8sTgbIQleCM723SO5OVl323iFZDxdtkij8ju7aNOlwgv"/>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-1">Eleanor Vance</h3>
+<p class="font-label-md text-label-md text-primary uppercase tracking-widest mb-3">Editor-in-Chief</p>
+<p class="font-body-md text-body-md text-on-surface-variant">With over two decades shaping literary fiction, Eleanor oversees our editorial direction, ensuring every House of Memoir title meets our exacting standards of narrative depth.</p>
+</div>
+<!-- Team Member 2 -->
+<div class="group animate-fade-in-up stagger-2">
+<div class="relative overflow-hidden mb-6 rounded border border-outline-variant/30 shadow-ambient aspect-[3/4]">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A portrait of a distinguished man in his 40s with a neat beard, wearing a classic tweed vest over a crisp white shirt. He stands in a bright, modern library with blurred books in the background. The lighting is natural and high-key, creating a warm, intellectual, and sophisticated editorial mood." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDakwVYjy-Sae0TogrJErbi3vza6dOAIP-2FTAnGZUV9cyEywn1VPa7W3C2UR2nfDAaLSzYFoRaRGVhD_fHggw-JZvFNYa4lmn4-rSZO9MWg6sO67ktG_8DYPRJ-wXuHLfjiUKsnWfuD6-szFlyRLzzumnTDxHIkGSNnpPnhYDvh1kBXTn8kYXAjaZeJ-MJE_nXddRovKmAogAprHC26FxJcov1fJ-9OME4rbEvocmRp9xT2Uau5tF"/>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-1">Dr. Julian Thorne</h3>
+<p class="font-label-md text-label-md text-primary uppercase tracking-widest mb-3">Director of Acquisitions</p>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        A former academic historian, Julian brings a rigorous critical eye to our non-fiction imprint, seeking out manuscripts that challenge and illuminate.
+                    </p>
+</div>
+<!-- Team Member 3 -->
+<div class="group animate-fade-in-up stagger-3">
+<div class="relative overflow-hidden mb-6 rounded border border-outline-variant/30 shadow-ambient aspect-[3/4]">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="An artistic portrait of a younger woman with striking features and minimalist geometric glasses. She is dressed in a dark navy silk blouse against a soft rich cream background. The lighting is dramatic yet diffused, emphasizing her creative and meticulous nature. High-fashion, modern editorial aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKvrcH8dlH01dioTQ-vIPl3O09htLgS1Dput2b8lud8z7GFvLXpfzMzT_r6dhUPPKdHYyV-2iToLKg-GYn34LM1JiIzlOy0LdMKEF6lAMKONUfYB-_0s9daF4s9bHwptZe3WQwTGAnsGcOSARqMy_Es3FDuSwqx46nPAiJTcqkJIUfxFtKHWUUQLSytfzjT3LeNUouu-QO6Vdms0Kfq2a1C8vNSpFgn_CygUJlu7yzjyKlHHHXSlBx"/>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-1">Clara Lin</h3>
+<p class="font-label-md text-label-md text-primary uppercase tracking-widest mb-3">Head of Design</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Clara translates the soul of the text into physical form. Her award-winning typographic treatments define the tactile luxury of the House of Memoir objecthood.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Shared Component -->
+<footer class="bg-surface-container-low w-full pt-16 pb-8 border-t border-outline-variant/30 animate-fade-in-up">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-1 md:grid-cols-4 gap-gutter text-on-surface">
+<div class="col-span-1 md:col-span-2">
+<div class="flex items-center gap-4 mb-6"><img alt="House of Memoir Logo" class="w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VzsfuRh-KKnC61w55ByraZk7ITo88Ag8SlhvETLNElPFBeLD3As3SF7p_3ZjjOrM0Irj3UjTK09kud7tH94FWX8YOj8cn4W3OISOV4VuWV3_UFLPytx_Pex6YaIyae9McYTqe5KqWomaIx0E0xmX55wKjQ7U1UjWc9txwJa6cUoq2OA8aEzPBxz59CqoPktdj8l-hS6QdYfcw3cHkeaimxDYNYBsm5ySytIblko5orIevoJBeNC8gprmM" style="height: 100px;"/><div class="flex flex-col justify-center"><span class="font-headline-md text-headline-md text-primary leading-none">House of Memoir</span><span class="font-label-md text-label-md tracking-widest uppercase mt-1 text-[10px] text-tertiary">Write Your Legacy. Words Never Die</span></div></div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-sm">© 2024 House of Memoir. All rights reserved.</p>
+</div>
+<div class="col-span-1">
+<ul class="space-y-4 font-body-md text-body-md">
+<li class=""><a class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a></li>
+<li class=""><a class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a></li>
+<li class=""><a class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">FAQ</a></li>
+</ul>
+</div>
+<div class="col-span-1">
+<ul class="space-y-4 font-body-md text-body-md">
+<li class=""><a class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Careers</a></li>
+<li class=""><a class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Contact</a></li>
+</ul>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,7 @@
+# Render deployment blueprint configuration
+services:
+  - type: web
+    name: house-of-memoir
+    env: static
+    buildCommand: ""
+    staticPublishPath: ./
