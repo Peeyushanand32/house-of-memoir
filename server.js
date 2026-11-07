@@ -17,7 +17,8 @@ const DB_FILES = {
   queries: path.join(DATA_DIR, 'queries.json'),
   appointments: path.join(DATA_DIR, 'appointments.json'),
   chatLeads: path.join(DATA_DIR, 'chat_leads.json'),
-  adminConfig: path.join(DATA_DIR, 'admin-config.json')
+  adminConfig: path.join(DATA_DIR, 'admin-config.json'),
+  gallery: path.join(DATA_DIR, 'gallery.json')
 };
 
 Object.entries(DB_FILES).forEach(([key, filePath]) => {
@@ -336,11 +337,17 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  // 5. Public Gallery Endpoint (Retrieve company event photos)
+  if (reqPath === '/api/gallery' && req.method === 'GET') {
+    const gallery = readDb('gallery');
+    return sendJson(res, 200, gallery);
+  }
+
   // ==========================================
   // PROTECTED ADMIN API ROUTES (Login required)
   // ==========================================
 
-  // 5. Admin Stats Endpoint (Protected)
+  // 6. Admin Stats Endpoint (Protected)
   if (reqPath === '/api/stats' && req.method === 'GET') {
     if (!isValidSession(req)) {
       return sendJson(res, 401, { success: false, error: 'Unauthorized: Admin login required' });
@@ -349,12 +356,14 @@ const server = http.createServer(async (req, res) => {
     const queries = readDb('queries');
     const appointments = readDb('appointments');
     const chatLeads = readDb('chatLeads');
+    const gallery = readDb('gallery');
 
     return sendJson(res, 200, {
       totalSubmissions: submissions.length,
       totalQueries: queries.length,
       totalAppointments: appointments.length,
-      totalChatLeads: chatLeads.length
+      totalChatLeads: chatLeads.length,
+      totalGallery: gallery.length
     });
   }
 
@@ -379,7 +388,51 @@ const server = http.createServer(async (req, res) => {
     return sendJson(res, 200, readDb('chatLeads'));
   }
 
-  // 7. Admin Delete Entry Endpoint (Protected)
+  if (reqPath === '/api/admin/gallery' && req.method === 'GET') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    return sendJson(res, 200, readDb('gallery'));
+  }
+
+  // 7. Admin Add Gallery Photo Endpoint (Protected)
+  if (reqPath === '/api/admin/gallery/add' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const { title, category, categoryName, date, image, description } = payload;
+      if (!title || !image) {
+        return sendJson(res, 400, { success: false, error: 'Title and image are required' });
+      }
+
+      const catMap = {
+        'galas': 'Author Galas',
+        'launches': 'Book Launches',
+        'workshops': 'Workshops & Craft',
+        'exhibitions': 'Exhibitions & Fairs'
+      };
+
+      const cleanCat = (category || 'galas').trim().toLowerCase();
+      const newPhoto = {
+        id: 'GAL-' + Date.now().toString(36).toUpperCase() + '-' + crypto.randomBytes(2).toString('hex').toUpperCase(),
+        title: title.trim(),
+        category: cleanCat,
+        categoryName: categoryName || catMap[cleanCat] || 'Company Event',
+        date: date ? date.trim() : new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+        image: image.trim(),
+        description: description ? description.trim() : ''
+      };
+
+      const all = readDb('gallery');
+      all.unshift(newPhoto);
+      writeDb('gallery', all);
+
+      console.log(`\n[NEW GALLERY PHOTO] Added: "${newPhoto.title}" | Category: ${newPhoto.category}`);
+      return sendJson(res, 201, { success: true, message: 'Photo uploaded to company gallery successfully', data: newPhoto });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // 8. Admin Delete Entry Endpoint (Protected)
   if (reqPath === '/api/admin/delete' && req.method === 'POST') {
     if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
     try {

@@ -113,7 +113,7 @@
       </div>
 
       <!-- Stats Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
           <div>
             <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Manuscripts</p>
@@ -146,11 +146,21 @@
 
         <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Chat Concierge Leads</p>
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Chat Leads</p>
             <h3 id="stat-chat" class="text-3xl font-extrabold text-purple-600 mt-1 font-display">0</h3>
           </div>
           <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
             <span class="material-symbols-outlined text-2xl">forum</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Gallery Photos</p>
+            <h3 id="stat-gallery" class="text-3xl font-extrabold text-[#c59b27] mt-1 font-display">0</h3>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-amber-50 text-[#c59b27] flex items-center justify-center">
+            <span class="material-symbols-outlined text-2xl">photo_library</span>
           </div>
         </div>
       </div>
@@ -172,6 +182,10 @@
         <button onclick="switchTab('chat')" id="tab-btn-chat" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 flex items-center gap-1.5">
           <span class="material-symbols-outlined text-base">chat</span>
           Chat Leads
+        </button>
+        <button onclick="switchTab('gallery')" id="tab-btn-gallery" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-base text-[#c59b27]">photo_library</span>
+          Gallery Management
         </button>
         <button onclick="switchTab('security')" id="tab-btn-security" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 flex items-center gap-1.5 ml-auto">
           <span class="material-symbols-outlined text-base">lock_reset</span>
@@ -303,6 +317,97 @@
         </div>
       </section>
 
+      <!-- Tab: Gallery Management -->
+      <section id="tab-gallery" class="tab-content hidden space-y-8">
+        
+        <!-- Upload Form Card -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden p-6 sm:p-8">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="material-symbols-outlined text-[#c59b27] text-2xl">add_photo_alternate</span>
+            <h2 class="font-display font-bold text-xl text-gray-900">Upload New Event Photo</h2>
+          </div>
+          <p class="text-xs text-gray-500 mb-6">Add photos of author galas, book launches, artisanal masterclasses, and company celebrations to the live website gallery.</p>
+
+          <div id="gallery-form-alert" class="hidden text-xs px-4 py-2.5 rounded-xl mb-4"></div>
+
+          <form id="add-gallery-form" onsubmit="handleAddGalleryPhoto(event)" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="md:col-span-2">
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Event / Photo Title *</label>
+                <input type="text" id="gal-title" required placeholder="e.g. Annual Author Gala 2026" class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]"/>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Event Category *</label>
+                <select id="gal-category" required class="w-full text-xs px-3 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]">
+                  <option value="galas">Author Galas</option>
+                  <option value="launches">Book Launches</option>
+                  <option value="workshops">Masterclasses & Workshops</option>
+                  <option value="exhibitions">Exhibitions & Fairs</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Event Date / Season</label>
+                <input type="text" id="gal-date" placeholder="e.g. November 2026" class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]"/>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Image URL (or select local file below)</label>
+                <input type="url" id="gal-image-url" placeholder="https://images.unsplash.com/..." class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]" oninput="handleImageUrlInput(this.value)"/>
+              </div>
+            </div>
+
+            <!-- File Upload & Live Preview Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Upload Image File (JPG, PNG, WebP)</label>
+                <input type="file" id="gal-image-file" accept="image/png,image/jpeg,image/jpg,image/webp" class="w-full text-xs file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#1978e5] hover:file:bg-blue-100 border border-gray-300 rounded-xl" onchange="handleImageFileSelect(event)"/>
+                <p class="text-[11px] text-gray-400 mt-1">Upload high-res event photography directly without hosting needed.</p>
+              </div>
+
+              <!-- Preview thumbnail -->
+              <div id="gal-preview-container" class="h-28 border border-dashed border-gray-300 rounded-xl flex items-center justify-center bg-gray-50 overflow-hidden relative">
+                <img id="gal-preview-img" src="" alt="Preview" class="hidden h-full w-full object-cover"/>
+                <div id="gal-preview-placeholder" class="text-center text-gray-400 text-xs flex flex-col items-center">
+                  <span class="material-symbols-outlined text-2xl">image</span>
+                  <span>Photo Preview</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Description / Caption</label>
+              <textarea id="gal-desc" rows="2" placeholder="Brief note about the celebration, venue, or attendees..." class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5] resize-none"></textarea>
+            </div>
+
+            <div class="flex justify-end">
+              <button type="submit" id="gal-submit-btn" class="bg-[#1978e5] text-white text-xs font-bold px-6 py-3 rounded-xl hover:bg-blue-700 shadow-md flex items-center gap-1.5 transition-all">
+                <span class="material-symbols-outlined text-sm">cloud_upload</span> Upload to Company Gallery
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Current Gallery Photos List -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+            <div>
+              <h2 class="font-display font-bold text-lg text-gray-900">Live Gallery Photos</h2>
+              <p class="text-xs text-gray-500">Currently active event photos on the main website.</p>
+            </div>
+            <button onclick="loadAdminData()" class="text-xs border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-lg flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm">refresh</span> Refresh Gallery
+            </button>
+          </div>
+
+          <div id="admin-gallery-grid" class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="col-span-full text-center py-10 text-gray-400">Loading company photos...</div>
+          </div>
+        </div>
+
+      </section>
+
       <!-- Tab 5: Security & Change Password -->
       <section id="tab-security" class="tab-content hidden bg-white rounded-2xl border border-gray-200 shadow-sm p-6 max-w-xl">
         <h2 class="font-display font-bold text-xl text-gray-900 mb-1">Security & Admin Credentials</h2>
@@ -375,8 +480,10 @@
       submissions: [],
       queries: [],
       appointments: [],
-      chatLeads: []
+      chatLeads: [],
+      gallery: []
     };
+    let activeImageBase64 = '';
 
     document.addEventListener('DOMContentLoaded', () => {
       checkAuthStatus();
@@ -487,29 +594,35 @@
       const headers = getAuthHeaders();
 
       try {
-        const [statsRes, subRes, qryRes, aptRes, chatRes] = await Promise.all([
+        const [statsRes, subRes, qryRes, aptRes, chatRes, galRes] = await Promise.all([
           fetch('/api/stats', { headers }).then(r => { if (r.status === 401) { handleLogout(); } return r.json(); }),
           fetch('/api/admin/submissions', { headers }).then(r => r.json()).catch(() => []),
           fetch('/api/admin/queries', { headers }).then(r => r.json()).catch(() => []),
           fetch('/api/admin/appointments', { headers }).then(r => r.json()).catch(() => []),
-          fetch('/api/admin/chat-leads', { headers }).then(r => r.json()).catch(() => [])
+          fetch('/api/admin/chat-leads', { headers }).then(r => r.json()).catch(() => []),
+          fetch('/api/gallery').then(r => r.json()).catch(() => [])
         ]);
 
         CURRENT_DATA.submissions = Array.isArray(subRes) ? subRes : [];
         CURRENT_DATA.queries = Array.isArray(qryRes) ? qryRes : [];
         CURRENT_DATA.appointments = Array.isArray(aptRes) ? aptRes : [];
         CURRENT_DATA.chatLeads = Array.isArray(chatRes) ? chatRes : [];
+        CURRENT_DATA.gallery = Array.isArray(galRes) ? galRes : [];
 
         // Update stats
         document.getElementById('stat-submissions').innerText = CURRENT_DATA.submissions.length;
         document.getElementById('stat-queries').innerText = CURRENT_DATA.queries.length;
         document.getElementById('stat-appointments').innerText = CURRENT_DATA.appointments.length;
         document.getElementById('stat-chat').innerText = CURRENT_DATA.chatLeads.length;
+        if (document.getElementById('stat-gallery')) {
+          document.getElementById('stat-gallery').innerText = CURRENT_DATA.gallery.length;
+        }
 
         renderSubmissions();
         renderQueries();
         renderAppointments();
         renderChatLeads();
+        renderGallery();
       } catch (err) {
         console.error('Failed to load admin data:', err);
       }
@@ -617,6 +730,147 @@
             </button>
           </td>
         </tr>
+      `).join('');
+    }
+
+    // ==========================================
+    // GALLERY FUNCTIONS
+    // ==========================================
+    function handleImageUrlInput(url) {
+      const previewImg = document.getElementById('gal-preview-img');
+      const placeholder = document.getElementById('gal-preview-placeholder');
+      if (url && url.startsWith('http')) {
+        previewImg.src = url;
+        previewImg.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+        activeImageBase64 = ''; // clear file upload preference
+      } else if (!activeImageBase64) {
+        previewImg.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+      }
+    }
+
+    function handleImageFileSelect(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        activeImageBase64 = evt.target.result;
+        const previewImg = document.getElementById('gal-preview-img');
+        const placeholder = document.getElementById('gal-preview-placeholder');
+        previewImg.src = activeImageBase64;
+        previewImg.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+        document.getElementById('gal-image-url').value = '';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function handleAddGalleryPhoto(e) {
+      e.preventDefault();
+      const title = document.getElementById('gal-title').value.trim();
+      const category = document.getElementById('gal-category').value;
+      const date = document.getElementById('gal-date').value.trim();
+      const urlInput = document.getElementById('gal-image-url').value.trim();
+      const desc = document.getElementById('gal-desc').value.trim();
+      const alertBox = document.getElementById('gallery-form-alert');
+      const btn = document.getElementById('gal-submit-btn');
+
+      const image = activeImageBase64 || urlInput;
+
+      if (!image) {
+        alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
+        alertBox.innerText = 'Please provide an Image URL or select an image file to upload.';
+        alertBox.classList.remove('hidden');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'Uploading photo...';
+      alertBox.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/admin/gallery/add', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            title,
+            category,
+            date: date || undefined,
+            image,
+            description: desc
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700';
+          alertBox.innerText = 'Photo uploaded and published to gallery successfully!';
+          alertBox.classList.remove('hidden');
+
+          // Reset Form
+          document.getElementById('add-gallery-form').reset();
+          activeImageBase64 = '';
+          document.getElementById('gal-preview-img').classList.add('hidden');
+          document.getElementById('gal-preview-placeholder').classList.remove('hidden');
+
+          loadAdminData();
+        } else {
+          alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
+          alertBox.innerText = data.error || 'Failed to upload photo';
+          alertBox.classList.remove('hidden');
+        }
+      } catch (err) {
+        alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
+        alertBox.innerText = 'Error connecting to server';
+        alertBox.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span class="material-symbols-outlined text-sm">cloud_upload</span> Upload to Company Gallery`;
+      }
+    }
+
+    function renderGallery() {
+      const container = document.getElementById('admin-gallery-grid');
+      if (!container) return;
+
+      if (!CURRENT_DATA.gallery || CURRENT_DATA.gallery.length === 0) {
+        container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">No event photos in gallery yet. Upload one above!</div>`;
+        return;
+      }
+
+      const catBadges = {
+        'galas': 'bg-amber-100 text-amber-800',
+        'launches': 'bg-blue-100 text-blue-800',
+        'workshops': 'bg-emerald-100 text-emerald-800',
+        'exhibitions': 'bg-purple-100 text-purple-800'
+      };
+
+      container.innerHTML = CURRENT_DATA.gallery.map(item => `
+        <div class="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+          <div class="h-44 w-full bg-black/80 relative overflow-hidden">
+            <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+            <span class="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${catBadges[item.category] || 'bg-gray-100 text-gray-800'}">
+              ${item.categoryName || item.category}
+            </span>
+            <span class="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/60 text-white backdrop-blur-md">
+              ${item.date || 'Recent'}
+            </span>
+          </div>
+          <div class="p-4 flex-1 flex flex-col justify-between">
+            <div>
+              <h4 class="font-display font-bold text-sm text-gray-900 line-clamp-1">${item.title}</h4>
+              <p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.description || 'No caption provided.'}</p>
+            </div>
+            <div class="pt-3 mt-3 border-t border-gray-200 flex items-center justify-between">
+              <span class="text-[10px] font-mono text-gray-400">${item.id}</span>
+              <button onclick="deleteItem('gallery', '${item.id}')" class="text-xs text-red-600 hover:text-red-800 font-semibold flex items-center gap-1 p-1 hover:bg-red-50 rounded-lg transition-colors">
+                <span class="material-symbols-outlined text-sm">delete</span> Delete
+              </button>
+            </div>
+          </div>
+        </div>
       `).join('');
     }
 

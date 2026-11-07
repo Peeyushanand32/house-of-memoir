@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initCalendarPicker();
   initAllDropzones();
   initPageForms();
+  initGallery();
 });
 
 // ==========================================
@@ -568,3 +569,150 @@ function showToast(message) {
     toast.style.display = 'none';
   }, 5000);
 }
+
+// ==========================================
+// 11. Company Events Gallery & Lightbox
+// ==========================================
+let GALLERY_ITEMS = [];
+
+async function initGallery() {
+  const grid = document.getElementById('gallery-grid');
+  if (!grid) return; // Only runs on pages with gallery section
+
+  // Close lightbox on backdrop click or ESC key
+  const lightbox = document.getElementById('gallery-lightbox');
+  if (lightbox) {
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeGalleryLightbox();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeGalleryLightbox();
+    });
+  }
+
+  // Fetch dynamic gallery photos from backend
+  try {
+    const res = await fetch('/api/gallery');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        GALLERY_ITEMS = data;
+        renderDynamicGallery(GALLERY_ITEMS);
+      }
+    }
+  } catch (err) {
+    console.log('Using pre-rendered gallery items:', err);
+  }
+}
+
+function renderDynamicGallery(items) {
+  const grid = document.getElementById('gallery-grid');
+  if (!grid || !items || items.length === 0) return;
+
+  const catBadges = {
+    'galas': { name: 'Author Galas', badge: 'bg-[#c59b27]/90 text-black' },
+    'launches': { name: 'Book Launches', badge: 'bg-[#1978e5] text-white' },
+    'workshops': { name: 'Workshops', badge: 'bg-emerald-600 text-white' },
+    'exhibitions': { name: 'Exhibitions', badge: 'bg-purple-600 text-white' }
+  };
+
+  grid.innerHTML = items.map(item => {
+    const meta = catBadges[item.category] || { name: item.categoryName || 'Event', badge: 'bg-gray-700 text-white' };
+    const safeTitle = (item.title || '').replace(/'/g, "\\'");
+    const safeCat = (item.categoryName || meta.name).replace(/'/g, "\\'");
+    const safeDate = (item.date || '').replace(/'/g, "\\'");
+    const safeDesc = (item.description || '').replace(/'/g, "\\'");
+    const safeImg = (item.image || '').replace(/'/g, "\\'");
+
+    return `
+      <div class="gallery-card group relative bg-gray-900 rounded-2xl overflow-hidden border border-gray-800 shadow-xl cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-[#c59b27]/60"
+           data-category="${item.category || 'galas'}"
+           data-id="${item.id}"
+           onclick="openGalleryLightbox('${safeImg}', '${safeTitle}', '${safeCat}', '${safeDate}', '${safeDesc}')">
+        <div class="aspect-[4/3] w-full overflow-hidden bg-black/60 relative">
+          <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80 group-hover:opacity-95 transition-opacity"></div>
+          
+          <div class="absolute top-4 left-4 flex items-center gap-2">
+            <span class="${meta.badge} text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full shadow-sm tracking-wider">
+              ${item.categoryName || meta.name}
+            </span>
+          </div>
+          <div class="absolute top-4 right-4">
+            <span class="bg-black/60 backdrop-blur-md border border-white/10 text-gray-300 text-[10px] font-semibold px-2.5 py-1 rounded-full">
+              ${item.date || 'Recent'}
+            </span>
+          </div>
+
+          <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <span class="w-12 h-12 rounded-full bg-[#1978e5] text-white flex items-center justify-center shadow-lg transform scale-75 group-hover:scale-100 transition-transform">
+              <span class="material-symbols-outlined text-2xl">fullscreen</span>
+            </span>
+          </div>
+
+          <div class="absolute bottom-0 inset-x-0 p-5">
+            <h3 class="font-display text-xl font-bold text-white group-hover:text-[#c59b27] transition-colors leading-snug">
+              ${item.title}
+            </h3>
+            <p class="text-xs text-gray-300 mt-1.5 line-clamp-2 leading-relaxed">
+              ${item.description || ''}
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+window.filterGallery = function(category, btnElement) {
+  // Update active state of filter buttons
+  document.querySelectorAll('.gallery-filter-btn').forEach(btn => {
+    btn.classList.remove('active', 'bg-[#1978e5]', 'text-white', 'shadow-md');
+    btn.classList.add('text-gray-300');
+  });
+
+  if (btnElement) {
+    btnElement.classList.add('active', 'bg-[#1978e5]', 'text-white', 'shadow-md');
+    btnElement.classList.remove('text-gray-300');
+  }
+
+  // Filter gallery cards
+  const cards = document.querySelectorAll('.gallery-card');
+  cards.forEach(card => {
+    const cardCat = card.dataset.category;
+    if (category === 'all' || cardCat === category) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+};
+
+window.openGalleryLightbox = function(imgSrc, title, category, date, desc) {
+  const modal = document.getElementById('gallery-lightbox');
+  if (!modal) return;
+
+  const imgEl = document.getElementById('lightbox-img');
+  const titleEl = document.getElementById('lightbox-title');
+  const badgeEl = document.getElementById('lightbox-badge');
+  const dateEl = document.getElementById('lightbox-date');
+  const descEl = document.getElementById('lightbox-desc');
+
+  if (imgEl) imgEl.src = imgSrc || '';
+  if (titleEl) titleEl.innerText = title || '';
+  if (badgeEl) badgeEl.innerText = category || 'Company Event';
+  if (dateEl) dateEl.innerText = date || '';
+  if (descEl) descEl.innerText = desc || '';
+
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeGalleryLightbox = function() {
+  const modal = document.getElementById('gallery-lightbox');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+  document.body.style.overflow = '';
+};
