@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Editorial Admin Portal | House of Memoir</title>
+  <title>Editorial & Content Command Portal | House of Memoir</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -21,7 +21,7 @@
       <div class="bg-[#000613] text-white p-8 text-center border-b border-gray-800">
         <img src="logo.png" alt="Logo" class="h-12 w-auto mx-auto mb-3 object-contain"/>
         <h2 class="font-display font-bold text-2xl text-[#c59b27]">House of Memoir</h2>
-        <p class="text-xs text-gray-400 uppercase tracking-widest mt-1">Editorial Command Center</p>
+        <p class="text-xs text-gray-400 uppercase tracking-widest mt-1">Editorial & Content Command Portal</p>
       </div>
 
       <!-- Login Form -->
@@ -79,7 +79,7 @@
             <img src="logo.png" alt="Logo" class="h-10 w-auto"/>
             <div>
               <div class="font-display font-bold text-xl text-[#c59b27] leading-none">House of Memoir</div>
-              <div class="text-[10px] tracking-widest text-gray-400 uppercase mt-0.5">Editorial Command Portal</div>
+              <div class="text-[10px] tracking-widest text-gray-400 uppercase mt-0.5">Editorial & Website CMS</div>
             </div>
           </a>
         </div>
@@ -101,95 +101,117 @@
     <!-- Main Container -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
       
-      <!-- Welcome & Quick Stats -->
+      <!-- Welcome Header -->
       <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
-          <h1 class="font-display text-3xl font-bold text-gray-900">Submissions & Leads Management</h1>
-          <p class="text-xs text-gray-500 mt-1">Real-time repository of author manuscripts, general inquiries, and consultation appointments.</p>
+          <h1 class="font-display text-3xl font-bold text-gray-900">Website Content & Leads Command</h1>
+          <p class="text-xs text-gray-500 mt-1">Manage publications portfolio, author testimonials, services, event gallery photos, and client submissions.</p>
         </div>
         <a href="index.html" target="_blank" class="text-xs bg-white hover:bg-gray-100 text-[#1978e5] font-semibold border border-gray-300 px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition-all">
           <span class="material-symbols-outlined text-sm">open_in_new</span> View Live Website
         </a>
       </div>
 
-      <!-- Stats Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+      <!-- Stats Grid (6 cards) -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-8">
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Manuscripts</p>
-            <h3 id="stat-submissions" class="text-3xl font-extrabold text-[#1978e5] mt-1 font-display">0</h3>
+            <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Portfolio</p>
+            <h3 id="stat-portfolio" class="text-2xl sm:text-3xl font-extrabold text-[#1978e5] mt-1 font-display">0</h3>
           </div>
-          <div class="w-12 h-12 rounded-xl bg-blue-50 text-[#1978e5] flex items-center justify-center">
-            <span class="material-symbols-outlined text-2xl">auto_stories</span>
+          <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#1978e5] flex items-center justify-center">
+            <span class="material-symbols-outlined text-xl">collections_bookmark</span>
           </div>
         </div>
 
-        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">General Queries</p>
-            <h3 id="stat-queries" class="text-3xl font-extrabold text-amber-600 mt-1 font-display">0</h3>
+            <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Testimonials</p>
+            <h3 id="stat-testimonials" class="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1 font-display">0</h3>
           </div>
-          <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-            <span class="material-symbols-outlined text-2xl">mail</span>
+          <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+            <span class="material-symbols-outlined text-xl">reviews</span>
           </div>
         </div>
 
-        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Appointments</p>
-            <h3 id="stat-appointments" class="text-3xl font-extrabold text-emerald-600 mt-1 font-display">0</h3>
+            <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Gallery</p>
+            <h3 id="stat-gallery" class="text-2xl sm:text-3xl font-extrabold text-[#c59b27] mt-1 font-display">0</h3>
           </div>
-          <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-            <span class="material-symbols-outlined text-2xl">calendar_month</span>
+          <div class="w-10 h-10 rounded-xl bg-amber-50 text-[#c59b27] flex items-center justify-center">
+            <span class="material-symbols-outlined text-xl">photo_library</span>
           </div>
         </div>
 
-        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Chat Leads</p>
-            <h3 id="stat-chat" class="text-3xl font-extrabold text-purple-600 mt-1 font-display">0</h3>
+            <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Services</p>
+            <h3 id="stat-services" class="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-1 font-display">0</h3>
           </div>
-          <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
-            <span class="material-symbols-outlined text-2xl">forum</span>
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <span class="material-symbols-outlined text-xl">design_services</span>
           </div>
         </div>
 
-        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Gallery Photos</p>
-            <h3 id="stat-gallery" class="text-3xl font-extrabold text-[#c59b27] mt-1 font-display">0</h3>
+            <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Manuscripts</p>
+            <h3 id="stat-submissions" class="text-2xl sm:text-3xl font-extrabold text-purple-600 mt-1 font-display">0</h3>
           </div>
-          <div class="w-12 h-12 rounded-xl bg-amber-50 text-[#c59b27] flex items-center justify-center">
-            <span class="material-symbols-outlined text-2xl">photo_library</span>
+          <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+            <span class="material-symbols-outlined text-xl">auto_stories</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Appointments</p>
+            <h3 id="stat-appointments" class="text-2xl sm:text-3xl font-extrabold text-cyan-600 mt-1 font-display">0</h3>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center">
+            <span class="material-symbols-outlined text-xl">calendar_month</span>
           </div>
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
+      <!-- Navigation Tabs (Content Management First) -->
       <div class="flex flex-wrap gap-2 border-b border-gray-200 pb-3 mb-6">
-        <button onclick="switchTab('submissions')" id="tab-btn-submissions" class="tab-btn active px-4 py-2 rounded-xl text-xs font-bold transition-all bg-[#000613] text-white flex items-center gap-1.5 shadow-sm">
+        <button onclick="switchTab('portfolio')" id="tab-btn-portfolio" class="tab-btn active px-4 py-2 rounded-xl text-xs font-bold transition-all bg-[#000613] text-white flex items-center gap-1.5 shadow-sm">
+          <span class="material-symbols-outlined text-base text-[#1978e5]">collections_bookmark</span>
+          Portfolio Books
+        </button>
+        <button onclick="switchTab('testimonials')" id="tab-btn-testimonials" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-base text-amber-500">star</span>
+          Author Reviews
+        </button>
+        <button onclick="switchTab('services')" id="tab-btn-services" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-base text-emerald-600">design_services</span>
+          Services & Packages
+        </button>
+        <button onclick="switchTab('gallery')" id="tab-btn-gallery" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-base text-[#c59b27]">photo_library</span>
+          Event Gallery
+        </button>
+        <button onclick="switchTab('submissions')" id="tab-btn-submissions" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 flex items-center gap-1.5">
           <span class="material-symbols-outlined text-base">upload_file</span>
-          Manuscript Submissions
+          Manuscripts
         </button>
         <button onclick="switchTab('queries')" id="tab-btn-queries" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 flex items-center gap-1.5">
           <span class="material-symbols-outlined text-base">help</span>
-          General Queries
+          Queries
         </button>
         <button onclick="switchTab('appointments')" id="tab-btn-appointments" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 flex items-center gap-1.5">
           <span class="material-symbols-outlined text-base">event</span>
-          Consultations Booked
+          Appointments
         </button>
         <button onclick="switchTab('chat')" id="tab-btn-chat" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 flex items-center gap-1.5">
           <span class="material-symbols-outlined text-base">chat</span>
           Chat Leads
         </button>
-        <button onclick="switchTab('gallery')" id="tab-btn-gallery" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 flex items-center gap-1.5">
-          <span class="material-symbols-outlined text-base text-[#c59b27]">photo_library</span>
-          Gallery Management
-        </button>
         <button onclick="switchTab('security')" id="tab-btn-security" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 flex items-center gap-1.5 ml-auto">
           <span class="material-symbols-outlined text-base">lock_reset</span>
-          Security & Password
+          Security
         </button>
         <button onclick="switchTab('config')" id="tab-btn-config" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 flex items-center gap-1.5">
           <span class="material-symbols-outlined text-base">settings</span>
@@ -197,127 +219,306 @@
         </button>
       </div>
 
-      <!-- Tab 1: Manuscript Submissions -->
-      <section id="tab-submissions" class="tab-content bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
-          <div>
-            <h2 class="font-display font-bold text-lg text-gray-900">Submitted Manuscripts</h2>
-            <p class="text-xs text-gray-500">Submissions received via website modal & appointment portal.</p>
+      <!-- ========================================== -->
+      <!-- TAB 1: PORTFOLIO MANAGEMENT -->
+      <!-- ========================================== -->
+      <section id="tab-portfolio" class="tab-content space-y-8">
+        <!-- Add New Book Card -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="material-symbols-outlined text-[#1978e5] text-2xl">add_circle</span>
+            <h2 class="font-display font-bold text-xl text-gray-900">Add New Book to Portfolio</h2>
           </div>
-          <button onclick="exportData('submissions')" class="text-xs border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-lg flex items-center gap-1">
-            <span class="material-symbols-outlined text-sm">download</span> Export JSON
-          </button>
+          <p class="text-xs text-gray-500 mb-6">Publish a new title into the House of Memoir catalog. It will immediately appear on the live Publications Portfolio and Home page preview.</p>
+
+          <div id="portfolio-form-alert" class="hidden text-xs px-4 py-2.5 rounded-xl mb-4"></div>
+
+          <form id="add-portfolio-form" onsubmit="handleAddPortfolioBook(event)" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="md:col-span-2">
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Book Title *</label>
+                <input type="text" id="port-title" required placeholder="e.g. Chronicles of Silence" class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]"/>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Author Name *</label>
+                <input type="text" id="port-author" required placeholder="e.g. Victoria Sterling" class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]"/>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Genre / Category *</label>
+                <select id="port-category" required class="w-full text-xs px-3 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]">
+                  <option value="memoir">Memoir</option>
+                  <option value="fiction">Literary Fiction</option>
+                  <option value="nonfiction">Non-Fiction</option>
+                  <option value="poetry">Poetry</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Edition Format</label>
+                <input type="text" id="port-format" placeholder="e.g. Hardcover & Ebook" value="Hardcover & Ebook" class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]"/>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Accolade / Badge</label>
+                <input type="text" id="port-badge" placeholder="e.g. NYT Bestseller / Editor's Choice" value="New Release" class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]"/>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Book Cover Image URL</label>
+                <input type="url" id="port-image-url" placeholder="https://images.unsplash.com/..." class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]" oninput="handlePreviewPortImage(this.value)"/>
+                
+                <div class="mt-2">
+                  <label class="block text-[11px] font-semibold text-gray-600 mb-1">Or Upload Cover File directly:</label>
+                  <input type="file" id="port-image-file" accept="image/*" class="w-full text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#1978e5] border border-gray-300 rounded-xl" onchange="handlePortFileSelect(event)"/>
+                </div>
+              </div>
+
+              <!-- Preview -->
+              <div class="h-32 border border-dashed border-gray-300 rounded-xl flex items-center justify-center bg-gray-50 overflow-hidden relative">
+                <img id="port-preview-img" src="" alt="Cover Preview" class="hidden h-full w-full object-cover"/>
+                <div id="port-preview-placeholder" class="text-center text-gray-400 text-xs flex flex-col items-center">
+                  <span class="material-symbols-outlined text-2xl">book_2</span>
+                  <span>Cover Preview</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Book Synopsis / Description</label>
+              <textarea id="port-desc" rows="3" placeholder="A brief captivating synopsis of the book..." class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]"></textarea>
+            </div>
+
+            <div class="flex justify-end">
+              <button type="submit" id="port-submit-btn" class="bg-[#1978e5] text-white text-xs font-bold px-6 py-3 rounded-xl hover:bg-blue-700 shadow-md flex items-center gap-1.5 transition-all">
+                <span class="material-symbols-outlined text-sm">bookmark_add</span> Publish Book to Portfolio
+              </button>
+            </div>
+          </form>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-gray-50 border-b border-gray-200 uppercase font-semibold text-gray-500 tracking-wider">
-              <tr>
-                <th class="py-3.5 px-4">ID & Date</th>
-                <th class="py-3.5 px-4">Author Name</th>
-                <th class="py-3.5 px-4">Contact</th>
-                <th class="py-3.5 px-4">Book Title & Genre</th>
-                <th class="py-3.5 px-4">File Attached</th>
-                <th class="py-3.5 px-4">Status</th>
-                <th class="py-3.5 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="table-submissions" class="divide-y divide-gray-100">
-              <tr><td colspan="7" class="text-center py-8 text-gray-400">Loading submissions...</td></tr>
-            </tbody>
-          </table>
+
+        <!-- Live Portfolio List -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+            <div>
+              <h2 class="font-display font-bold text-lg text-gray-900">Live Publications Portfolio</h2>
+              <p class="text-xs text-gray-500">Currently active books on the live website.</p>
+            </div>
+            <button onclick="loadAdminData()" class="text-xs border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-lg flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm">refresh</span> Refresh
+            </button>
+          </div>
+
+          <div id="admin-portfolio-grid" class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="col-span-full text-center py-10 text-gray-400">Loading portfolio books...</div>
+          </div>
         </div>
       </section>
 
-      <!-- Tab 2: General Queries -->
-      <section id="tab-queries" class="tab-content hidden bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
-          <div>
-            <h2 class="font-display font-bold text-lg text-gray-900">General Enquiries & Queries</h2>
-            <p class="text-xs text-gray-500">Inquiries sent from the Appointment & Query page form.</p>
+      <!-- ========================================== -->
+      <!-- TAB 2: TESTIMONIALS MANAGEMENT -->
+      <!-- ========================================== -->
+      <section id="tab-testimonials" class="tab-content hidden space-y-8">
+        <!-- Add New Testimonial Card -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="material-symbols-outlined text-amber-500 text-2xl">rate_review</span>
+            <h2 class="font-display font-bold text-xl text-gray-900">Add New Author Review / Testimonial</h2>
           </div>
-          <button onclick="exportData('queries')" class="text-xs border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-lg flex items-center gap-1">
-            <span class="material-symbols-outlined text-sm">download</span> Export JSON
-          </button>
+          <p class="text-xs text-gray-500 mb-6">Add verified author reviews and quotes to display on the Voices of House of Memoir page.</p>
+
+          <div id="tst-form-alert" class="hidden text-xs px-4 py-2.5 rounded-xl mb-4"></div>
+
+          <form id="add-tst-form" onsubmit="handleAddTestimonial(event)" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Author Name *</label>
+                <input type="text" id="tst-author" required placeholder="e.g. Eleanor Vance" class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]"/>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Book Title / Role</label>
+                <input type="text" id="tst-book" placeholder="e.g. Chronicles of Silence" class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]"/>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Author Title / Badge</label>
+                <input type="text" id="tst-badge" placeholder="e.g. NYT Bestselling Author" value="Author" class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]"/>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Genre Tag</label>
+                <input type="text" id="tst-genre" placeholder="e.g. Historical Memoir" value="Memoir" class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]"/>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Star Rating (1 - 5)</label>
+                <select id="tst-rating" class="w-full text-xs px-3 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]">
+                  <option value="5" selected>5 Stars (★★★★★)</option>
+                  <option value="4">4 Stars (★★★★☆)</option>
+                  <option value="3">3 Stars (★★★☆☆)</option>
+                </select>
+              </div>
+              <div class="flex items-center gap-2 pt-6">
+                <input type="checkbox" id="tst-featured" class="rounded text-[#1978e5] focus:ring-[#1978e5] w-4 h-4"/>
+                <label for="tst-featured" class="text-xs font-semibold text-gray-800">Feature this review prominently</label>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Author Portrait Photo URL</label>
+                <input type="url" id="tst-image-url" placeholder="https://images.unsplash.com/..." class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]" oninput="handlePreviewTstImage(this.value)"/>
+                
+                <div class="mt-2">
+                  <label class="block text-[11px] font-semibold text-gray-600 mb-1">Or Upload Photo File directly:</label>
+                  <input type="file" id="tst-image-file" accept="image/*" class="w-full text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 border border-gray-300 rounded-xl" onchange="handleTstFileSelect(event)"/>
+                </div>
+              </div>
+
+              <!-- Preview -->
+              <div class="h-28 border border-dashed border-gray-300 rounded-xl flex items-center justify-center bg-gray-50 overflow-hidden relative">
+                <img id="tst-preview-img" src="" alt="Author Preview" class="hidden h-20 w-20 rounded-full object-cover border-2 border-[#1978e5]"/>
+                <div id="tst-preview-placeholder" class="text-center text-gray-400 text-xs flex flex-col items-center">
+                  <span class="material-symbols-outlined text-2xl">person</span>
+                  <span>Author Portrait Preview</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Author Testimonial Quote *</label>
+              <textarea id="tst-quote" required rows="3" placeholder="What does the author say about their publishing journey with House of Memoir?..." class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]"></textarea>
+            </div>
+
+            <div class="flex justify-end">
+              <button type="submit" id="tst-submit-btn" class="bg-amber-600 text-white text-xs font-bold px-6 py-3 rounded-xl hover:bg-amber-700 shadow-md flex items-center gap-1.5 transition-all">
+                <span class="material-symbols-outlined text-sm">add_comment</span> Publish Testimonial
+              </button>
+            </div>
+          </form>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-gray-50 border-b border-gray-200 uppercase font-semibold text-gray-500 tracking-wider">
-              <tr>
-                <th class="py-3.5 px-4">Date</th>
-                <th class="py-3.5 px-4">Sender</th>
-                <th class="py-3.5 px-4">Email</th>
-                <th class="py-3.5 px-4">Phone</th>
-                <th class="py-3.5 px-4">Query Message</th>
-                <th class="py-3.5 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="table-queries" class="divide-y divide-gray-100">
-              <tr><td colspan="6" class="text-center py-8 text-gray-400">Loading queries...</td></tr>
-            </tbody>
-          </table>
+
+        <!-- Live Testimonials List -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+            <div>
+              <h2 class="font-display font-bold text-lg text-gray-900">Live Author Reviews</h2>
+              <p class="text-xs text-gray-500">Currently published testimonials on the live website.</p>
+            </div>
+            <button onclick="loadAdminData()" class="text-xs border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-lg flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm">refresh</span> Refresh
+            </button>
+          </div>
+
+          <div id="admin-testimonials-grid" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="col-span-full text-center py-10 text-gray-400">Loading testimonials...</div>
+          </div>
         </div>
       </section>
 
-      <!-- Tab 3: Consultation Appointments -->
-      <section id="tab-appointments" class="tab-content hidden bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
-          <div>
-            <h2 class="font-display font-bold text-lg text-gray-900">Consultation Bookings</h2>
-            <p class="text-xs text-gray-500">Authors who scheduled a private consultation session.</p>
+      <!-- ========================================== -->
+      <!-- TAB 3: SERVICES & PACKAGES MANAGEMENT -->
+      <!-- ========================================== -->
+      <section id="tab-services" class="tab-content hidden space-y-8">
+        
+        <!-- Add New Service Card -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="material-symbols-outlined text-emerald-600 text-2xl">add_box</span>
+            <h2 class="font-display font-bold text-xl text-gray-900">Add or Edit Publishing Service</h2>
           </div>
-          <button onclick="exportData('appointments')" class="text-xs border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-lg flex items-center gap-1">
-            <span class="material-symbols-outlined text-sm">download</span> Export JSON
-          </button>
+          <p class="text-xs text-gray-500 mb-6">Manage bespoke publishing solutions shown on the Services & Pricing page.</p>
+
+          <div id="srv-form-alert" class="hidden text-xs px-4 py-2.5 rounded-xl mb-4"></div>
+
+          <form id="add-srv-form" onsubmit="handleAddService(event)" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="md:col-span-2">
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Service Title *</label>
+                <input type="text" id="srv-title" required placeholder="e.g. Developmental Editing & Line Craft" class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]"/>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Icon Name (Material Symbols)</label>
+                <select id="srv-icon" class="w-full text-xs px-3 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]">
+                  <option value="rate_review">rate_review (Editing)</option>
+                  <option value="brush">brush (Design & Art)</option>
+                  <option value="travel_explore">travel_explore (Global Distribution)</option>
+                  <option value="campaign">campaign (Marketing & PR)</option>
+                  <option value="auto_stories">auto_stories (Book Production)</option>
+                  <option value="verified">verified (Quality Seal)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Service Description *</label>
+              <textarea id="srv-desc" required rows="2" placeholder="Comprehensive explanation of what authors receive..." class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Key Deliverables (One per line)</label>
+              <textarea id="srv-deliverables" rows="3" placeholder="One-on-one editorial critique sessions&#10;Line-by-line stylistic refinement&#10;Fact-checking & narrative alignment" class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5] font-mono text-[11px]"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">CTA Button Text</label>
+                <input type="text" id="srv-cta" placeholder="e.g. Request Editorial Assessment" value="Request Editorial Assessment" class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]"/>
+              </div>
+            </div>
+
+            <div class="flex justify-end">
+              <button type="submit" id="srv-submit-btn" class="bg-emerald-600 text-white text-xs font-bold px-6 py-3 rounded-xl hover:bg-emerald-700 shadow-md flex items-center gap-1.5 transition-all">
+                <span class="material-symbols-outlined text-sm">add_task</span> Add Publishing Service
+              </button>
+            </div>
+          </form>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-gray-50 border-b border-gray-200 uppercase font-semibold text-gray-500 tracking-wider">
-              <tr>
-                <th class="py-3.5 px-4">Booked At</th>
-                <th class="py-3.5 px-4">Author</th>
-                <th class="py-3.5 px-4">Email</th>
-                <th class="py-3.5 px-4">Session Date & Slot</th>
-                <th class="py-3.5 px-4">Type</th>
-                <th class="py-3.5 px-4">Status</th>
-                <th class="py-3.5 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="table-appointments" class="divide-y divide-gray-100">
-              <tr><td colspan="7" class="text-center py-8 text-gray-400">Loading appointments...</td></tr>
-            </tbody>
-          </table>
+
+        <!-- Live Services List -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+            <div>
+              <h2 class="font-display font-bold text-lg text-gray-900">Live Publishing Services</h2>
+              <p class="text-xs text-gray-500">Currently active services displayed on the services page.</p>
+            </div>
+            <button onclick="loadAdminData()" class="text-xs border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-lg flex items-center gap-1">
+              <span class="material-symbols-outlined text-sm">refresh</span> Refresh
+            </button>
+          </div>
+
+          <div id="admin-services-grid" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="col-span-full text-center py-10 text-gray-400">Loading services...</div>
+          </div>
+        </div>
+
+        <!-- Publishing Packages Editor Section -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="material-symbols-outlined text-[#1978e5] text-2xl">loyalty</span>
+            <h2 class="font-display font-bold text-xl text-gray-900">Publishing Packages & Pricing</h2>
+          </div>
+          <p class="text-xs text-gray-500 mb-6">Update the pricing, titles, and feature lists for Heritage, Collector's, and Sovereign tiers.</p>
+
+          <div id="packages-alert" class="hidden text-xs px-4 py-2.5 rounded-xl mb-4"></div>
+
+          <div id="packages-editor-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Dynamic package cards injected via JS -->
+          </div>
+
+          <div class="mt-6 flex justify-end">
+            <button onclick="handleSavePackages()" class="bg-[#1978e5] text-white text-xs font-bold px-6 py-3 rounded-xl hover:bg-blue-700 shadow-md flex items-center gap-1.5 transition-all">
+              <span class="material-symbols-outlined text-sm">save</span> Save All Package Updates
+            </button>
+          </div>
         </div>
       </section>
 
-      <!-- Tab 4: Chat Leads -->
-      <section id="tab-chat" class="tab-content hidden bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
-          <div>
-            <h2 class="font-display font-bold text-lg text-gray-900">Chat Concierge Interactions</h2>
-            <p class="text-xs text-gray-500">Live chat visitor queries and captured leads.</p>
-          </div>
-          <button onclick="exportData('chatLeads')" class="text-xs border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-lg flex items-center gap-1">
-            <span class="material-symbols-outlined text-sm">download</span> Export JSON
-          </button>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-gray-50 border-b border-gray-200 uppercase font-semibold text-gray-500 tracking-wider">
-              <tr>
-                <th class="py-3.5 px-4">Timestamp</th>
-                <th class="py-3.5 px-4">Inquiry / Contact</th>
-                <th class="py-3.5 px-4">Source Page</th>
-                <th class="py-3.5 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="table-chat" class="divide-y divide-gray-100">
-              <tr><td colspan="4" class="text-center py-8 text-gray-400">Loading chat leads...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Tab: Gallery Management -->
+      <!-- ========================================== -->
+      <!-- TAB 4: GALLERY MANAGEMENT -->
+      <!-- ========================================== -->
       <section id="tab-gallery" class="tab-content hidden space-y-8">
         
         <!-- Upload Form Card -->
@@ -363,7 +564,7 @@
               <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Upload Image File (JPG, PNG, WebP)</label>
                 <input type="file" id="gal-image-file" accept="image/png,image/jpeg,image/jpg,image/webp" class="w-full text-xs file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#1978e5] hover:file:bg-blue-100 border border-gray-300 rounded-xl" onchange="handleImageFileSelect(event)"/>
-                <p class="text-[11px] text-gray-400 mt-1">Upload high-res event photography directly without hosting needed.</p>
+                <p class="text-[11px] text-gray-400 mt-1">Upload high-res event photography directly without external hosting needed.</p>
               </div>
 
               <!-- Preview thumbnail -->
@@ -408,7 +609,137 @@
 
       </section>
 
-      <!-- Tab 5: Security & Change Password -->
+      <!-- ========================================== -->
+      <!-- TAB 5: MANUSCRIPTS -->
+      <!-- ========================================== -->
+      <section id="tab-submissions" class="tab-content hidden bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+          <div>
+            <h2 class="font-display font-bold text-lg text-gray-900">Submitted Manuscripts</h2>
+            <p class="text-xs text-gray-500">Submissions received via website modal & appointment portal.</p>
+          </div>
+          <button onclick="exportData('submissions')" class="text-xs border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-lg flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">download</span> Export JSON
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-gray-50 border-b border-gray-200 uppercase font-semibold text-gray-500 tracking-wider">
+              <tr>
+                <th class="py-3.5 px-4">ID & Date</th>
+                <th class="py-3.5 px-4">Author Name</th>
+                <th class="py-3.5 px-4">Contact</th>
+                <th class="py-3.5 px-4">Book Title & Genre</th>
+                <th class="py-3.5 px-4">File Attached</th>
+                <th class="py-3.5 px-4">Status</th>
+                <th class="py-3.5 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="table-submissions" class="divide-y divide-gray-100">
+              <tr><td colspan="7" class="text-center py-8 text-gray-400">Loading submissions...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 6: GENERAL QUERIES -->
+      <!-- ========================================== -->
+      <section id="tab-queries" class="tab-content hidden bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+          <div>
+            <h2 class="font-display font-bold text-lg text-gray-900">General Enquiries & Queries</h2>
+            <p class="text-xs text-gray-500">Inquiries sent from the Appointment & Query page form.</p>
+          </div>
+          <button onclick="exportData('queries')" class="text-xs border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-lg flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">download</span> Export JSON
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-gray-50 border-b border-gray-200 uppercase font-semibold text-gray-500 tracking-wider">
+              <tr>
+                <th class="py-3.5 px-4">Date</th>
+                <th class="py-3.5 px-4">Sender</th>
+                <th class="py-3.5 px-4">Email</th>
+                <th class="py-3.5 px-4">Phone</th>
+                <th class="py-3.5 px-4">Query Message</th>
+                <th class="py-3.5 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="table-queries" class="divide-y divide-gray-100">
+              <tr><td colspan="6" class="text-center py-8 text-gray-400">Loading queries...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 7: APPOINTMENTS -->
+      <!-- ========================================== -->
+      <section id="tab-appointments" class="tab-content hidden bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+          <div>
+            <h2 class="font-display font-bold text-lg text-gray-900">Consultation Bookings</h2>
+            <p class="text-xs text-gray-500">Authors who scheduled a private consultation session.</p>
+          </div>
+          <button onclick="exportData('appointments')" class="text-xs border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-lg flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">download</span> Export JSON
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-gray-50 border-b border-gray-200 uppercase font-semibold text-gray-500 tracking-wider">
+              <tr>
+                <th class="py-3.5 px-4">Booked At</th>
+                <th class="py-3.5 px-4">Author</th>
+                <th class="py-3.5 px-4">Email</th>
+                <th class="py-3.5 px-4">Session Date & Slot</th>
+                <th class="py-3.5 px-4">Type</th>
+                <th class="py-3.5 px-4">Status</th>
+                <th class="py-3.5 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="table-appointments" class="divide-y divide-gray-100">
+              <tr><td colspan="7" class="text-center py-8 text-gray-400">Loading appointments...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 8: CHAT LEADS -->
+      <!-- ========================================== -->
+      <section id="tab-chat" class="tab-content hidden bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+          <div>
+            <h2 class="font-display font-bold text-lg text-gray-900">Chat Concierge Interactions</h2>
+            <p class="text-xs text-gray-500">Live chat visitor queries and captured leads.</p>
+          </div>
+          <button onclick="exportData('chatLeads')" class="text-xs border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-lg flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">download</span> Export JSON
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-gray-50 border-b border-gray-200 uppercase font-semibold text-gray-500 tracking-wider">
+              <tr>
+                <th class="py-3.5 px-4">Timestamp</th>
+                <th class="py-3.5 px-4">Inquiry / Contact</th>
+                <th class="py-3.5 px-4">Source Page</th>
+                <th class="py-3.5 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="table-chat" class="divide-y divide-gray-100">
+              <tr><td colspan="4" class="text-center py-8 text-gray-400">Loading chat leads...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 9: SECURITY -->
+      <!-- ========================================== -->
       <section id="tab-security" class="tab-content hidden bg-white rounded-2xl border border-gray-200 shadow-sm p-6 max-w-xl">
         <h2 class="font-display font-bold text-xl text-gray-900 mb-1">Security & Admin Credentials</h2>
         <p class="text-xs text-gray-500 mb-6">Change your administrator username or password.</p>
@@ -437,7 +768,9 @@
         </form>
       </section>
 
-      <!-- Tab 6: Email Settings -->
+      <!-- ========================================== -->
+      <!-- TAB 10: EMAIL SETTINGS -->
+      <!-- ========================================== -->
       <section id="tab-config" class="tab-content hidden bg-white rounded-2xl border border-gray-200 shadow-sm p-6 max-w-3xl">
         <h2 class="font-display font-bold text-xl text-gray-900 mb-1">Email Delivery & Hybrid Settings</h2>
         <p class="text-xs text-gray-500 mb-6">Configure how you receive new manuscript submissions and author queries.</p>
@@ -474,6 +807,175 @@
     </main>
   </div>
 
+  <!-- ========================================== -->
+  <!-- EDIT MODAL: PORTFOLIO BOOK -->
+  <!-- ========================================== -->
+  <div id="edit-portfolio-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
+      <div class="bg-[#000613] text-white p-5 flex justify-between items-center">
+        <h3 class="font-display font-bold text-lg text-[#c59b27]">Edit Portfolio Book</h3>
+        <button onclick="closeEditModal('portfolio')" class="text-gray-400 hover:text-white">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form id="edit-port-form" onsubmit="handleUpdatePortfolioBook(event)" class="p-6 space-y-4">
+        <input type="hidden" id="edit-port-id"/>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Book Title *</label>
+            <input type="text" id="edit-port-title" required class="w-full text-xs px-3 py-2 border rounded-xl"/>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Author Name *</label>
+            <input type="text" id="edit-port-author" required class="w-full text-xs px-3 py-2 border rounded-xl"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Genre</label>
+            <select id="edit-port-category" class="w-full text-xs px-3 py-2 border rounded-xl">
+              <option value="memoir">Memoir</option>
+              <option value="fiction">Literary Fiction</option>
+              <option value="nonfiction">Non-Fiction</option>
+              <option value="poetry">Poetry</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Format</label>
+            <input type="text" id="edit-port-format" class="w-full text-xs px-3 py-2 border rounded-xl"/>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Badge</label>
+            <input type="text" id="edit-port-badge" class="w-full text-xs px-3 py-2 border rounded-xl"/>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Cover Image URL</label>
+          <input type="url" id="edit-port-image" class="w-full text-xs px-3 py-2 border rounded-xl"/>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Synopsis</label>
+          <textarea id="edit-port-desc" rows="3" class="w-full text-xs px-3 py-2 border rounded-xl"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeEditModal('portfolio')" class="text-xs px-4 py-2 border rounded-xl">Cancel</button>
+          <button type="submit" class="text-xs px-5 py-2 bg-[#1978e5] text-white font-bold rounded-xl hover:bg-blue-700">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- EDIT MODAL: TESTIMONIAL -->
+  <!-- ========================================== -->
+  <div id="edit-testimonial-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
+      <div class="bg-[#000613] text-white p-5 flex justify-between items-center">
+        <h3 class="font-display font-bold text-lg text-amber-500">Edit Author Review</h3>
+        <button onclick="closeEditModal('testimonial')" class="text-gray-400 hover:text-white">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form id="edit-tst-form" onsubmit="handleUpdateTestimonial(event)" class="p-6 space-y-4">
+        <input type="hidden" id="edit-tst-id"/>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Author Name *</label>
+            <input type="text" id="edit-tst-author" required class="w-full text-xs px-3 py-2 border rounded-xl"/>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Book Title</label>
+            <input type="text" id="edit-tst-book" class="w-full text-xs px-3 py-2 border rounded-xl"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Badge</label>
+            <input type="text" id="edit-tst-badge" class="w-full text-xs px-3 py-2 border rounded-xl"/>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Genre</label>
+            <input type="text" id="edit-tst-genre" class="w-full text-xs px-3 py-2 border rounded-xl"/>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Rating</label>
+            <select id="edit-tst-rating" class="w-full text-xs px-3 py-2 border rounded-xl">
+              <option value="5">5 Stars</option>
+              <option value="4">4 Stars</option>
+              <option value="3">3 Stars</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Portrait Image URL</label>
+          <input type="url" id="edit-tst-image" class="w-full text-xs px-3 py-2 border rounded-xl"/>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Testimonial Quote *</label>
+          <textarea id="edit-tst-quote" required rows="3" class="w-full text-xs px-3 py-2 border rounded-xl"></textarea>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="edit-tst-featured" class="rounded text-[#1978e5] w-4 h-4"/>
+          <label for="edit-tst-featured" class="text-xs font-semibold text-gray-700">Feature prominently</label>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeEditModal('testimonial')" class="text-xs px-4 py-2 border rounded-xl">Cancel</button>
+          <button type="submit" class="text-xs px-5 py-2 bg-amber-600 text-white font-bold rounded-xl hover:bg-amber-700">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- EDIT MODAL: SERVICE -->
+  <!-- ========================================== -->
+  <div id="edit-service-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
+      <div class="bg-[#000613] text-white p-5 flex justify-between items-center">
+        <h3 class="font-display font-bold text-lg text-emerald-500">Edit Publishing Service</h3>
+        <button onclick="closeEditModal('service')" class="text-gray-400 hover:text-white">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form id="edit-srv-form" onsubmit="handleUpdateService(event)" class="p-6 space-y-4">
+        <input type="hidden" id="edit-srv-id"/>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Service Title *</label>
+            <input type="text" id="edit-srv-title" required class="w-full text-xs px-3 py-2 border rounded-xl"/>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Icon Name</label>
+            <select id="edit-srv-icon" class="w-full text-xs px-3 py-2 border rounded-xl">
+              <option value="rate_review">rate_review (Editing)</option>
+              <option value="brush">brush (Design & Art)</option>
+              <option value="travel_explore">travel_explore (Global Distribution)</option>
+              <option value="campaign">campaign (Marketing & PR)</option>
+              <option value="auto_stories">auto_stories (Book Production)</option>
+              <option value="verified">verified (Quality Seal)</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Service Description *</label>
+          <textarea id="edit-srv-desc" required rows="2" class="w-full text-xs px-3 py-2 border rounded-xl"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Key Deliverables (One per line)</label>
+          <textarea id="edit-srv-deliverables" rows="3" class="w-full text-xs px-3 py-2 border rounded-xl font-mono text-[11px]"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">CTA Button Text</label>
+          <input type="text" id="edit-srv-cta" class="w-full text-xs px-3 py-2 border rounded-xl"/>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeEditModal('service')" class="text-xs px-4 py-2 border rounded-xl">Cancel</button>
+          <button type="submit" class="text-xs px-5 py-2 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Client-Side Admin Script -->
   <script>
     let CURRENT_DATA = {
@@ -481,9 +983,15 @@
       queries: [],
       appointments: [],
       chatLeads: [],
-      gallery: []
+      gallery: [],
+      portfolio: [],
+      testimonials: [],
+      services: { services: [], packages: [] }
     };
+
     let activeImageBase64 = '';
+    let activePortBase64 = '';
+    let activeTstBase64 = '';
 
     document.addEventListener('DOMContentLoaded', () => {
       checkAuthStatus();
@@ -594,13 +1102,16 @@
       const headers = getAuthHeaders();
 
       try {
-        const [statsRes, subRes, qryRes, aptRes, chatRes, galRes] = await Promise.all([
+        const [statsRes, subRes, qryRes, aptRes, chatRes, galRes, portRes, tstRes, srvRes] = await Promise.all([
           fetch('/api/stats', { headers }).then(r => { if (r.status === 401) { handleLogout(); } return r.json(); }),
           fetch('/api/admin/submissions', { headers }).then(r => r.json()).catch(() => []),
           fetch('/api/admin/queries', { headers }).then(r => r.json()).catch(() => []),
           fetch('/api/admin/appointments', { headers }).then(r => r.json()).catch(() => []),
           fetch('/api/admin/chat-leads', { headers }).then(r => r.json()).catch(() => []),
-          fetch('/api/gallery').then(r => r.json()).catch(() => [])
+          fetch('/api/gallery').then(r => r.json()).catch(() => []),
+          fetch('/api/portfolio').then(r => r.json()).catch(() => []),
+          fetch('/api/testimonials').then(r => r.json()).catch(() => []),
+          fetch('/api/services').then(r => r.json()).catch(() => ({ services: [], packages: [] }))
         ]);
 
         CURRENT_DATA.submissions = Array.isArray(subRes) ? subRes : [];
@@ -608,26 +1119,716 @@
         CURRENT_DATA.appointments = Array.isArray(aptRes) ? aptRes : [];
         CURRENT_DATA.chatLeads = Array.isArray(chatRes) ? chatRes : [];
         CURRENT_DATA.gallery = Array.isArray(galRes) ? galRes : [];
+        CURRENT_DATA.portfolio = Array.isArray(portRes) ? portRes : [];
+        CURRENT_DATA.testimonials = Array.isArray(tstRes) ? tstRes : [];
+        CURRENT_DATA.services = srvRes || { services: [], packages: [] };
 
-        // Update stats
+        // Update top stats
         document.getElementById('stat-submissions').innerText = CURRENT_DATA.submissions.length;
-        document.getElementById('stat-queries').innerText = CURRENT_DATA.queries.length;
         document.getElementById('stat-appointments').innerText = CURRENT_DATA.appointments.length;
-        document.getElementById('stat-chat').innerText = CURRENT_DATA.chatLeads.length;
-        if (document.getElementById('stat-gallery')) {
-          document.getElementById('stat-gallery').innerText = CURRENT_DATA.gallery.length;
-        }
+        document.getElementById('stat-gallery').innerText = CURRENT_DATA.gallery.length;
+        document.getElementById('stat-portfolio').innerText = CURRENT_DATA.portfolio.length;
+        document.getElementById('stat-testimonials').innerText = CURRENT_DATA.testimonials.length;
+        document.getElementById('stat-services').innerText = (CURRENT_DATA.services.services || []).length;
 
+        // Render all UI components
+        renderPortfolio();
+        renderTestimonials();
+        renderServices();
+        renderGallery();
         renderSubmissions();
         renderQueries();
         renderAppointments();
         renderChatLeads();
-        renderGallery();
       } catch (err) {
         console.error('Failed to load admin data:', err);
       }
     }
 
+    // ==========================================
+    // 1. PORTFOLIO LOGIC
+    // ==========================================
+    function handlePreviewPortImage(url) {
+      const img = document.getElementById('port-preview-img');
+      const ph = document.getElementById('port-preview-placeholder');
+      if (url && url.startsWith('http')) {
+        img.src = url;
+        img.classList.remove('hidden');
+        ph.classList.add('hidden');
+        activePortBase64 = '';
+      } else if (!activePortBase64) {
+        img.classList.add('hidden');
+        ph.classList.remove('hidden');
+      }
+    }
+
+    function handlePortFileSelect(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        activePortBase64 = evt.target.result;
+        const img = document.getElementById('port-preview-img');
+        const ph = document.getElementById('port-preview-placeholder');
+        img.src = activePortBase64;
+        img.classList.remove('hidden');
+        ph.classList.add('hidden');
+        document.getElementById('port-image-url').value = '';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function handleAddPortfolioBook(e) {
+      e.preventDefault();
+      const title = document.getElementById('port-title').value.trim();
+      const author = document.getElementById('port-author').value.trim();
+      const category = document.getElementById('port-category').value;
+      const format = document.getElementById('port-format').value.trim();
+      const badge = document.getElementById('port-badge').value.trim();
+      const urlInput = document.getElementById('port-image-url').value.trim();
+      const desc = document.getElementById('port-desc').value.trim();
+      const alertBox = document.getElementById('portfolio-form-alert');
+      const btn = document.getElementById('port-submit-btn');
+
+      const image = activePortBase64 || urlInput;
+
+      btn.disabled = true;
+      btn.innerText = 'Publishing book...';
+      alertBox.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/admin/portfolio/add', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            title, author, category, format, badge, image, description: desc
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700';
+          alertBox.innerText = 'Book published to portfolio successfully!';
+          alertBox.classList.remove('hidden');
+
+          document.getElementById('add-portfolio-form').reset();
+          activePortBase64 = '';
+          document.getElementById('port-preview-img').classList.add('hidden');
+          document.getElementById('port-preview-placeholder').classList.remove('hidden');
+          loadAdminData();
+        } else {
+          alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
+          alertBox.innerText = data.error || 'Failed to add book';
+          alertBox.classList.remove('hidden');
+        }
+      } catch (err) {
+        alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
+        alertBox.innerText = 'Error connecting to server';
+        alertBox.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span class="material-symbols-outlined text-sm">bookmark_add</span> Publish Book to Portfolio`;
+      }
+    }
+
+    function renderPortfolio() {
+      const container = document.getElementById('admin-portfolio-grid');
+      if (!container) return;
+
+      if (!CURRENT_DATA.portfolio || CURRENT_DATA.portfolio.length === 0) {
+        container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">No books in portfolio yet. Add one above!</div>`;
+        return;
+      }
+
+      container.innerHTML = CURRENT_DATA.portfolio.map(book => `
+        <div class="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div class="h-48 w-full bg-gray-900 relative overflow-hidden">
+            <img src="${book.image}" alt="${book.title}" class="w-full h-full object-cover"/>
+            <span class="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/90 text-gray-900 uppercase">
+              ${book.category}
+            </span>
+            <span class="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#1978e5] text-white">
+              ${book.badge || 'New'}
+            </span>
+          </div>
+          <div class="p-4 flex-1 flex flex-col justify-between">
+            <div>
+              <h4 class="font-display font-bold text-base text-gray-900 line-clamp-1">${book.title}</h4>
+              <p class="text-xs text-[#1978e5] font-semibold">by ${book.author}</p>
+              <p class="text-xs text-gray-500 mt-2 line-clamp-2">${book.description || 'No synopsis.'}</p>
+            </div>
+            <div class="pt-3 mt-3 border-t border-gray-200 flex items-center justify-between">
+              <span class="text-[10px] font-mono text-gray-400">${book.format || 'Hardcover'}</span>
+              <div class="flex items-center gap-2">
+                <button onclick="openEditPortfolioModal('${book.id}')" class="text-xs text-[#1978e5] hover:bg-blue-50 font-semibold px-2 py-1 rounded-lg flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">edit</span> Edit
+                </button>
+                <button onclick="deleteItem('portfolio', '${book.id}')" class="text-xs text-red-600 hover:bg-red-50 font-semibold px-2 py-1 rounded-lg flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">delete</span> Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openEditPortfolioModal(id) {
+      const book = (CURRENT_DATA.portfolio || []).find(b => b.id === id);
+      if (!book) return;
+
+      document.getElementById('edit-port-id').value = book.id;
+      document.getElementById('edit-port-title').value = book.title || '';
+      document.getElementById('edit-port-author').value = book.author || '';
+      document.getElementById('edit-port-category').value = book.category || 'memoir';
+      document.getElementById('edit-port-format').value = book.format || '';
+      document.getElementById('edit-port-badge').value = book.badge || '';
+      document.getElementById('edit-port-image').value = book.image || '';
+      document.getElementById('edit-port-desc').value = book.description || '';
+
+      const modal = document.getElementById('edit-portfolio-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    async function handleUpdatePortfolioBook(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-port-id').value;
+      const title = document.getElementById('edit-port-title').value.trim();
+      const author = document.getElementById('edit-port-author').value.trim();
+      const category = document.getElementById('edit-port-category').value;
+      const format = document.getElementById('edit-port-format').value.trim();
+      const badge = document.getElementById('edit-port-badge').value.trim();
+      const image = document.getElementById('edit-port-image').value.trim();
+      const description = document.getElementById('edit-port-desc').value.trim();
+
+      try {
+        const res = await fetch('/api/admin/portfolio/update', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ id, title, author, category, format, badge, image, description })
+        });
+        if (res.ok) {
+          closeEditModal('portfolio');
+          loadAdminData();
+        } else {
+          alert('Failed to update book');
+        }
+      } catch (err) {
+        alert('Server error: ' + err.message);
+      }
+    }
+
+    // ==========================================
+    // 2. TESTIMONIALS LOGIC
+    // ==========================================
+    function handlePreviewTstImage(url) {
+      const img = document.getElementById('tst-preview-img');
+      const ph = document.getElementById('tst-preview-placeholder');
+      if (url && url.startsWith('http')) {
+        img.src = url;
+        img.classList.remove('hidden');
+        ph.classList.add('hidden');
+        activeTstBase64 = '';
+      } else if (!activeTstBase64) {
+        img.classList.add('hidden');
+        ph.classList.remove('hidden');
+      }
+    }
+
+    function handleTstFileSelect(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        activeTstBase64 = evt.target.result;
+        const img = document.getElementById('tst-preview-img');
+        const ph = document.getElementById('tst-preview-placeholder');
+        img.src = activeTstBase64;
+        img.classList.remove('hidden');
+        ph.classList.add('hidden');
+        document.getElementById('tst-image-url').value = '';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function handleAddTestimonial(e) {
+      e.preventDefault();
+      const author = document.getElementById('tst-author').value.trim();
+      const book = document.getElementById('tst-book').value.trim();
+      const titleBadge = document.getElementById('tst-badge').value.trim();
+      const genreTag = document.getElementById('tst-genre').value.trim();
+      const rating = document.getElementById('tst-rating').value;
+      const featured = document.getElementById('tst-featured').checked;
+      const urlInput = document.getElementById('tst-image-url').value.trim();
+      const quote = document.getElementById('tst-quote').value.trim();
+      const alertBox = document.getElementById('tst-form-alert');
+      const btn = document.getElementById('tst-submit-btn');
+
+      const image = activeTstBase64 || urlInput;
+
+      btn.disabled = true;
+      btn.innerText = 'Publishing testimonial...';
+      alertBox.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/admin/testimonials/add', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            author, book, titleBadge, genreTag, rating, featured, image, quote
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700';
+          alertBox.innerText = 'Author testimonial published successfully!';
+          alertBox.classList.remove('hidden');
+
+          document.getElementById('add-tst-form').reset();
+          activeTstBase64 = '';
+          document.getElementById('tst-preview-img').classList.add('hidden');
+          document.getElementById('tst-preview-placeholder').classList.remove('hidden');
+          loadAdminData();
+        } else {
+          alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
+          alertBox.innerText = data.error || 'Failed to add testimonial';
+          alertBox.classList.remove('hidden');
+        }
+      } catch (err) {
+        alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
+        alertBox.innerText = 'Error connecting to server';
+        alertBox.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span class="material-symbols-outlined text-sm">add_comment</span> Publish Testimonial`;
+      }
+    }
+
+    function renderTestimonials() {
+      const container = document.getElementById('admin-testimonials-grid');
+      if (!container) return;
+
+      if (!CURRENT_DATA.testimonials || CURRENT_DATA.testimonials.length === 0) {
+        container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">No author reviews recorded yet. Add one above!</div>`;
+        return;
+      }
+
+      container.innerHTML = CURRENT_DATA.testimonials.map(item => {
+        const stars = '★'.repeat(item.rating || 5) + '☆'.repeat(5 - (item.rating || 5));
+        return `
+          <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-amber-500 text-sm font-bold">${stars}</span>
+                ${item.featured ? '<span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Featured</span>' : ''}
+              </div>
+              <blockquote class="text-xs text-gray-700 italic leading-relaxed mb-4">"${item.quote}"</blockquote>
+            </div>
+            <div class="pt-4 border-t border-gray-200 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <img src="${item.image}" alt="${item.author}" class="w-10 h-10 rounded-full object-cover border border-[#1978e5]"/>
+                <div>
+                  <h5 class="font-bold text-xs text-gray-900">${item.author}</h5>
+                  <p class="text-[11px] text-gray-500">${item.book ? `Author of <i>${item.book}</i>` : (item.titleBadge || 'Author')}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <button onclick="openEditTestimonialModal('${item.id}')" class="text-xs text-[#1978e5] hover:bg-blue-50 font-semibold px-2 py-1 rounded-lg">
+                  <span class="material-symbols-outlined text-sm">edit</span>
+                </button>
+                <button onclick="deleteItem('testimonials', '${item.id}')" class="text-xs text-red-600 hover:bg-red-50 font-semibold px-2 py-1 rounded-lg">
+                  <span class="material-symbols-outlined text-sm">delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openEditTestimonialModal(id) {
+      const item = (CURRENT_DATA.testimonials || []).find(t => t.id === id);
+      if (!item) return;
+
+      document.getElementById('edit-tst-id').value = item.id;
+      document.getElementById('edit-tst-author').value = item.author || '';
+      document.getElementById('edit-tst-book').value = item.book || '';
+      document.getElementById('edit-tst-badge').value = item.titleBadge || '';
+      document.getElementById('edit-tst-genre').value = item.genreTag || '';
+      document.getElementById('edit-tst-rating').value = item.rating || 5;
+      document.getElementById('edit-tst-image').value = item.image || '';
+      document.getElementById('edit-tst-quote').value = item.quote || '';
+      document.getElementById('edit-tst-featured').checked = Boolean(item.featured);
+
+      const modal = document.getElementById('edit-testimonial-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    async function handleUpdateTestimonial(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-tst-id').value;
+      const author = document.getElementById('edit-tst-author').value.trim();
+      const book = document.getElementById('edit-tst-book').value.trim();
+      const titleBadge = document.getElementById('edit-tst-badge').value.trim();
+      const genreTag = document.getElementById('edit-tst-genre').value.trim();
+      const rating = document.getElementById('edit-tst-rating').value;
+      const image = document.getElementById('edit-tst-image').value.trim();
+      const quote = document.getElementById('edit-tst-quote').value.trim();
+      const featured = document.getElementById('edit-tst-featured').checked;
+
+      try {
+        const res = await fetch('/api/admin/testimonials/update', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ id, author, book, titleBadge, genreTag, rating, image, quote, featured })
+        });
+        if (res.ok) {
+          closeEditModal('testimonial');
+          loadAdminData();
+        } else {
+          alert('Failed to update testimonial');
+        }
+      } catch (err) {
+        alert('Server error: ' + err.message);
+      }
+    }
+
+    // ==========================================
+    // 3. SERVICES & PACKAGES LOGIC
+    // ==========================================
+    async function handleAddService(e) {
+      e.preventDefault();
+      const title = document.getElementById('srv-title').value.trim();
+      const icon = document.getElementById('srv-icon').value;
+      const desc = document.getElementById('srv-desc').value.trim();
+      const delivRaw = document.getElementById('srv-deliverables').value;
+      const cta = document.getElementById('srv-cta').value.trim();
+      const alertBox = document.getElementById('srv-form-alert');
+      const btn = document.getElementById('srv-submit-btn');
+
+      btn.disabled = true;
+      btn.innerText = 'Adding service...';
+      alertBox.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/admin/services/add', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            title, icon, description: desc, deliverables: delivRaw, ctaText: cta
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700';
+          alertBox.innerText = 'Service added successfully!';
+          alertBox.classList.remove('hidden');
+
+          document.getElementById('add-srv-form').reset();
+          loadAdminData();
+        } else {
+          alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
+          alertBox.innerText = data.error || 'Failed to add service';
+          alertBox.classList.remove('hidden');
+        }
+      } catch (err) {
+        alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
+        alertBox.innerText = 'Error connecting to server';
+        alertBox.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span class="material-symbols-outlined text-sm">add_task</span> Add Publishing Service`;
+      }
+    }
+
+    function renderServices() {
+      const container = document.getElementById('admin-services-grid');
+      const pkgContainer = document.getElementById('packages-editor-container');
+      const srvList = CURRENT_DATA.services.services || [];
+      const pkgList = CURRENT_DATA.services.packages || [];
+
+      if (container) {
+        if (srvList.length === 0) {
+          container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">No custom services defined. Add one above!</div>`;
+        } else {
+          container.innerHTML = srvList.map(srv => `
+            <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div>
+                <div class="flex items-center gap-3 mb-3">
+                  <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-xl">${srv.icon || 'edit_document'}</span>
+                  </div>
+                  <h4 class="font-display font-bold text-base text-gray-900">${srv.title}</h4>
+                </div>
+                <p class="text-xs text-gray-600 mb-4 leading-relaxed">${srv.description}</p>
+                <ul class="space-y-1 text-xs text-gray-500 mb-4">
+                  ${(srv.deliverables || []).map(d => `<li class="flex items-center gap-1.5"><span class="text-emerald-500 font-bold">✓</span> ${d}</li>`).join('')}
+                </ul>
+              </div>
+              <div class="pt-3 border-t border-gray-200 flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-gray-400">CTA: "${srv.ctaText || 'Inquire'}"</span>
+                <div class="flex items-center gap-2">
+                  <button onclick="openEditServiceModal('${srv.id}')" class="text-xs text-emerald-600 hover:bg-emerald-50 font-semibold px-2 py-1 rounded-lg flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">edit</span> Edit
+                  </button>
+                  <button onclick="deleteItem('services', '${srv.id}')" class="text-xs text-red-600 hover:bg-red-50 font-semibold px-2 py-1 rounded-lg flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">delete</span> Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+
+      if (pkgContainer) {
+        pkgContainer.innerHTML = pkgList.map((pkg, i) => `
+          <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <input type="text" id="pkg-name-${i}" value="${pkg.name}" class="font-display font-bold text-sm text-gray-900 bg-white border border-gray-300 rounded px-2 py-1 w-full"/>
+              </div>
+              <input type="text" id="pkg-price-${i}" value="${pkg.price}" class="text-lg font-bold text-[#1978e5] bg-white border border-gray-300 rounded px-2 py-1 w-full mb-2"/>
+              <textarea id="pkg-sub-${i}" rows="2" class="text-xs text-gray-600 bg-white border border-gray-300 rounded px-2 py-1 w-full mb-3">${pkg.subtitle || ''}</textarea>
+              <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Features (One per line):</label>
+              <textarea id="pkg-feat-${i}" rows="5" class="text-xs font-mono text-gray-700 bg-white border border-gray-300 rounded px-2 py-1 w-full">${(pkg.features || []).join('\n')}</textarea>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function openEditServiceModal(id) {
+      const srv = (CURRENT_DATA.services.services || []).find(s => s.id === id);
+      if (!srv) return;
+
+      document.getElementById('edit-srv-id').value = srv.id;
+      document.getElementById('edit-srv-title').value = srv.title || '';
+      document.getElementById('edit-srv-icon').value = srv.icon || 'rate_review';
+      document.getElementById('edit-srv-desc').value = srv.description || '';
+      document.getElementById('edit-srv-deliverables').value = (srv.deliverables || []).join('\n');
+      document.getElementById('edit-srv-cta').value = srv.ctaText || '';
+
+      const modal = document.getElementById('edit-service-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    async function handleUpdateService(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-srv-id').value;
+      const title = document.getElementById('edit-srv-title').value.trim();
+      const icon = document.getElementById('edit-srv-icon').value;
+      const description = document.getElementById('edit-srv-desc').value.trim();
+      const delivRaw = document.getElementById('edit-srv-deliverables').value;
+      const ctaText = document.getElementById('edit-srv-cta').value.trim();
+
+      try {
+        const res = await fetch('/api/admin/services/update', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ id, title, icon, description, deliverables: delivRaw, ctaText })
+        });
+        if (res.ok) {
+          closeEditModal('service');
+          loadAdminData();
+        } else {
+          alert('Failed to update service');
+        }
+      } catch (err) {
+        alert('Server error: ' + err.message);
+      }
+    }
+
+    async function handleSavePackages() {
+      const pkgList = CURRENT_DATA.services.packages || [];
+      const updated = pkgList.map((pkg, i) => {
+        const nameEl = document.getElementById(`pkg-name-${i}`);
+        const priceEl = document.getElementById(`pkg-price-${i}`);
+        const subEl = document.getElementById(`pkg-sub-${i}`);
+        const featEl = document.getElementById(`pkg-feat-${i}`);
+        return {
+          ...pkg,
+          name: nameEl ? nameEl.value.trim() : pkg.name,
+          price: priceEl ? priceEl.value.trim() : pkg.price,
+          subtitle: subEl ? subEl.value.trim() : pkg.subtitle,
+          features: featEl ? featEl.value.split('\n').map(s => s.trim()).filter(Boolean) : pkg.features
+        };
+      });
+
+      try {
+        const res = await fetch('/api/admin/packages/update', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ packages: updated })
+        });
+        const alertBox = document.getElementById('packages-alert');
+        if (res.ok) {
+          alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700';
+          alertBox.innerText = 'Publishing packages updated successfully!';
+          alertBox.classList.remove('hidden');
+          loadAdminData();
+        } else {
+          alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
+          alertBox.innerText = 'Failed to update packages';
+          alertBox.classList.remove('hidden');
+        }
+      } catch (err) {
+        alert('Error saving packages: ' + err.message);
+      }
+    }
+
+    function closeEditModal(type) {
+      const modal = document.getElementById(`edit-${type}-modal`);
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    // ==========================================
+    // 4. GALLERY LOGIC
+    // ==========================================
+    function handleImageUrlInput(url) {
+      const previewImg = document.getElementById('gal-preview-img');
+      const placeholder = document.getElementById('gal-preview-placeholder');
+      if (url && url.startsWith('http')) {
+        previewImg.src = url;
+        previewImg.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+        activeImageBase64 = '';
+      } else if (!activeImageBase64) {
+        previewImg.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+      }
+    }
+
+    function handleImageFileSelect(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        activeImageBase64 = evt.target.result;
+        const previewImg = document.getElementById('gal-preview-img');
+        const placeholder = document.getElementById('gal-preview-placeholder');
+        previewImg.src = activeImageBase64;
+        previewImg.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+        document.getElementById('gal-image-url').value = '';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function handleAddGalleryPhoto(e) {
+      e.preventDefault();
+      const title = document.getElementById('gal-title').value.trim();
+      const category = document.getElementById('gal-category').value;
+      const date = document.getElementById('gal-date').value.trim();
+      const urlInput = document.getElementById('gal-image-url').value.trim();
+      const desc = document.getElementById('gal-desc').value.trim();
+      const alertBox = document.getElementById('gallery-form-alert');
+      const btn = document.getElementById('gal-submit-btn');
+
+      const image = activeImageBase64 || urlInput;
+
+      if (!image) {
+        alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
+        alertBox.innerText = 'Please provide an Image URL or select an image file to upload.';
+        alertBox.classList.remove('hidden');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'Uploading photo...';
+      alertBox.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/admin/gallery/add', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            title, category, date: date || undefined, image, description: desc
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700';
+          alertBox.innerText = 'Photo uploaded and published to gallery successfully!';
+          alertBox.classList.remove('hidden');
+
+          document.getElementById('add-gallery-form').reset();
+          activeImageBase64 = '';
+          document.getElementById('gal-preview-img').classList.add('hidden');
+          document.getElementById('gal-preview-placeholder').classList.remove('hidden');
+
+          loadAdminData();
+        } else {
+          alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
+          alertBox.innerText = data.error || 'Failed to upload photo';
+          alertBox.classList.remove('hidden');
+        }
+      } catch (err) {
+        alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
+        alertBox.innerText = 'Error connecting to server';
+        alertBox.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span class="material-symbols-outlined text-sm">cloud_upload</span> Upload to Company Gallery`;
+      }
+    }
+
+    function renderGallery() {
+      const container = document.getElementById('admin-gallery-grid');
+      if (!container) return;
+
+      if (!CURRENT_DATA.gallery || CURRENT_DATA.gallery.length === 0) {
+        container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">No event photos in gallery yet. Upload one above!</div>`;
+        return;
+      }
+
+      const catBadges = {
+        'galas': 'bg-amber-100 text-amber-800',
+        'launches': 'bg-blue-100 text-blue-800',
+        'workshops': 'bg-emerald-100 text-emerald-800',
+        'exhibitions': 'bg-purple-100 text-purple-800'
+      };
+
+      container.innerHTML = CURRENT_DATA.gallery.map(item => `
+        <div class="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+          <div class="h-44 w-full bg-black/80 relative overflow-hidden">
+            <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+            <span class="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${catBadges[item.category] || 'bg-gray-100 text-gray-800'}">
+              ${item.categoryName || item.category}
+            </span>
+            <span class="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/60 text-white backdrop-blur-md">
+              ${item.date || 'Recent'}
+            </span>
+          </div>
+          <div class="p-4 flex-1 flex flex-col justify-between">
+            <div>
+              <h4 class="font-display font-bold text-sm text-gray-900 line-clamp-1">${item.title}</h4>
+              <p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.description || 'No caption provided.'}</p>
+            </div>
+            <div class="pt-3 mt-3 border-t border-gray-200 flex items-center justify-between">
+              <span class="text-[10px] font-mono text-gray-400">${item.id}</span>
+              <button onclick="deleteItem('gallery', '${item.id}')" class="text-xs text-red-600 hover:text-red-800 font-semibold flex items-center gap-1 p-1 hover:bg-red-50 rounded-lg transition-colors">
+                <span class="material-symbols-outlined text-sm">delete</span> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ==========================================
+    // 5. MANUSCRIPTS, QUERIES, APPOINTMENTS, CHAT
+    // ==========================================
     function renderSubmissions() {
       const tbody = document.getElementById('table-submissions');
       if (CURRENT_DATA.submissions.length === 0) {
@@ -730,147 +1931,6 @@
             </button>
           </td>
         </tr>
-      `).join('');
-    }
-
-    // ==========================================
-    // GALLERY FUNCTIONS
-    // ==========================================
-    function handleImageUrlInput(url) {
-      const previewImg = document.getElementById('gal-preview-img');
-      const placeholder = document.getElementById('gal-preview-placeholder');
-      if (url && url.startsWith('http')) {
-        previewImg.src = url;
-        previewImg.classList.remove('hidden');
-        placeholder.classList.add('hidden');
-        activeImageBase64 = ''; // clear file upload preference
-      } else if (!activeImageBase64) {
-        previewImg.classList.add('hidden');
-        placeholder.classList.remove('hidden');
-      }
-    }
-
-    function handleImageFileSelect(e) {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        activeImageBase64 = evt.target.result;
-        const previewImg = document.getElementById('gal-preview-img');
-        const placeholder = document.getElementById('gal-preview-placeholder');
-        previewImg.src = activeImageBase64;
-        previewImg.classList.remove('hidden');
-        placeholder.classList.add('hidden');
-        document.getElementById('gal-image-url').value = '';
-      };
-      reader.readAsDataURL(file);
-    }
-
-    async function handleAddGalleryPhoto(e) {
-      e.preventDefault();
-      const title = document.getElementById('gal-title').value.trim();
-      const category = document.getElementById('gal-category').value;
-      const date = document.getElementById('gal-date').value.trim();
-      const urlInput = document.getElementById('gal-image-url').value.trim();
-      const desc = document.getElementById('gal-desc').value.trim();
-      const alertBox = document.getElementById('gallery-form-alert');
-      const btn = document.getElementById('gal-submit-btn');
-
-      const image = activeImageBase64 || urlInput;
-
-      if (!image) {
-        alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
-        alertBox.innerText = 'Please provide an Image URL or select an image file to upload.';
-        alertBox.classList.remove('hidden');
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerText = 'Uploading photo...';
-      alertBox.classList.add('hidden');
-
-      try {
-        const res = await fetch('/api/admin/gallery/add', {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({
-            title,
-            category,
-            date: date || undefined,
-            image,
-            description: desc
-          })
-        });
-
-        const data = await res.json();
-        if (res.ok && data.success) {
-          alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700';
-          alertBox.innerText = 'Photo uploaded and published to gallery successfully!';
-          alertBox.classList.remove('hidden');
-
-          // Reset Form
-          document.getElementById('add-gallery-form').reset();
-          activeImageBase64 = '';
-          document.getElementById('gal-preview-img').classList.add('hidden');
-          document.getElementById('gal-preview-placeholder').classList.remove('hidden');
-
-          loadAdminData();
-        } else {
-          alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
-          alertBox.innerText = data.error || 'Failed to upload photo';
-          alertBox.classList.remove('hidden');
-        }
-      } catch (err) {
-        alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
-        alertBox.innerText = 'Error connecting to server';
-        alertBox.classList.remove('hidden');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = `<span class="material-symbols-outlined text-sm">cloud_upload</span> Upload to Company Gallery`;
-      }
-    }
-
-    function renderGallery() {
-      const container = document.getElementById('admin-gallery-grid');
-      if (!container) return;
-
-      if (!CURRENT_DATA.gallery || CURRENT_DATA.gallery.length === 0) {
-        container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">No event photos in gallery yet. Upload one above!</div>`;
-        return;
-      }
-
-      const catBadges = {
-        'galas': 'bg-amber-100 text-amber-800',
-        'launches': 'bg-blue-100 text-blue-800',
-        'workshops': 'bg-emerald-100 text-emerald-800',
-        'exhibitions': 'bg-purple-100 text-purple-800'
-      };
-
-      container.innerHTML = CURRENT_DATA.gallery.map(item => `
-        <div class="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
-          <div class="h-44 w-full bg-black/80 relative overflow-hidden">
-            <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
-            <span class="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${catBadges[item.category] || 'bg-gray-100 text-gray-800'}">
-              ${item.categoryName || item.category}
-            </span>
-            <span class="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/60 text-white backdrop-blur-md">
-              ${item.date || 'Recent'}
-            </span>
-          </div>
-          <div class="p-4 flex-1 flex flex-col justify-between">
-            <div>
-              <h4 class="font-display font-bold text-sm text-gray-900 line-clamp-1">${item.title}</h4>
-              <p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.description || 'No caption provided.'}</p>
-            </div>
-            <div class="pt-3 mt-3 border-t border-gray-200 flex items-center justify-between">
-              <span class="text-[10px] font-mono text-gray-400">${item.id}</span>
-              <button onclick="deleteItem('gallery', '${item.id}')" class="text-xs text-red-600 hover:text-red-800 font-semibold flex items-center gap-1 p-1 hover:bg-red-50 rounded-lg transition-colors">
-                <span class="material-symbols-outlined text-sm">delete</span> Delete
-              </button>
-            </div>
-          </div>
-        </div>
       `).join('');
     }
 

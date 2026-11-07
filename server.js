@@ -18,13 +18,18 @@ const DB_FILES = {
   appointments: path.join(DATA_DIR, 'appointments.json'),
   chatLeads: path.join(DATA_DIR, 'chat_leads.json'),
   adminConfig: path.join(DATA_DIR, 'admin-config.json'),
-  gallery: path.join(DATA_DIR, 'gallery.json')
+  gallery: path.join(DATA_DIR, 'gallery.json'),
+  portfolio: path.join(DATA_DIR, 'portfolio.json'),
+  testimonials: path.join(DATA_DIR, 'testimonials.json'),
+  services: path.join(DATA_DIR, 'services.json')
 };
 
 Object.entries(DB_FILES).forEach(([key, filePath]) => {
   if (!fs.existsSync(filePath)) {
     if (key === 'adminConfig') {
       fs.writeFileSync(filePath, JSON.stringify({ username: 'admin', password: 'admin123' }, null, 2));
+    } else if (key === 'services') {
+      fs.writeFileSync(filePath, JSON.stringify({ services: [], packages: [] }, null, 2));
     } else {
       fs.writeFileSync(filePath, JSON.stringify([], null, 2));
     }
@@ -70,12 +75,13 @@ function isValidSession(req) {
 function readDb(type) {
   try {
     const file = DB_FILES[type];
-    if (!file || !fs.existsSync(file)) return [];
+    const defaultVal = type === 'services' ? { services: [], packages: [] } : [];
+    if (!file || !fs.existsSync(file)) return defaultVal;
     const content = fs.readFileSync(file, 'utf8');
-    return JSON.parse(content || '[]');
+    return JSON.parse(content || (type === 'services' ? '{"services":[],"packages":[]}' : '[]'));
   } catch (err) {
     console.error(`Error reading ${type} DB:`, err);
-    return [];
+    return type === 'services' ? { services: [], packages: [] } : [];
   }
 }
 
@@ -337,17 +343,32 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  // 5. Public Gallery Endpoint (Retrieve company event photos)
+  // 5. Public Content Endpoints (Gallery, Portfolio, Testimonials, Services)
   if (reqPath === '/api/gallery' && req.method === 'GET') {
     const gallery = readDb('gallery');
     return sendJson(res, 200, gallery);
+  }
+
+  if (reqPath === '/api/portfolio' && req.method === 'GET') {
+    const portfolio = readDb('portfolio');
+    return sendJson(res, 200, portfolio);
+  }
+
+  if (reqPath === '/api/testimonials' && req.method === 'GET') {
+    const testimonials = readDb('testimonials');
+    return sendJson(res, 200, testimonials);
+  }
+
+  if (reqPath === '/api/services' && req.method === 'GET') {
+    const services = readDb('services');
+    return sendJson(res, 200, services);
   }
 
   // ==========================================
   // PROTECTED ADMIN API ROUTES (Login required)
   // ==========================================
 
-  // 6. Admin Stats Endpoint (Protected)
+  // Admin Stats Endpoint (Protected)
   if (reqPath === '/api/stats' && req.method === 'GET') {
     if (!isValidSession(req)) {
       return sendJson(res, 401, { success: false, error: 'Unauthorized: Admin login required' });
@@ -357,17 +378,23 @@ const server = http.createServer(async (req, res) => {
     const appointments = readDb('appointments');
     const chatLeads = readDb('chatLeads');
     const gallery = readDb('gallery');
+    const portfolio = readDb('portfolio');
+    const testimonials = readDb('testimonials');
+    const srvData = readDb('services');
 
     return sendJson(res, 200, {
       totalSubmissions: submissions.length,
       totalQueries: queries.length,
       totalAppointments: appointments.length,
       totalChatLeads: chatLeads.length,
-      totalGallery: gallery.length
+      totalGallery: gallery.length,
+      totalPortfolio: Array.isArray(portfolio) ? portfolio.length : 0,
+      totalTestimonials: Array.isArray(testimonials) ? testimonials.length : 0,
+      totalServices: Array.isArray(srvData.services) ? srvData.services.length : 0
     });
   }
 
-  // 6. Admin Data Retrieval Endpoints (Protected)
+  // Admin Data Retrieval Endpoints (Protected)
   if (reqPath === '/api/admin/submissions' && req.method === 'GET') {
     if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
     return sendJson(res, 200, readDb('submissions'));
@@ -393,7 +420,22 @@ const server = http.createServer(async (req, res) => {
     return sendJson(res, 200, readDb('gallery'));
   }
 
-  // 7. Admin Add Gallery Photo Endpoint (Protected)
+  if (reqPath === '/api/admin/portfolio' && req.method === 'GET') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    return sendJson(res, 200, readDb('portfolio'));
+  }
+
+  if (reqPath === '/api/admin/testimonials' && req.method === 'GET') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    return sendJson(res, 200, readDb('testimonials'));
+  }
+
+  if (reqPath === '/api/admin/services' && req.method === 'GET') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    return sendJson(res, 200, readDb('services'));
+  }
+
+  // Admin Add Gallery Photo Endpoint (Protected)
   if (reqPath === '/api/admin/gallery/add' && req.method === 'POST') {
     if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
     try {
@@ -432,7 +474,239 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  // 8. Admin Delete Entry Endpoint (Protected)
+  // Admin Add Portfolio Book Endpoint (Protected)
+  if (reqPath === '/api/admin/portfolio/add' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const { title, author, category, image, description, format, badge } = payload;
+      if (!title || !author) {
+        return sendJson(res, 400, { success: false, error: 'Book title and author name are required' });
+      }
+
+      const newBook = {
+        id: 'PRT-' + Date.now().toString(36).toUpperCase() + '-' + crypto.randomBytes(2).toString('hex').toUpperCase(),
+        title: title.trim(),
+        author: author.trim(),
+        category: (category || 'memoir').trim().toLowerCase(),
+        image: (image || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80').trim(),
+        description: description ? description.trim() : '',
+        format: format ? format.trim() : 'Hardcover & Ebook',
+        badge: badge ? badge.trim() : 'New Release'
+      };
+
+      const all = readDb('portfolio');
+      all.unshift(newBook);
+      writeDb('portfolio', all);
+
+      console.log(`\n[NEW PORTFOLIO BOOK] Added: "${newBook.title}" by ${newBook.author}`);
+      return sendJson(res, 201, { success: true, message: 'Book added to publications portfolio successfully', data: newBook });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Update Portfolio Book Endpoint (Protected)
+  if (reqPath === '/api/admin/portfolio/update' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const { id, title, author, category, image, description, format, badge } = payload;
+      if (!id || !title || !author) {
+        return sendJson(res, 400, { success: false, error: 'Book ID, title, and author are required' });
+      }
+
+      let all = readDb('portfolio');
+      const idx = all.findIndex(b => b.id === id);
+      if (idx === -1) {
+        return sendJson(res, 404, { success: false, error: 'Book not found' });
+      }
+
+      all[idx] = {
+        ...all[idx],
+        title: title.trim(),
+        author: author.trim(),
+        category: (category || all[idx].category || 'memoir').trim().toLowerCase(),
+        image: image ? image.trim() : all[idx].image,
+        description: description !== undefined ? description.trim() : all[idx].description,
+        format: format ? format.trim() : all[idx].format,
+        badge: badge ? badge.trim() : all[idx].badge
+      };
+
+      writeDb('portfolio', all);
+      return sendJson(res, 200, { success: true, message: 'Portfolio book updated successfully', data: all[idx] });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Add Testimonial Endpoint (Protected)
+  if (reqPath === '/api/admin/testimonials/add' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const { author, book, titleBadge, genreTag, rating, quote, image, featured } = payload;
+      if (!author || !quote) {
+        return sendJson(res, 400, { success: false, error: 'Author name and testimonial quote are required' });
+      }
+
+      const newTestimonial = {
+        id: 'TST-' + Date.now().toString(36).toUpperCase() + '-' + crypto.randomBytes(2).toString('hex').toUpperCase(),
+        author: author.trim(),
+        book: book ? book.trim() : '',
+        titleBadge: titleBadge ? titleBadge.trim() : 'Author',
+        genreTag: genreTag ? genreTag.trim() : 'Memoir',
+        rating: Number(rating) || 5,
+        quote: quote.trim(),
+        image: (image || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80').trim(),
+        featured: Boolean(featured)
+      };
+
+      const all = readDb('testimonials');
+      all.unshift(newTestimonial);
+      writeDb('testimonials', all);
+
+      console.log(`\n[NEW TESTIMONIAL] Added from author: "${newTestimonial.author}"`);
+      return sendJson(res, 201, { success: true, message: 'Testimonial added successfully', data: newTestimonial });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Update Testimonial Endpoint (Protected)
+  if (reqPath === '/api/admin/testimonials/update' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const { id, author, book, titleBadge, genreTag, rating, quote, image, featured } = payload;
+      if (!id || !author || !quote) {
+        return sendJson(res, 400, { success: false, error: 'Testimonial ID, author, and quote are required' });
+      }
+
+      let all = readDb('testimonials');
+      const idx = all.findIndex(t => t.id === id);
+      if (idx === -1) {
+        return sendJson(res, 404, { success: false, error: 'Testimonial not found' });
+      }
+
+      all[idx] = {
+        ...all[idx],
+        author: author.trim(),
+        book: book ? book.trim() : all[idx].book,
+        titleBadge: titleBadge ? titleBadge.trim() : all[idx].titleBadge,
+        genreTag: genreTag ? genreTag.trim() : all[idx].genreTag,
+        rating: Number(rating) || all[idx].rating || 5,
+        quote: quote.trim(),
+        image: image ? image.trim() : all[idx].image,
+        featured: featured !== undefined ? Boolean(featured) : all[idx].featured
+      };
+
+      writeDb('testimonials', all);
+      return sendJson(res, 200, { success: true, message: 'Testimonial updated successfully', data: all[idx] });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Add Service Endpoint (Protected)
+  if (reqPath === '/api/admin/services/add' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const { title, icon, description, deliverables, ctaText } = payload;
+      if (!title || !description) {
+        return sendJson(res, 400, { success: false, error: 'Service title and description are required' });
+      }
+
+      let delivArr = [];
+      if (Array.isArray(deliverables)) {
+        delivArr = deliverables.filter(Boolean);
+      } else if (typeof deliverables === 'string') {
+        delivArr = deliverables.split('\n').map(s => s.trim()).filter(Boolean);
+      }
+
+      const newService = {
+        id: 'SRV-' + Date.now().toString(36).toUpperCase() + '-' + crypto.randomBytes(2).toString('hex').toUpperCase(),
+        title: title.trim(),
+        icon: icon ? icon.trim() : 'edit_document',
+        description: description.trim(),
+        deliverables: delivArr.length > 0 ? delivArr : ['Comprehensive author support', 'High precision quality control'],
+        ctaText: ctaText ? ctaText.trim() : 'Request Service Assessment'
+      };
+
+      const srvData = readDb('services');
+      srvData.services = srvData.services || [];
+      srvData.services.push(newService);
+      writeDb('services', srvData);
+
+      console.log(`\n[NEW SERVICE] Added: "${newService.title}"`);
+      return sendJson(res, 201, { success: true, message: 'Publishing service added successfully', data: newService });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Update Service Endpoint (Protected)
+  if (reqPath === '/api/admin/services/update' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const { id, title, icon, description, deliverables, ctaText } = payload;
+      if (!id || !title || !description) {
+        return sendJson(res, 400, { success: false, error: 'Service ID, title, and description are required' });
+      }
+
+      let delivArr = [];
+      if (Array.isArray(deliverables)) {
+        delivArr = deliverables.filter(Boolean);
+      } else if (typeof deliverables === 'string') {
+        delivArr = deliverables.split('\n').map(s => s.trim()).filter(Boolean);
+      }
+
+      const srvData = readDb('services');
+      srvData.services = srvData.services || [];
+      const idx = srvData.services.findIndex(s => s.id === id);
+      if (idx === -1) {
+        return sendJson(res, 404, { success: false, error: 'Service not found' });
+      }
+
+      srvData.services[idx] = {
+        ...srvData.services[idx],
+        title: title.trim(),
+        icon: icon ? icon.trim() : srvData.services[idx].icon,
+        description: description.trim(),
+        deliverables: delivArr.length > 0 ? delivArr : srvData.services[idx].deliverables,
+        ctaText: ctaText ? ctaText.trim() : srvData.services[idx].ctaText
+      };
+
+      writeDb('services', srvData);
+      return sendJson(res, 200, { success: true, message: 'Service updated successfully', data: srvData.services[idx] });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Update Publishing Packages (Protected)
+  if (reqPath === '/api/admin/packages/update' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const { packages } = payload;
+      if (!Array.isArray(packages)) {
+        return sendJson(res, 400, { success: false, error: 'Packages must be an array' });
+      }
+
+      const srvData = readDb('services');
+      srvData.packages = packages;
+      writeDb('services', srvData);
+
+      return sendJson(res, 200, { success: true, message: 'Publishing packages updated successfully', data: srvData.packages });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Delete Entry Endpoint (Protected)
   if (reqPath === '/api/admin/delete' && req.method === 'POST') {
     if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
     try {
@@ -442,9 +716,19 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 400, { success: false, error: 'Invalid type or ID' });
       }
 
+      if (type === 'services') {
+        const srvData = readDb('services');
+        srvData.services = (srvData.services || []).filter(item => item.id !== id);
+        srvData.packages = (srvData.packages || []).filter(item => item.id !== id);
+        writeDb('services', srvData);
+        return sendJson(res, 200, { success: true, message: `Service/Package ${id} deleted` });
+      }
+
       let all = readDb(type);
-      all = all.filter(item => item.id !== id);
-      writeDb(type, all);
+      if (Array.isArray(all)) {
+        all = all.filter(item => item.id !== id);
+        writeDb(type, all);
+      }
 
       return sendJson(res, 200, { success: true, message: `Item ${id} deleted` });
     } catch (err) {

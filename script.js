@@ -18,6 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initAllDropzones();
   initPageForms();
   initGallery();
+  initDynamicPortfolio();
+  initDynamicTestimonials();
+  initDynamicServices();
 });
 
 // ==========================================
@@ -313,17 +316,17 @@ function toggleAccordion(id, btn) {
 // 6. Portfolio Category Filtering
 // ==========================================
 function filterCategory(category, btnElement) {
-  const cards = document.querySelectorAll('[data-category]');
+  const cards = document.querySelectorAll('.book-card[data-category]');
   const buttons = document.querySelectorAll('[data-filter-btn]');
 
   buttons.forEach(btn => {
-    btn.classList.remove('bg-[#1978e5]', 'text-white');
-    btn.classList.add('text-gray-700', 'bg-transparent', 'hover:bg-gray-100');
+    btn.classList.remove('bg-[#1978e5]', 'text-white', 'shadow-sm');
+    btn.classList.add('text-gray-700', 'bg-transparent', 'hover:bg-gray-200');
   });
 
   if (btnElement) {
-    btnElement.classList.remove('text-gray-700', 'bg-transparent', 'hover:bg-gray-100');
-    btnElement.classList.add('bg-[#1978e5]', 'text-white');
+    btnElement.classList.remove('text-gray-700', 'bg-transparent', 'hover:bg-gray-200');
+    btnElement.classList.add('bg-[#1978e5]', 'text-white', 'shadow-sm');
   }
 
   cards.forEach(card => {
@@ -335,6 +338,7 @@ function filterCategory(category, btnElement) {
     }
   });
 }
+window.filterCategory = filterCategory;
 
 // ==========================================
 // 7. Interactive Calendar & Appointment Booking
@@ -716,3 +720,166 @@ window.closeGalleryLightbox = function() {
   modal.classList.remove('flex');
   document.body.style.overflow = '';
 };
+
+// ==========================================
+// 12. Dynamic Content Loaders (Portfolio, Testimonials, Services)
+// ==========================================
+async function initDynamicPortfolio() {
+  const portGrid = document.getElementById('portfolio-grid');
+  const homeGrid = document.getElementById('home-portfolio-grid');
+  if (!portGrid && !homeGrid) return;
+
+  try {
+    const res = await fetch('/api/portfolio');
+    if (!res.ok) return;
+    const books = await res.json();
+    if (!Array.isArray(books) || books.length === 0) return;
+
+    if (portGrid) {
+      portGrid.innerHTML = books.map(book => `
+        <div data-category="${(book.category || 'memoir').toLowerCase()}" class="book-card bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm flex flex-col hover:shadow-md transition-shadow">
+          <div class="h-72 bg-gray-900 overflow-hidden relative">
+            <img src="${book.image}" alt="${book.title}" class="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-500" loading="lazy"/>
+            <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider text-gray-900">${book.category || 'Memoir'}</span>
+          </div>
+          <div class="p-6 flex-grow flex flex-col justify-between">
+            <div>
+              <h3 class="font-display text-xl font-bold text-gray-900 mb-1">${book.title}</h3>
+              <p class="text-xs text-[#1978e5] font-semibold mb-3">by ${book.author}</p>
+              <p class="text-sm text-gray-600 line-clamp-3">${book.description || ''}</p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center text-xs">
+              <span class="text-gray-500">${book.format || 'Hardcover & Ebook'}</span>
+              <span class="font-bold text-[#1978e5]">${book.badge || 'Published'}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    if (homeGrid) {
+      const previewBooks = books.slice(0, 3);
+      homeGrid.innerHTML = previewBooks.map(book => `
+        <div class="book-card bg-[#f9f9ff] rounded-2xl overflow-hidden border border-gray-200 flex flex-col shadow-sm">
+          <div class="h-64 bg-gray-900 overflow-hidden relative">
+            <img src="${book.image}" alt="${book.title}" class="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-500" loading="lazy"/>
+            <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider text-gray-900">${book.category}</span>
+          </div>
+          <div class="p-6 flex-grow flex flex-col justify-between">
+            <div>
+              <h3 class="font-display text-xl font-bold text-gray-900 mb-1">${book.title}</h3>
+              <p class="text-xs text-[#1978e5] font-semibold mb-3">by ${book.author}</p>
+              <p class="text-xs text-gray-600 line-clamp-2">${book.description || ''}</p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+  } catch (err) {
+    console.warn('Dynamic portfolio loading note:', err);
+  }
+}
+
+async function initDynamicTestimonials() {
+  const grid = document.getElementById('testimonials-grid');
+  if (!grid) return;
+
+  try {
+    const res = await fetch('/api/testimonials');
+    if (!res.ok) return;
+    const list = await res.json();
+    if (!Array.isArray(list) || list.length === 0) return;
+
+    grid.innerHTML = list.map((item, idx) => {
+      const isFeatured = item.featured || idx === 0;
+      const colSpan = isFeatured ? 'md:col-span-8' : 'md:col-span-4';
+      const stars = '★'.repeat(item.rating || 5);
+
+      return `
+        <div class="${colSpan} bg-white border border-gray-200 rounded-2xl p-8 ${isFeatured ? 'md:p-10' : ''} shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div>
+            <div class="flex items-center gap-1 text-amber-500 mb-4">
+              <span class="text-lg tracking-widest">${stars}</span>
+            </div>
+            <blockquote class="font-display ${isFeatured ? 'text-2xl md:text-3xl' : 'text-base md:text-lg'} text-gray-900 leading-snug italic mb-6">
+              "${item.quote}"
+            </blockquote>
+          </div>
+          <div class="flex items-center gap-4 pt-4 border-t border-gray-100">
+            <img src="${item.image}" alt="${item.author}" class="${isFeatured ? 'w-14 h-14' : 'w-12 h-12'} rounded-full object-cover border-2 border-[#1978e5]"/>
+            <div>
+              <div class="font-bold text-gray-900 ${isFeatured ? 'text-base' : 'text-sm'}">${item.author}</div>
+              <div class="text-xs text-gray-500">${item.book ? `Author of <i>${item.book}</i>` : (item.titleBadge || 'Author')}</div>
+              ${item.genreTag ? `<div class="mt-1 inline-block bg-[#1978e5]/10 text-[#1978e5] text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">${item.genreTag}</div>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch (err) {
+    console.warn('Dynamic testimonials loading note:', err);
+  }
+}
+
+async function initDynamicServices() {
+  const srvGrid = document.getElementById('services-grid');
+  const pkgGrid = document.getElementById('packages-grid');
+  if (!srvGrid && !pkgGrid) return;
+
+  try {
+    const res = await fetch('/api/services');
+    if (!res.ok) return;
+    const data = await res.json();
+
+    if (srvGrid && Array.isArray(data.services) && data.services.length > 0) {
+      srvGrid.innerHTML = data.services.map(srv => `
+        <div class="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm flex flex-col justify-between hover:border-[#1978e5] transition-colors">
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-[#1978e5]/10 text-[#1978e5] flex items-center justify-center mb-6">
+              <span class="material-symbols-outlined text-3xl">${srv.icon || 'rate_review'}</span>
+            </div>
+            <h3 class="font-display text-2xl font-bold text-gray-900 mb-3">${srv.title}</h3>
+            <p class="text-gray-600 leading-relaxed mb-6">${srv.description}</p>
+            <ul class="space-y-2 text-sm text-gray-700 mb-8">
+              ${(srv.deliverables || []).map(d => `
+                <li class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-sm text-[#1978e5]">check_circle</span> ${d}
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+          <button data-open-manuscript-modal class="w-full py-3 bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded hover:bg-[#1978e5] hover:text-white transition-colors">
+            ${srv.ctaText || 'Request Assessment'}
+          </button>
+        </div>
+      `).join('');
+      initManuscriptModal();
+    }
+
+    if (pkgGrid && Array.isArray(data.packages) && data.packages.length > 0) {
+      pkgGrid.innerHTML = data.packages.map(pkg => {
+        const isPopular = pkg.badge === 'Most Popular';
+        return `
+          <div class="bg-white/5 rounded-2xl p-8 border ${isPopular ? 'border-2 border-[#1978e5] relative shadow-2xl scale-105 bg-white/10' : 'border-white/10'} flex flex-col justify-between">
+            ${isPopular ? '<span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#1978e5] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">Most Popular</span>' : ''}
+            <div>
+              <h3 class="font-display text-2xl font-bold mb-2">${pkg.name}</h3>
+              <p class="text-xs text-gray-400 mb-6">${pkg.subtitle || ''}</p>
+              <div class="text-3xl font-bold text-[#1978e5] mb-6">${pkg.price} <span class="text-xs text-gray-400 font-normal">one-time</span></div>
+              <ul class="space-y-3 text-xs text-gray-300 mb-8">
+                ${(pkg.features || []).map(f => `
+                  <li class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm text-[#1978e5]">check</span> ${f}
+                  </li>
+                `).join('')}
+              </ul>
+            </div>
+            <a href="appointment.html" class="w-full py-3 bg-[#1978e5] text-white text-center font-semibold text-xs rounded hover:bg-blue-600 transition-colors shadow-lg">Select Package</a>
+          </div>
+        `;
+      }).join('');
+    }
+  } catch (err) {
+    console.warn('Dynamic services loading note:', err);
+  }
+}

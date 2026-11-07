@@ -1,0 +1,95 @@
+{
+  "services": [
+    {
+      "id": "SRV-01",
+      "title": "Developmental Editing & Line Craft",
+      "icon": "rate_review",
+      "description": "Comprehensive structural evaluation of narrative arc, character depth, pace, and voice. Our acquiring editors refine raw drafts into polished literary prose.",
+      "deliverables": [
+        "One-on-one editorial critique sessions",
+        "Line-by-line stylistic refinement",
+        "Fact-checking & structural narrative alignment"
+      ],
+      "ctaText": "Request Editorial Assessment"
+    },
+    {
+      "id": "SRV-02",
+      "title": "Archival Design & Typography",
+      "icon": "brush",
+      "description": "Custom book design adhering to museum-grade standards. We create bespoke cover art, ornamental drop caps, and balanced interior layouts.",
+      "deliverables": [
+        "Custom dust jacket & cloth cover foil stamping",
+        "Archival acid-free paper selection",
+        "Custom ebook layout (ePub & Kindle formats)"
+      ],
+      "ctaText": "Explore Design Options"
+    },
+    {
+      "id": "SRV-03",
+      "title": "Global Retail & Institutional Distribution",
+      "icon": "travel_explore",
+      "description": "Worldwide distribution via Ingram, Barnes & Noble, Amazon, independent bookstores, and university library catalogs across 120+ countries.",
+      "deliverables": [
+        "Full ISBN assignment & Library of Congress registration",
+        "Print-on-demand & hardcover bulk logistics",
+        "Direct 100% royalty deposit setup"
+      ],
+      "ctaText": "Inquire About Distribution"
+    },
+    {
+      "id": "SRV-04",
+      "title": "Author PR & Literary Marketing",
+      "icon": "campaign",
+      "description": "Targeted media campaigns, review copy distribution to Kirkus, Publishers Weekly, and leading podcast interviews for maximum launch impact.",
+      "deliverables": [
+        "Press release creation & media distribution",
+        "Editorial reviewer copy dispatch",
+        "Author website & press kit curation"
+      ],
+      "ctaText": "Consult Marketing Team"
+    }
+  ],
+  "packages": [
+    {
+      "id": "PKG-01",
+      "name": "Heritage Edition",
+      "subtitle": "Ideal for memoirs, poetry collections & debut fiction",
+      "price": "$3,500",
+      "badge": "",
+      "features": [
+        "Professional Copyediting & Proofreading",
+        "Custom Paperback & Ebook Cover Design",
+        "Global Amazon & Barnes & Noble Distribution",
+        "100% Royalty Retention"
+      ]
+    },
+    {
+      "id": "PKG-02",
+      "name": "Collector's Hardcover",
+      "subtitle": "Comprehensive package with cloth binding & editorial oversight",
+      "price": "$6,800",
+      "badge": "Most Popular",
+      "features": [
+        "Developmental & Line Editing by Senior Editor",
+        "Premium Cloth Hardcover with Gold Foil Stamping",
+        "Library of Congress & ISBN Registration",
+        "Worldwide Bookstore & Academic Library Distribution",
+        "Press Release & Initial Review Campaign"
+      ]
+    },
+    {
+      "id": "PKG-03",
+      "name": "Sovereign Bespoke",
+      "subtitle": "Ultra-luxury, ghostwriting, private pressings & worldwide PR tour",
+      "price": "$12,500",
+      "badge": "Elite",
+      "features": [
+        "Dedicated Executive Editor & Master Ghostwriter",
+        "Hand-bound Italian Leather Edition with Gilded Edges",
+        "Exclusive New York Launch Gala & Salon Evening",
+        "Major Media Interviews & National Press Tour",
+        "Foreign Rights Representation in 40+ Territories"
+      ]
+    }
+  ]
+}
