@@ -449,7 +449,8 @@ const CHAT_KNOWLEDGE_BASE = {
   royalties: "At House of Memoir, authors retain 100% of all intellectual property, copyright, and worldwide sales royalties across print, digital, and audio formats.",
   submission: "We accept memoirs, literary fiction, historical non-fiction, and poetry. Submissions are reviewed by our senior editorial board within 4-6 weeks.",
   timeline: "A typical publication cycle spans 6 to 9 months: 8-12 weeks for developmental editing & copyediting, 4 weeks for typesetting and cover design, followed by proofing and global distribution.",
-  contact: "Our main editorial offices are located at 750 Fifth Avenue, Suite 1400, New York, NY 10019. You can also reach our desk at submissions@houseofmemoir.com."
+  contact: "Our main editorial offices are located at 750 Fifth Avenue, Suite 1400, New York, NY 10019. You can also reach our desk at submissions@houseofmemoir.com.",
+  instagram: "Follow our official Instagram @houseofmemoir.global at: https://www.instagram.com/houseofmemoir.global?igsi=emRqbzhvNHQ5cjJ6 for literary announcements, book releases, and behind-the-scenes craft!"
 };
 
 function initSupportChat() {
@@ -518,6 +519,8 @@ function initSupportChat() {
         reply = CHAT_KNOWLEDGE_BASE.timeline;
       } else if (lower.includes('address') || lower.includes('contact') || lower.includes('email') || lower.includes('phone') || lower.includes('office')) {
         reply = CHAT_KNOWLEDGE_BASE.contact;
+      } else if (lower.includes('instagram') || lower.includes('insta') || lower.includes('ig') || lower.includes('social')) {
+        reply = CHAT_KNOWLEDGE_BASE.instagram;
       } else if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey')) {
         reply = "Hello! Welcome to the House of Memoir editorial desk. Are you interested in submitting a manuscript or booking a consultation?";
       }
