@@ -121,12 +121,41 @@ const MIME_TYPES = {
   '.mov': 'video/mp4'
 };
 
+const UPLOADS_GALLERY_DIR = path.join(__dirname, 'uploads', 'gallery');
+if (!fs.existsSync(UPLOADS_GALLERY_DIR)) {
+  fs.mkdirSync(UPLOADS_GALLERY_DIR, { recursive: true });
+}
+
+function saveBase64Image(dataUri, prefix = 'gal') {
+  if (!dataUri || typeof dataUri !== 'string') return dataUri;
+  const match = dataUri.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+  if (!match) {
+    return dataUri;
+  }
+
+  let ext = match[1].toLowerCase();
+  if (ext === 'jpeg') ext = 'jpg';
+  if (ext === 'svg+xml') ext = 'svg';
+
+  try {
+    const base64Data = match[2];
+    const buffer = Buffer.from(base64Data, 'base64');
+    const filename = `${prefix}_${Date.now()}_${crypto.randomBytes(3).toString('hex')}.${ext}`;
+    const diskPath = path.join(UPLOADS_GALLERY_DIR, filename);
+    fs.writeFileSync(diskPath, buffer);
+    return `/uploads/gallery/${filename}`;
+  } catch (err) {
+    console.error('Error saving base64 image to disk:', err.message);
+    return dataUri;
+  }
+}
+
 function parseBody(req) {
   return new Promise((resolve, reject) => {
     let body = '';
     req.on('data', chunk => {
       body += chunk.toString();
-      if (body.length > 25 * 1024 * 1024) { // 25MB max
+      if (body.length > 50 * 1024 * 1024) { // 50MB max for multiple high-res photo uploads
         reject(new Error('Payload too large'));
       }
     });
@@ -486,13 +515,14 @@ const server = http.createServer(async (req, res) => {
       };
 
       const cleanCat = (category || 'galas').trim().toLowerCase();
+      const savedImage = saveBase64Image(image.trim(), 'gal');
       const newPhoto = {
         id: 'GAL-' + Date.now().toString(36).toUpperCase() + '-' + crypto.randomBytes(2).toString('hex').toUpperCase(),
         title: title.trim(),
         category: cleanCat,
         categoryName: categoryName || catMap[cleanCat] || 'Company Event',
         date: date ? date.trim() : new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
-        image: image.trim(),
+        image: savedImage,
         description: description ? description.trim() : ''
       };
 
@@ -502,6 +532,101 @@ const server = http.createServer(async (req, res) => {
 
       console.log(`\n[NEW GALLERY PHOTO] Added: "${newPhoto.title}" | Category: ${newPhoto.category}`);
       return sendJson(res, 201, { success: true, message: 'Photo uploaded to company gallery successfully', data: newPhoto });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Bulk Add Gallery Photos Endpoint (Protected - supports multiple photos at once)
+  if ((reqPath === '/api/admin/gallery/bulk-add' || reqPath === '/api/admin/gallery/add-batch') && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const photos = Array.isArray(payload) ? payload : (Array.isArray(payload.photos) ? payload.photos : []);
+      if (!photos || photos.length === 0) {
+        return sendJson(res, 400, { success: false, error: 'At least one photo is required' });
+      }
+
+      const catMap = {
+        'galas': 'Author Galas',
+        'launches': 'Book Launches',
+        'workshops': 'Workshops & Craft',
+        'exhibitions': 'Exhibitions & Fairs'
+      };
+
+      const defaultDate = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      const addedItems = [];
+
+      for (let i = 0; i < photos.length; i++) {
+        const p = photos[i];
+        if (!p || !p.image) continue;
+        const cleanCat = (p.category || 'galas').trim().toLowerCase();
+        const savedImage = saveBase64Image(p.image.trim(), 'gal');
+        const item = {
+          id: 'GAL-' + Date.now().toString(36).toUpperCase() + '-' + crypto.randomBytes(2).toString('hex').toUpperCase() + '-' + (i + 1),
+          title: (p.title || `Event Photo ${i + 1}`).trim(),
+          category: cleanCat,
+          categoryName: p.categoryName || catMap[cleanCat] || 'Company Event',
+          date: p.date ? p.date.trim() : defaultDate,
+          image: savedImage,
+          description: p.description ? p.description.trim() : ''
+        };
+        addedItems.push(item);
+      }
+
+      if (addedItems.length === 0) {
+        return sendJson(res, 400, { success: false, error: 'No valid photos found in request' });
+      }
+
+      const all = readDb('gallery');
+      all.unshift(...addedItems);
+      writeDb('gallery', all);
+
+      console.log(`\n[BULK GALLERY UPLOAD] Added ${addedItems.length} new photos to gallery!`);
+      return sendJson(res, 201, {
+        success: true,
+        count: addedItems.length,
+        message: `Successfully uploaded and added ${addedItems.length} photos to company gallery`,
+        data: addedItems
+      });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Bulk Delete Gallery Photos Endpoint (Protected)
+  if (reqPath === '/api/admin/gallery/bulk-delete' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const ids = Array.isArray(payload.ids) ? payload.ids : [];
+      if (ids.length === 0) {
+        return sendJson(res, 400, { success: false, error: 'No photo IDs provided' });
+      }
+
+      let all = readDb('gallery');
+      const toDelete = all.filter(item => ids.includes(item.id));
+
+      toDelete.forEach(item => {
+        if (item.image && item.image.startsWith('/uploads/gallery/')) {
+          const localPath = path.join(PUBLIC_DIR, item.image);
+          try {
+            if (fs.existsSync(localPath)) fs.unlinkSync(localPath);
+          } catch (e) {
+            console.error(`Failed to remove file ${localPath}:`, e.message);
+          }
+        }
+      });
+
+      all = all.filter(item => !ids.includes(item.id));
+      writeDb('gallery', all);
+
+      console.log(`\n[BULK GALLERY DELETE] Removed ${toDelete.length} photos`);
+      return sendJson(res, 200, {
+        success: true,
+        count: toDelete.length,
+        message: `Successfully deleted ${toDelete.length} photos from gallery`
+      });
     } catch (err) {
       return sendJson(res, 500, { success: false, error: err.message });
     }
@@ -759,6 +884,17 @@ const server = http.createServer(async (req, res) => {
 
       let all = readDb(type);
       if (Array.isArray(all)) {
+        if (type === 'gallery') {
+          const itemToDelete = all.find(item => item.id === id);
+          if (itemToDelete && itemToDelete.image && itemToDelete.image.startsWith('/uploads/gallery/')) {
+            const localPath = path.join(PUBLIC_DIR, itemToDelete.image);
+            try {
+              if (fs.existsSync(localPath)) fs.unlinkSync(localPath);
+            } catch (e) {
+              console.error(`Failed to remove file ${localPath}:`, e.message);
+            }
+          }
+        }
         all = all.filter(item => item.id !== id);
         writeDb(type, all);
       }
