@@ -117,7 +117,8 @@ const MIME_TYPES = {
   '.ttf': 'font/ttf',
   '.mp4': 'video/mp4',
   '.webm': 'video/webm',
-  '.ogv': 'video/ogg'
+  '.ogv': 'video/ogg',
+  '.mov': 'video/mp4'
 };
 
 function parseBody(req) {
@@ -806,7 +807,7 @@ const server = http.createServer(async (req, res) => {
 
     // Support HTTP Range requests for smooth video streaming and seeking
     const range = req.headers.range;
-    if (range && (ext === '.mp4' || ext === '.webm' || ext === '.ogv')) {
+    if (range && (ext === '.mp4' || ext === '.webm' || ext === '.ogv' || ext === '.mov')) {
       const parts = range.replace(/bytes=/, '').split('-');
       const start = parseInt(parts[0], 10);
       const end = parts[1] ? parseInt(parts[1], 10) : stats.size - 1;
