@@ -243,8 +243,11 @@
         <p class="text-sm text-gray-600">Email: submissions@houseofmemoir.com</p>
       </div>
     </div>
-    <div class="max-w-container-max mx-auto px-margin-desktop mt-12 pt-6 border-t border-gray-200">
-      <p class="text-xs text-gray-500 text-center">© 2026 House of Memoir Publishing House. All rights reserved.</p>
+    <div class="max-w-container-max mx-auto px-margin-desktop mt-12 pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+      <p>© 2026 House of Memoir Publishing House. All rights reserved.</p>
+      <a href="admin.html" class="hover:text-[#1978e5] flex items-center gap-1 transition-colors">
+        <span class="material-symbols-outlined text-xs">admin_panel_settings</span> Editorial Portal
+      </a>
     </div>
   </footer>
 
@@ -301,6 +304,50 @@
           <button type="submit" class="bg-[#1978e5] text-white px-6 py-2.5 rounded font-semibold text-sm hover:bg-blue-700 shadow-md">Submit Application</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Floating Support Concierge Chat -->
+  <div class="fixed bottom-6 right-6 z-40">
+    <button id="support-chat-btn" class="bg-[#1978e5] text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center hover:scale-105 transition-transform" aria-label="Open Editorial Concierge Chat">
+      <span class="material-symbols-outlined text-2xl">chat</span>
+    </button>
+    <div id="support-chat-window" class="hidden absolute bottom-16 right-0 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex-col">
+      <div class="bg-[#000613] text-white p-4 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+          <div>
+            <span class="font-bold text-sm block leading-none">Editorial Desk Concierge</span>
+            <span class="text-[10px] text-gray-400">House of Memoir Advisory</span>
+          </div>
+        </div>
+        <button id="close-support-chat" class="text-gray-400 hover:text-white p-1">
+          <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+      </div>
+
+      <!-- Quick Topic Chips -->
+      <div class="bg-gray-100/90 border-b border-gray-200 px-3 py-2 flex gap-1.5 overflow-x-auto text-[10px]">
+        <button onclick="sendQuickChat('royalties')" class="shrink-0 bg-white hover:bg-blue-50 hover:text-[#1978e5] border border-gray-200 px-2 py-1 rounded-full text-gray-700 transition-colors">💰 100% Royalty</button>
+        <button onclick="sendQuickChat('submission')" class="shrink-0 bg-white hover:bg-blue-50 hover:text-[#1978e5] border border-gray-200 px-2 py-1 rounded-full text-gray-700 transition-colors">📖 Guidelines</button>
+        <button onclick="sendQuickChat('timeline')" class="shrink-0 bg-white hover:bg-blue-50 hover:text-[#1978e5] border border-gray-200 px-2 py-1 rounded-full text-gray-700 transition-colors">⏳ Timeline</button>
+        <button onclick="sendQuickChat('contact')" class="shrink-0 bg-white hover:bg-blue-50 hover:text-[#1978e5] border border-gray-200 px-2 py-1 rounded-full text-gray-700 transition-colors">📍 Office</button>
+      </div>
+
+      <!-- Chat Messages Scroll Area -->
+      <div id="chat-messages" class="p-4 h-64 overflow-y-auto space-y-3 bg-gray-50 text-xs">
+        <div class="bg-white text-gray-800 p-3 rounded-2xl rounded-tl-none border border-gray-200 shadow-sm max-w-[85%]">
+          Welcome to House of Memoir! How can our senior editors assist with your book or manuscript today?
+        </div>
+      </div>
+
+      <!-- Chat Input Box -->
+      <div class="p-3 bg-white border-t border-gray-200 flex gap-2">
+        <input type="text" id="chat-input" placeholder="Type a question or email address..." class="flex-1 border border-gray-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#1978e5]"/>
+        <button id="chat-send-btn" class="bg-[#1978e5] hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center">
+          <span class="material-symbols-outlined text-sm">send</span>
+        </button>
+      </div>
     </div>
   </div>
 

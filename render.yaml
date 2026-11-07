@@ -2,6 +2,7 @@
 services:
   - type: web
     name: house-of-memoir
-    env: static
+    env: node
+    plan: free
     buildCommand: ""
-    staticPublishPath: ./
+    startCommand: "node server.js"

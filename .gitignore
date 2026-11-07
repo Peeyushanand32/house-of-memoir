@@ -9,5 +9,7 @@ desktop.ini
 *.swp
 *.tmp
 
-# Logs
+# Logs & Environment
 *.log
+node_modules/
+.env

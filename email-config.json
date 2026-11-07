@@ -1,0 +1,16 @@
+{
+  "notificationEmail": "submissions@houseofmemoir.com",
+  "smtp": {
+    "enabled": false,
+    "host": "smtp.gmail.com",
+    "port": 587,
+    "secure": false,
+    "user": "your-email@gmail.com",
+    "pass": "your-app-password"
+  },
+  "web3forms": {
+    "enabled": true,
+    "accessKey": ""
+  }
+}
+
