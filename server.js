@@ -21,7 +21,8 @@ const DB_FILES = {
   gallery: path.join(DATA_DIR, 'gallery.json'),
   portfolio: path.join(DATA_DIR, 'portfolio.json'),
   testimonials: path.join(DATA_DIR, 'testimonials.json'),
-  services: path.join(DATA_DIR, 'services.json')
+  services: path.join(DATA_DIR, 'services.json'),
+  siteConfig: path.join(DATA_DIR, 'site-config.json')
 };
 
 Object.entries(DB_FILES).forEach(([key, filePath]) => {
@@ -30,6 +31,8 @@ Object.entries(DB_FILES).forEach(([key, filePath]) => {
       fs.writeFileSync(filePath, JSON.stringify({ username: 'admin', password: 'admin123' }, null, 2));
     } else if (key === 'services') {
       fs.writeFileSync(filePath, JSON.stringify({ services: [], packages: [] }, null, 2));
+    } else if (key === 'siteConfig') {
+      fs.writeFileSync(filePath, JSON.stringify({ heroVideo: 'hero-video.mp4', heroPoster: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=1200&q=80', heroTag: 'Cinematic Reel' }, null, 2));
     } else {
       fs.writeFileSync(filePath, JSON.stringify([], null, 2));
     }
@@ -75,13 +78,13 @@ function isValidSession(req) {
 function readDb(type) {
   try {
     const file = DB_FILES[type];
-    const defaultVal = type === 'services' ? { services: [], packages: [] } : [];
+    const defaultVal = type === 'services' ? { services: [], packages: [] } : (type === 'siteConfig' ? { heroVideo: 'hero-video.mp4', heroPoster: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=1200&q=80', heroTag: 'Cinematic Reel' } : []);
     if (!file || !fs.existsSync(file)) return defaultVal;
     const content = fs.readFileSync(file, 'utf8');
-    return JSON.parse(content || (type === 'services' ? '{"services":[],"packages":[]}' : '[]'));
+    return JSON.parse(content || JSON.stringify(defaultVal));
   } catch (err) {
     console.error(`Error reading ${type} DB:`, err);
-    return type === 'services' ? { services: [], packages: [] } : [];
+    return type === 'services' ? { services: [], packages: [] } : (type === 'siteConfig' ? { heroVideo: 'hero-video.mp4', heroPoster: '' } : []);
   }
 }
 
@@ -111,7 +114,10 @@ const MIME_TYPES = {
   '.ico': 'image/x-icon',
   '.woff': 'font/woff',
   '.woff2': 'font/woff2',
-  '.ttf': 'font/ttf'
+  '.ttf': 'font/ttf',
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm',
+  '.ogv': 'video/ogg'
 };
 
 function parseBody(req) {
@@ -362,6 +368,32 @@ const server = http.createServer(async (req, res) => {
   if (reqPath === '/api/services' && req.method === 'GET') {
     const services = readDb('services');
     return sendJson(res, 200, services);
+  }
+
+  // Public Site Config (Hero Video, Poster, etc.)
+  if (reqPath === '/api/site-config' && req.method === 'GET') {
+    const config = readDb('siteConfig');
+    return sendJson(res, 200, config);
+  }
+
+  // Update Site Config (Protected)
+  if (reqPath === '/api/admin/site-config' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const current = readDb('siteConfig');
+      const updated = {
+        ...current,
+        heroVideo: payload.heroVideo !== undefined ? payload.heroVideo.trim() : current.heroVideo,
+        heroPoster: payload.heroPoster !== undefined ? payload.heroPoster.trim() : current.heroPoster,
+        heroTag: payload.heroTag !== undefined ? payload.heroTag.trim() : current.heroTag
+      };
+      writeDb('siteConfig', updated);
+      console.log(`[CONFIG] Updated site config: heroVideo=${updated.heroVideo}`);
+      return sendJson(res, 200, { success: true, message: 'Site configuration updated', data: updated });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
   }
 
   // ==========================================
@@ -772,9 +804,28 @@ const server = http.createServer(async (req, res) => {
     const ext = path.extname(filePath).toLowerCase();
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
+    // Support HTTP Range requests for smooth video streaming and seeking
+    const range = req.headers.range;
+    if (range && (ext === '.mp4' || ext === '.webm' || ext === '.ogv')) {
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : stats.size - 1;
+      const chunkSize = (end - start) + 1;
+      const fileStream = fs.createReadStream(filePath, { start, end });
+      res.writeHead(206, {
+        'Content-Range': `bytes ${start}-${end}/${stats.size}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunkSize,
+        'Content-Type': contentType,
+        'Access-Control-Allow-Origin': '*'
+      });
+      return fileStream.pipe(res);
+    }
+
     res.writeHead(200, {
       'Content-Type': contentType,
       'Content-Length': stats.size,
+      'Accept-Ranges': 'bytes',
       'Access-Control-Allow-Origin': '*'
     });
 

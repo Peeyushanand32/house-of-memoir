@@ -769,13 +769,59 @@
       </section>
 
       <!-- ========================================== -->
-      <!-- TAB 10: EMAIL SETTINGS -->
+      <!-- TAB 10: SITE & EMAIL SETTINGS -->
       <!-- ========================================== -->
-      <section id="tab-config" class="tab-content hidden bg-white rounded-2xl border border-gray-200 shadow-sm p-6 max-w-3xl">
-        <h2 class="font-display font-bold text-xl text-gray-900 mb-1">Email Delivery & Hybrid Settings</h2>
-        <p class="text-xs text-gray-500 mb-6">Configure how you receive new manuscript submissions and author queries.</p>
+      <section id="tab-config" class="tab-content hidden bg-white rounded-2xl border border-gray-200 shadow-sm p-6 max-w-3xl space-y-8">
+        <div>
+          <h2 class="font-display font-bold text-xl text-gray-900 mb-1">Website Video & Configuration</h2>
+          <p class="text-xs text-gray-500">Configure the homepage cinematic video reel and notification settings.</p>
+        </div>
 
-        <div class="space-y-6">
+        <div id="site-config-alert" class="hidden text-xs px-4 py-2.5 rounded-xl"></div>
+
+        <!-- Hero Video Section -->
+        <div class="p-6 bg-gray-50 rounded-2xl border border-gray-200 space-y-4">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="material-symbols-outlined text-[#1978e5] text-xl">smart_display</span>
+            <h3 class="font-bold text-sm text-gray-900">Homepage Hero Video Settings</h3>
+          </div>
+          <p class="text-xs text-gray-600">The video that plays continuously on the top hero section of the home page.</p>
+
+          <form onsubmit="handleSaveHeroVideo(event)" class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Video Source URL (or local file)</label>
+              <input type="text" id="cfg-hero-video" class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]" placeholder="hero-video.mp4 or https://..." value="hero-video.mp4" oninput="previewAdminHeroVideo(this.value)"/>
+              <p class="text-[11px] text-gray-500 mt-1">Default: <code>hero-video.mp4</code> (pre-bundled luxury turning book pages video)</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Badge Text Label</label>
+                <input type="text" id="cfg-hero-tag" class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]" placeholder="e.g. Cinematic Reel" value="Cinematic Reel"/>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Poster Fallback Image URL</label>
+                <input type="text" id="cfg-hero-poster" class="w-full text-xs px-3.5 py-2.5 border border-gray-300 rounded-xl focus:border-[#1978e5]" placeholder="https://..."/>
+              </div>
+            </div>
+
+            <!-- Video Preview Container -->
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Live Video Preview</label>
+              <div class="h-44 w-full max-w-sm bg-black rounded-xl overflow-hidden relative border border-gray-300">
+                <video id="admin-hero-preview" autoplay muted loop playsinline class="w-full h-full object-cover">
+                  <source src="hero-video.mp4" type="video/mp4"/>
+                </video>
+              </div>
+            </div>
+
+            <button type="submit" id="btn-save-hero-video" class="bg-[#1978e5] text-white text-xs font-bold px-6 py-2.5 rounded-xl hover:bg-blue-700 shadow-sm flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">save</span> Update Homepage Video
+            </button>
+          </form>
+        </div>
+
+        <div class="space-y-6 pt-4 border-t border-gray-200">
           <div class="p-5 bg-blue-50/60 rounded-xl border border-blue-200/60">
             <div class="flex items-center gap-2 mb-2">
               <span class="material-symbols-outlined text-blue-600">cloud_done</span>
@@ -799,7 +845,7 @@
           </div>
 
           <button onclick="saveSettings()" class="bg-[#1978e5] text-white text-xs font-bold px-6 py-2.5 rounded-xl hover:bg-blue-700 shadow-sm flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-sm">save</span> Save Configuration
+            <span class="material-symbols-outlined text-sm">save</span> Save Email Configuration
           </button>
         </div>
       </section>
@@ -1140,6 +1186,7 @@
         renderQueries();
         renderAppointments();
         renderChatLeads();
+        loadSiteConfig();
       } catch (err) {
         console.error('Failed to load admin data:', err);
       }
@@ -2022,6 +2069,73 @@
       const key = document.getElementById('cfg-web3forms-key').value.trim();
       localStorage.setItem('hom_web3forms_key', key);
       alert('Settings saved successfully!');
+    }
+
+    // ==========================================
+    // SITE CONFIG / HERO VIDEO LOGIC
+    // ==========================================
+    function previewAdminHeroVideo(url) {
+      const vid = document.getElementById('admin-hero-preview');
+      if (!vid) return;
+      const srcEl = vid.querySelector('source');
+      if (srcEl) {
+        srcEl.src = url || 'hero-video.mp4';
+      } else {
+        vid.src = url || 'hero-video.mp4';
+      }
+      vid.load();
+      vid.play().catch(() => {});
+    }
+
+    async function handleSaveHeroVideo(e) {
+      e.preventDefault();
+      const heroVideo = document.getElementById('cfg-hero-video').value.trim();
+      const heroTag = document.getElementById('cfg-hero-tag').value.trim();
+      const heroPoster = document.getElementById('cfg-hero-poster').value.trim();
+      const alertBox = document.getElementById('site-config-alert');
+      const btn = document.getElementById('btn-save-hero-video');
+
+      btn.disabled = true;
+      btn.innerText = 'Updating video...';
+      alertBox.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/admin/site-config', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ heroVideo, heroTag, heroPoster })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700';
+          alertBox.innerText = 'Homepage video configuration updated successfully!';
+          alertBox.classList.remove('hidden');
+        } else {
+          alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
+          alertBox.innerText = data.error || 'Failed to update video';
+          alertBox.classList.remove('hidden');
+        }
+      } catch (err) {
+        alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
+        alertBox.innerText = 'Server error: ' + err.message;
+        alertBox.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span class="material-symbols-outlined text-sm">save</span> Update Homepage Video`;
+      }
+    }
+
+    async function loadSiteConfig() {
+      try {
+        const res = await fetch('/api/site-config');
+        if (res.ok) {
+          const cfg = await res.json();
+          if (document.getElementById('cfg-hero-video')) document.getElementById('cfg-hero-video').value = cfg.heroVideo || 'hero-video.mp4';
+          if (document.getElementById('cfg-hero-tag')) document.getElementById('cfg-hero-tag').value = cfg.heroTag || 'Cinematic Reel';
+          if (document.getElementById('cfg-hero-poster')) document.getElementById('cfg-hero-poster').value = cfg.heroPoster || '';
+          previewAdminHeroVideo(cfg.heroVideo || 'hero-video.mp4');
+        }
+      } catch (e) {}
     }
   </script>
 </body>

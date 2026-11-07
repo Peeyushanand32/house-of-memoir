@@ -144,15 +144,36 @@
         </div>
       </div>
 
-      <div class="w-full lg:w-1/2 mt-8 lg:mt-0 relative h-[420px] sm:h-[500px] animate-fade-in-up delay-400">
-        <img class="w-full h-full object-cover rounded-3xl ambient-shadow border border-gray-200 opacity-95 hover:scale-[1.01] transition-transform duration-500" 
-          alt="Luxury hardcover book on wooden desk" 
-          src="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=1200&q=80"/>
-        <div class="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-md p-5 rounded-2xl border border-gray-200 shadow-xl flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-[#000613] flex items-center justify-center text-white font-display text-xl font-bold shrink-0">100%</div>
-          <div>
-            <div class="font-bold text-gray-900 text-sm">Full Royalty Ownership</div>
-            <div class="text-xs text-gray-600">Authors retain 100% rights & earnings across print, audio, and digital formats.</div>
+      <div class="w-full lg:w-1/2 mt-8 lg:mt-0 relative h-[420px] sm:h-[500px] animate-fade-in-up delay-400 group">
+        <div class="relative w-full h-full rounded-3xl overflow-hidden ambient-shadow border border-gray-200 bg-gray-950 shadow-2xl">
+          <!-- Main Hero Video -->
+          <video id="hero-main-video" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=1200&q=80" class="w-full h-full object-cover">
+            <source src="hero-video.mp4" type="video/mp4"/>
+            <source src="https://videos.pexels.com/video-files/4473136/4473136-hd_1280_720_25fps.mp4" type="video/mp4"/>
+            <img src="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=1200&q=80" alt="Luxury hardcover book on wooden desk" class="w-full h-full object-cover"/>
+          </video>
+          
+          <!-- Subtle Luxury Gradient Vignette -->
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30 pointer-events-none"></div>
+
+          <!-- Video Reel Controls & Live Indicator -->
+          <div class="absolute top-4 right-4 z-20 flex items-center gap-2">
+            <span id="hero-tag-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white text-[11px] font-semibold shadow-sm">
+              <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+              <span id="hero-tag-text">Cinematic Reel</span>
+            </span>
+            <button type="button" onclick="toggleHeroVideoMute()" id="hero-mute-btn" class="w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-black/80 transition-colors shadow-sm" title="Toggle Sound">
+              <span class="material-symbols-outlined text-base" id="hero-mute-icon">volume_off</span>
+            </button>
+          </div>
+
+          <!-- Floating Royalty Ownership Card -->
+          <div class="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-md p-5 rounded-2xl border border-gray-200 shadow-xl flex items-center gap-4 z-20">
+            <div class="w-12 h-12 rounded-xl bg-[#000613] flex items-center justify-center text-white font-display text-xl font-bold shrink-0">100%</div>
+            <div>
+              <div class="font-bold text-gray-900 text-sm">Full Royalty Ownership</div>
+              <div class="text-xs text-gray-600">Authors retain 100% rights & earnings across print, audio, and digital formats.</div>
+            </div>
           </div>
         </div>
       </div>

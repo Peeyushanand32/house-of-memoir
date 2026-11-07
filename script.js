@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initDynamicPortfolio();
   initDynamicTestimonials();
   initDynamicServices();
+  initDynamicHeroVideo();
 });
 
 // ==========================================
@@ -881,5 +882,49 @@ async function initDynamicServices() {
     }
   } catch (err) {
     console.warn('Dynamic services loading note:', err);
+  }
+}
+
+// ==========================================
+// 13. Hero Video Controller & Dynamic Customization
+// ==========================================
+window.toggleHeroVideoMute = function() {
+  const vid = document.getElementById('hero-main-video');
+  const icon = document.getElementById('hero-mute-icon');
+  if (!vid) return;
+
+  vid.muted = !vid.muted;
+  if (icon) {
+    icon.innerText = vid.muted ? 'volume_off' : 'volume_up';
+  }
+};
+
+async function initDynamicHeroVideo() {
+  const vid = document.getElementById('hero-main-video');
+  if (!vid) return;
+
+  try {
+    const res = await fetch('/api/site-config');
+    if (!res.ok) return;
+    const config = await res.json();
+    if (!config) return;
+
+    if (config.heroTag && document.getElementById('hero-tag-text')) {
+      document.getElementById('hero-tag-text').innerText = config.heroTag;
+    }
+
+    if (config.heroVideo && config.heroVideo !== 'hero-video.mp4') {
+      const srcEl = vid.querySelector('source');
+      if (srcEl) {
+        srcEl.src = config.heroVideo;
+      } else {
+        vid.src = config.heroVideo;
+      }
+      if (config.heroPoster) vid.poster = config.heroPoster;
+      vid.load();
+      vid.play().catch(() => {});
+    }
+  } catch (e) {
+    // Ignore, defaults to pre-configured source in HTML
   }
 }
