@@ -27,6 +27,20 @@
       <!-- Login Form -->
       <form id="admin-login-form" class="p-8 space-y-5" onsubmit="handleLogin(event)">
         
+        <!-- Live Server Connection Status Banner -->
+        <div id="login-server-banner" class="hidden text-xs p-3 rounded-xl border flex flex-col gap-1.5 transition-all">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span id="login-server-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <span id="login-server-title" class="font-bold text-gray-800">Checking server connection...</span>
+            </div>
+            <button type="button" onclick="checkServerHealth(true)" class="text-[11px] text-[#1978e5] hover:underline font-semibold flex items-center gap-0.5">
+              <span class="material-symbols-outlined text-xs">refresh</span> Check
+            </button>
+          </div>
+          <div id="login-server-desc" class="text-[11px] text-gray-600 leading-relaxed"></div>
+        </div>
+
         <div id="login-error-msg" class="hidden bg-red-50 border border-red-200 text-red-700 text-xs px-4 py-2.5 rounded-xl flex items-center gap-2">
           <span class="material-symbols-outlined text-sm">error</span>
           <span id="login-error-text">Invalid username or password</span>
@@ -1213,6 +1227,14 @@
 
   <!-- Client-Side Admin Script -->
   <script>
+    // Smart API Base URL: auto-connects to local server even if opened via file://
+    const API_BASE = (window.location.protocol === 'file:') ? 'http://localhost:8000' : '';
+    function apiUrl(path) {
+      if (!path) return '';
+      if (path.startsWith('http://') || path.startsWith('https://')) return path;
+      return API_BASE + path;
+    }
+
     let CURRENT_DATA = {
       submissions: [],
       queries: [],
@@ -1230,10 +1252,60 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       checkAuthStatus();
+      checkServerHealth();
       const savedKey = localStorage.getItem('hom_web3forms_key') || '';
       const keyInput = document.getElementById('cfg-web3forms-key');
       if (keyInput) keyInput.value = savedKey;
     });
+
+    async function checkServerHealth(manual = false) {
+      const banner = document.getElementById('login-server-banner');
+      const dot = document.getElementById('login-server-dot');
+      const title = document.getElementById('login-server-title');
+      const desc = document.getElementById('login-server-desc');
+      if (!banner) return;
+
+      banner.classList.remove('hidden');
+      if (manual) {
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse';
+        title.innerText = 'Checking server connection...';
+      }
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        const res = await fetch(apiUrl('/api/site-config'), { signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          banner.className = 'text-xs p-3 rounded-xl border bg-emerald-50 border-emerald-200 flex flex-col gap-1.5';
+          dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
+          title.className = 'font-bold text-emerald-800';
+          title.innerText = 'Server Status: Online & Connected';
+          if (window.location.protocol === 'file:') {
+            desc.innerHTML = 'Running via <code>file://</code> connected to <a href="http://localhost:8000/admin.html" target="_blank" class="text-[#1978e5] underline font-semibold">http://localhost:8000</a>.';
+          } else {
+            desc.innerText = 'Local server is active and ready to accept admin credentials.';
+          }
+          return true;
+        } else {
+          throw new Error('Server returned error status ' + res.status);
+        }
+      } catch (err) {
+        banner.className = 'text-xs p-3 rounded-xl border bg-amber-50 border-amber-200 flex flex-col gap-1.5';
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
+        title.className = 'font-bold text-amber-900';
+        title.innerText = 'Server Status: Offline / Unreachable';
+        
+        let helpText = 'Local Node server port 8000 par running nahi hai.<br/>' +
+          '<strong>Solution:</strong> Project folder me <code>start-server.bat</code> par double-click karein ya terminal me <code>node server.js</code> command run karein.';
+        if (window.location.protocol === 'file:') {
+          helpText += '<br/><span class="text-blue-700 font-semibold mt-1 block">Server start hone ke baad browser me open karein: <a href="http://localhost:8000/admin.html" class="underline">http://localhost:8000/admin.html</a></span>';
+        }
+        desc.innerHTML = helpText;
+        return false;
+      }
+    }
 
     function togglePasswordVisibility(inputId, btn) {
       const input = document.getElementById(inputId);
@@ -1284,7 +1356,7 @@
       errorMsg.classList.add('hidden');
 
       try {
-        const res = await fetch('/api/admin/login', {
+        const res = await fetch(apiUrl('/api/admin/login'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username: user, password: pass })
@@ -1301,8 +1373,15 @@
           errorMsg.classList.remove('hidden');
         }
       } catch (err) {
-        errorText.innerText = 'Network error or server unreachable';
+        let msg = 'Network error or server unreachable.';
+        if (window.location.protocol === 'file:') {
+          msg += ' You opened this file via file://. Make sure the Node server is running (start-server.bat), or open http://localhost:8000/admin.html.';
+        } else {
+          msg += ' Please verify that the local server is running (run "node server.js").';
+        }
+        errorText.innerText = msg;
         errorMsg.classList.remove('hidden');
+        checkServerHealth(true);
       } finally {
         btn.disabled = false;
         btn.innerHTML = `<span class="material-symbols-outlined text-base">login</span> Sign In to Editorial Portal`;
@@ -1312,7 +1391,7 @@
     async function handleLogout() {
       const token = sessionStorage.getItem('hom_admin_token');
       if (token) {
-        fetch('/api/admin/logout', {
+        fetch(apiUrl('/api/admin/logout'), {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }
         }).catch(() => {});
@@ -1338,15 +1417,15 @@
 
       try {
         const [statsRes, subRes, qryRes, aptRes, chatRes, galRes, portRes, tstRes, srvRes] = await Promise.all([
-          fetch('/api/stats', { headers }).then(r => { if (r.status === 401) { handleLogout(); } return r.json(); }),
-          fetch('/api/admin/submissions', { headers }).then(r => r.json()).catch(() => []),
-          fetch('/api/admin/queries', { headers }).then(r => r.json()).catch(() => []),
-          fetch('/api/admin/appointments', { headers }).then(r => r.json()).catch(() => []),
-          fetch('/api/admin/chat-leads', { headers }).then(r => r.json()).catch(() => []),
-          fetch('/api/gallery').then(r => r.json()).catch(() => []),
-          fetch('/api/portfolio').then(r => r.json()).catch(() => []),
-          fetch('/api/testimonials').then(r => r.json()).catch(() => []),
-          fetch('/api/services').then(r => r.json()).catch(() => ({ services: [], packages: [] }))
+          fetch(apiUrl('/api/stats'), { headers }).then(r => { if (r.status === 401) { handleLogout(); } return r.json(); }),
+          fetch(apiUrl('/api/admin/submissions'), { headers }).then(r => r.json()).catch(() => []),
+          fetch(apiUrl('/api/admin/queries'), { headers }).then(r => r.json()).catch(() => []),
+          fetch(apiUrl('/api/admin/appointments'), { headers }).then(r => r.json()).catch(() => []),
+          fetch(apiUrl('/api/admin/chat-leads'), { headers }).then(r => r.json()).catch(() => []),
+          fetch(apiUrl('/api/gallery')).then(r => r.json()).catch(() => []),
+          fetch(apiUrl('/api/portfolio')).then(r => r.json()).catch(() => []),
+          fetch(apiUrl('/api/testimonials')).then(r => r.json()).catch(() => []),
+          fetch(apiUrl('/api/services')).then(r => r.json()).catch(() => ({ services: [], packages: [] }))
         ]);
 
         CURRENT_DATA.submissions = Array.isArray(subRes) ? subRes : [];
@@ -1433,7 +1512,7 @@
       alertBox.classList.add('hidden');
 
       try {
-        const res = await fetch('/api/admin/portfolio/add', {
+        const res = await fetch(apiUrl('/api/admin/portfolio/add'), {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({
@@ -1539,7 +1618,7 @@
       const description = document.getElementById('edit-port-desc').value.trim();
 
       try {
-        const res = await fetch('/api/admin/portfolio/update', {
+        const res = await fetch(apiUrl('/api/admin/portfolio/update'), {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({ id, title, author, category, format, badge, image, description })
@@ -1608,7 +1687,7 @@
       alertBox.classList.add('hidden');
 
       try {
-        const res = await fetch('/api/admin/testimonials/add', {
+        const res = await fetch(apiUrl('/api/admin/testimonials/add'), {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({
@@ -1716,7 +1795,7 @@
       const featured = document.getElementById('edit-tst-featured').checked;
 
       try {
-        const res = await fetch('/api/admin/testimonials/update', {
+        const res = await fetch(apiUrl('/api/admin/testimonials/update'), {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({ id, author, book, titleBadge, genreTag, rating, image, quote, featured })
@@ -1750,7 +1829,7 @@
       alertBox.classList.add('hidden');
 
       try {
-        const res = await fetch('/api/admin/services/add', {
+        const res = await fetch(apiUrl('/api/admin/services/add'), {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({
@@ -1864,7 +1943,7 @@
       const ctaText = document.getElementById('edit-srv-cta').value.trim();
 
       try {
-        const res = await fetch('/api/admin/services/update', {
+        const res = await fetch(apiUrl('/api/admin/services/update'), {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({ id, title, icon, description, deliverables: delivRaw, ctaText })
@@ -1897,7 +1976,7 @@
       });
 
       try {
-        const res = await fetch('/api/admin/packages/update', {
+        const res = await fetch(apiUrl('/api/admin/packages/update'), {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({ packages: updated })
@@ -2240,7 +2319,7 @@
         progressPercent.innerText = '45%';
         progressStatus.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin text-[#1978e5]">cloud_upload</span> Uploading to server and publishing to gallery...`;
 
-        const res = await fetch('/api/admin/gallery/bulk-add', {
+        const res = await fetch(apiUrl('/api/admin/gallery/bulk-add'), {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({ photos: payloadPhotos })
@@ -2342,7 +2421,7 @@
       alertBox.classList.add('hidden');
 
       try {
-        const res = await fetch('/api/admin/gallery/add', {
+        const res = await fetch(apiUrl('/api/admin/gallery/add'), {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({
@@ -2463,7 +2542,7 @@
       }
 
       try {
-        const res = await fetch('/api/admin/gallery/bulk-delete', {
+        const res = await fetch(apiUrl('/api/admin/gallery/bulk-delete'), {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({ ids: Array.from(SELECTED_GALLERY_IDS) })
@@ -2659,7 +2738,7 @@
     async function deleteItem(type, id) {
       if (!confirm('Are you sure you want to delete this record?')) return;
       try {
-        const res = await fetch('/api/admin/delete', {
+        const res = await fetch(apiUrl('/api/admin/delete'), {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({ type, id })
@@ -2711,7 +2790,7 @@
       alertBox.classList.add('hidden');
 
       try {
-        const res = await fetch('/api/admin/change-credentials', {
+        const res = await fetch(apiUrl('/api/admin/change-credentials'), {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({ currentPassword, newUsername, newPassword })
@@ -2775,7 +2854,7 @@
       alertBox.classList.add('hidden');
 
       try {
-        const res = await fetch('/api/admin/site-config', {
+        const res = await fetch(apiUrl('/api/admin/site-config'), {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({ heroVideo, heroTag, heroPoster })
@@ -2802,7 +2881,7 @@
 
     async function loadSiteConfig() {
       try {
-        const res = await fetch('/api/site-config');
+        const res = await fetch(apiUrl('/api/site-config'));
         if (res.ok) {
           const cfg = await res.json();
           if (document.getElementById('cfg-hero-video')) document.getElementById('cfg-hero-video').value = cfg.heroVideo || 'hero-video.mp4';
