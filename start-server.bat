@@ -12,3 +12,4 @@ if %errorlevel% neq 0 (
   echo Please make sure Node.js is installed on your computer.
 )
 pause
+
