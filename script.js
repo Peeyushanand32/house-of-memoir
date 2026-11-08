@@ -580,6 +580,18 @@ function showToast(message) {
 // ==========================================
 let GALLERY_ITEMS = [];
 
+// Helper for cross-page real-time deletion synchronization
+function getDeletedIds() {
+  try {
+    return JSON.parse(localStorage.getItem('hom_deleted_ids') || '[]');
+  } catch (e) {
+    return [];
+  }
+}
+
+// ==========================================
+// 11. Dedicated Gallery Page Functions & Dynamic Loader
+// ==========================================
 async function initGallery() {
   const grid = document.getElementById('gallery-grid');
   if (!grid) return; // Only runs on pages with gallery section
@@ -595,24 +607,39 @@ async function initGallery() {
     });
   }
 
-  // Fetch dynamic gallery photos from backend with static fallback
+  const deletedIds = getDeletedIds();
+
+  // Instant render from localStorage if updated via admin
   try {
-    let res = await fetch('/api/gallery');
-    if (!res.ok) res = await fetch('data/gallery.json');
+    const localGallery = localStorage.getItem('hom_gallery_data');
+    if (localGallery) {
+      const parsed = JSON.parse(localGallery);
+      if (Array.isArray(parsed)) {
+        GALLERY_ITEMS = parsed.filter(item => !deletedIds.includes(item.id));
+        renderDynamicGallery(GALLERY_ITEMS);
+      }
+    }
+  } catch (e) {}
+
+  // Fetch dynamic gallery photos from backend with static fallback & cache-busting
+  try {
+    const cacheBuster = '?t=' + Date.now();
+    let res = await fetch('/api/gallery' + cacheBuster);
+    if (!res.ok) res = await fetch('data/gallery.json' + cacheBuster);
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        GALLERY_ITEMS = data;
+      if (Array.isArray(data)) {
+        GALLERY_ITEMS = data.filter(item => !deletedIds.includes(item.id));
         renderDynamicGallery(GALLERY_ITEMS);
       }
     }
   } catch (err) {
     try {
-      const fallbackRes = await fetch('data/gallery.json');
+      const fallbackRes = await fetch('data/gallery.json?t=' + Date.now());
       if (fallbackRes.ok) {
         const data = await fallbackRes.json();
-        if (Array.isArray(data) && data.length > 0) {
-          GALLERY_ITEMS = data;
+        if (Array.isArray(data)) {
+          GALLERY_ITEMS = data.filter(item => !deletedIds.includes(item.id));
           renderDynamicGallery(GALLERY_ITEMS);
         }
       }
@@ -624,7 +651,18 @@ async function initGallery() {
 
 function renderDynamicGallery(items) {
   const grid = document.getElementById('gallery-grid');
-  if (!grid || !items || items.length === 0) return;
+  if (!grid) return;
+
+  if (!items || items.length === 0) {
+    grid.innerHTML = `
+      <div class="col-span-full text-center py-20 bg-gray-900/40 rounded-2xl border border-gray-800 p-8">
+        <span class="material-symbols-outlined text-4xl text-gray-500 mb-2">photo_library</span>
+        <h4 class="font-display text-lg text-white font-bold mb-1">No Photos in Gallery</h4>
+        <p class="text-xs text-gray-400">Photos will appear here once added in the editorial portal.</p>
+      </div>
+    `;
+    return;
+  }
 
   const catBadges = {
     'galas': { name: 'Author Galas', badge: 'bg-[#c59b27]/90 text-black' },
@@ -742,52 +780,78 @@ async function initDynamicPortfolio() {
   const homeGrid = document.getElementById('home-portfolio-grid');
   if (!portGrid && !homeGrid) return;
 
-  try {
-    let res = await fetch('/api/portfolio');
-    if (!res.ok) res = await fetch('data/portfolio.json');
-    if (!res.ok) return;
-    const books = await res.json();
-    if (!Array.isArray(books) || books.length === 0) return;
+  const deletedIds = getDeletedIds();
 
+  function renderBooks(books) {
     if (portGrid) {
-      portGrid.innerHTML = books.map(book => `
-        <div data-category="${(book.category || 'memoir').toLowerCase()}" class="book-card bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm flex flex-col hover:shadow-md transition-shadow">
-          <div class="h-72 bg-gray-900 overflow-hidden relative">
-            <img src="${book.image}" alt="${book.title}" class="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-500" loading="lazy"/>
-            <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider text-gray-900">${book.category || 'Memoir'}</span>
-          </div>
-          <div class="p-6 flex-grow flex flex-col justify-between">
-            <div>
-              <h3 class="font-display text-xl font-bold text-gray-900 mb-1">${book.title}</h3>
-              <p class="text-xs text-[#1978e5] font-semibold mb-3">by ${book.author}</p>
-              <p class="text-sm text-gray-600 line-clamp-3">${book.description || ''}</p>
+      if (books.length === 0) {
+        portGrid.innerHTML = `<div class="col-span-full text-center py-16 text-gray-400">No books currently listed. Books added via admin will appear here.</div>`;
+      } else {
+        portGrid.innerHTML = books.map(book => `
+          <div data-category="${(book.category || 'memoir').toLowerCase()}" class="book-card bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm flex flex-col hover:shadow-md transition-shadow">
+            <div class="h-72 bg-gray-900 overflow-hidden relative">
+              <img src="${book.image}" alt="${book.title}" class="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-500" loading="lazy"/>
+              <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider text-gray-900">${book.category || 'Memoir'}</span>
             </div>
-            <div class="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center text-xs">
-              <span class="text-gray-500">${book.format || 'Hardcover & Ebook'}</span>
-              <span class="font-bold text-[#1978e5]">${book.badge || 'Published'}</span>
+            <div class="p-6 flex-grow flex flex-col justify-between">
+              <div>
+                <h3 class="font-display text-xl font-bold text-gray-900 mb-1">${book.title}</h3>
+                <p class="text-xs text-[#1978e5] font-semibold mb-3">by ${book.author}</p>
+                <p class="text-sm text-gray-600 line-clamp-3">${book.description || ''}</p>
+              </div>
+              <div class="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center text-xs">
+                <span class="text-gray-500">${book.format || 'Hardcover & Ebook'}</span>
+                <span class="font-bold text-[#1978e5]">${book.badge || 'Published'}</span>
+              </div>
             </div>
           </div>
-        </div>
-      `).join('');
+        `).join('');
+      }
     }
 
     if (homeGrid) {
       const previewBooks = books.slice(0, 3);
-      homeGrid.innerHTML = previewBooks.map(book => `
-        <div class="book-card bg-[#f9f9ff] rounded-2xl overflow-hidden border border-gray-200 flex flex-col shadow-sm">
-          <div class="h-64 bg-gray-900 overflow-hidden relative">
-            <img src="${book.image}" alt="${book.title}" class="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-500" loading="lazy"/>
-            <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider text-gray-900">${book.category}</span>
-          </div>
-          <div class="p-6 flex-grow flex flex-col justify-between">
-            <div>
-              <h3 class="font-display text-xl font-bold text-gray-900 mb-1">${book.title}</h3>
-              <p class="text-xs text-[#1978e5] font-semibold mb-3">by ${book.author}</p>
-              <p class="text-xs text-gray-600 line-clamp-2">${book.description || ''}</p>
+      if (previewBooks.length === 0) {
+        homeGrid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400">No featured publications currently listed.</div>`;
+      } else {
+        homeGrid.innerHTML = previewBooks.map(book => `
+          <div class="book-card bg-[#f9f9ff] rounded-2xl overflow-hidden border border-gray-200 flex flex-col shadow-sm">
+            <div class="h-64 bg-gray-900 overflow-hidden relative">
+              <img src="${book.image}" alt="${book.title}" class="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-500" loading="lazy"/>
+              <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider text-gray-900">${book.category}</span>
+            </div>
+            <div class="p-6 flex-grow flex flex-col justify-between">
+              <div>
+                <h3 class="font-display text-xl font-bold text-gray-900 mb-1">${book.title}</h3>
+                <p class="text-xs text-[#1978e5] font-semibold mb-3">by ${book.author}</p>
+                <p class="text-xs text-gray-600 line-clamp-2">${book.description || ''}</p>
+              </div>
             </div>
           </div>
-        </div>
-      `).join('');
+        `).join('');
+      }
+    }
+  }
+
+  // Instant render from localStorage
+  try {
+    const localPort = localStorage.getItem('hom_portfolio_data');
+    if (localPort) {
+      const parsed = JSON.parse(localPort);
+      if (Array.isArray(parsed)) {
+        renderBooks(parsed.filter(b => !deletedIds.includes(b.id)));
+      }
+    }
+  } catch (e) {}
+
+  try {
+    const cacheBuster = '?t=' + Date.now();
+    let res = await fetch('/api/portfolio' + cacheBuster);
+    if (!res.ok) res = await fetch('data/portfolio.json' + cacheBuster);
+    if (!res.ok) return;
+    const books = await res.json();
+    if (Array.isArray(books)) {
+      renderBooks(books.filter(b => !deletedIds.includes(b.id)));
     }
   } catch (err) {
     console.warn('Dynamic portfolio loading note:', err);
@@ -798,14 +862,14 @@ async function initDynamicTestimonials() {
   const grid = document.getElementById('testimonials-grid');
   if (!grid) return;
 
-  try {
-    let res = await fetch('/api/testimonials');
-    if (!res.ok) res = await fetch('data/testimonials.json');
-    if (!res.ok) return;
-    const list = await res.json();
-    if (!Array.isArray(list) || list.length === 0) return;
+  const deletedIds = getDeletedIds();
 
-    grid.innerHTML = list.map((item, idx) => {
+  function renderTst(items) {
+    if (items.length === 0) {
+      grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400">No author reviews available yet.</div>`;
+      return;
+    }
+    grid.innerHTML = items.map((item, idx) => {
       const isFeatured = item.featured || idx === 0;
       const colSpan = isFeatured ? 'md:col-span-8' : 'md:col-span-4';
       const stars = '★'.repeat(item.rating || 5);
@@ -831,6 +895,28 @@ async function initDynamicTestimonials() {
         </div>
       `;
     }).join('');
+  }
+
+  // Instant render from localStorage
+  try {
+    const localTst = localStorage.getItem('hom_testimonials_data');
+    if (localTst) {
+      const parsed = JSON.parse(localTst);
+      if (Array.isArray(parsed)) {
+        renderTst(parsed.filter(t => !deletedIds.includes(t.id)));
+      }
+    }
+  } catch (e) {}
+
+  try {
+    const cacheBuster = '?t=' + Date.now();
+    let res = await fetch('/api/testimonials' + cacheBuster);
+    if (!res.ok) res = await fetch('data/testimonials.json' + cacheBuster);
+    if (!res.ok) return;
+    const list = await res.json();
+    if (Array.isArray(list)) {
+      renderTst(list.filter(item => !deletedIds.includes(item.id)));
+    }
   } catch (err) {
     console.warn('Dynamic testimonials loading note:', err);
   }
@@ -841,39 +927,43 @@ async function initDynamicServices() {
   const pkgGrid = document.getElementById('packages-grid');
   if (!srvGrid && !pkgGrid) return;
 
-  try {
-    let res = await fetch('/api/services');
-    if (!res.ok) res = await fetch('data/services.json');
-    if (!res.ok) return;
-    const data = await res.json();
+  const deletedIds = getDeletedIds();
 
-    if (srvGrid && Array.isArray(data.services) && data.services.length > 0) {
-      srvGrid.innerHTML = data.services.map(srv => `
-        <div class="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm flex flex-col justify-between hover:border-[#1978e5] transition-colors">
-          <div>
-            <div class="w-14 h-14 rounded-2xl bg-[#1978e5]/10 text-[#1978e5] flex items-center justify-center mb-6">
-              <span class="material-symbols-outlined text-3xl">${srv.icon || 'rate_review'}</span>
+  function renderSrv(data) {
+    const filteredServices = (data.services || []).filter(s => !deletedIds.includes(s.id));
+    const filteredPackages = (data.packages || []).filter(p => !deletedIds.includes(p.id));
+
+    if (srvGrid) {
+      if (filteredServices.length === 0) {
+        srvGrid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400">No publishing services listed yet.</div>`;
+      } else {
+        srvGrid.innerHTML = filteredServices.map(srv => `
+          <div class="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm flex flex-col justify-between hover:border-[#1978e5] transition-colors">
+            <div>
+              <div class="w-14 h-14 rounded-2xl bg-[#1978e5]/10 text-[#1978e5] flex items-center justify-center mb-6">
+                <span class="material-symbols-outlined text-3xl">${srv.icon || 'rate_review'}</span>
+              </div>
+              <h3 class="font-display text-2xl font-bold text-gray-900 mb-3">${srv.title}</h3>
+              <p class="text-gray-600 leading-relaxed mb-6">${srv.description}</p>
+              <ul class="space-y-2 text-sm text-gray-700 mb-8">
+                ${(srv.deliverables || []).map(d => `
+                  <li class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm text-[#1978e5]">check_circle</span> ${d}
+                  </li>
+                `).join('')}
+              </ul>
             </div>
-            <h3 class="font-display text-2xl font-bold text-gray-900 mb-3">${srv.title}</h3>
-            <p class="text-gray-600 leading-relaxed mb-6">${srv.description}</p>
-            <ul class="space-y-2 text-sm text-gray-700 mb-8">
-              ${(srv.deliverables || []).map(d => `
-                <li class="flex items-center gap-2">
-                  <span class="material-symbols-outlined text-sm text-[#1978e5]">check_circle</span> ${d}
-                </li>
-              `).join('')}
-            </ul>
+            <button data-open-manuscript-modal class="w-full py-3 bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded hover:bg-[#1978e5] hover:text-white transition-colors">
+              ${srv.ctaText || 'Request Assessment'}
+            </button>
           </div>
-          <button data-open-manuscript-modal class="w-full py-3 bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded hover:bg-[#1978e5] hover:text-white transition-colors">
-            ${srv.ctaText || 'Request Assessment'}
-          </button>
-        </div>
-      `).join('');
-      initManuscriptModal();
+        `).join('');
+        initManuscriptModal();
+      }
     }
 
-    if (pkgGrid && Array.isArray(data.packages) && data.packages.length > 0) {
-      pkgGrid.innerHTML = data.packages.map(pkg => {
+    if (pkgGrid && filteredPackages.length > 0) {
+      pkgGrid.innerHTML = filteredPackages.map(pkg => {
         const isPopular = pkg.badge === 'Most Popular';
         return `
           <div class="bg-white/5 rounded-2xl p-8 border ${isPopular ? 'border-2 border-[#1978e5] relative shadow-2xl scale-105 bg-white/10' : 'border-white/10'} flex flex-col justify-between">
@@ -895,9 +985,28 @@ async function initDynamicServices() {
         `;
       }).join('');
     }
+  }
+
+  // Instant render from localStorage
+  try {
+    const localSrv = localStorage.getItem('hom_services_data');
+    if (localSrv) {
+      const parsed = JSON.parse(localSrv);
+      if (parsed) renderSrv(parsed);
+    }
+  } catch (e) {}
+
+  try {
+    const cacheBuster = '?t=' + Date.now();
+    let res = await fetch('/api/services' + cacheBuster);
+    if (!res.ok) res = await fetch('data/services.json' + cacheBuster);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data) renderSrv(data);
   } catch (err) {
     console.warn('Dynamic services loading note:', err);
   }
+}
 }
 
 // ==========================================

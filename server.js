@@ -174,6 +174,9 @@ function parseBody(req) {
 function sendJson(res, statusCode, data) {
   res.writeHead(statusCode, {
     'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, DELETE',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-admin-token'
@@ -959,12 +962,18 @@ const server = http.createServer(async (req, res) => {
       return fileStream.pipe(res);
     }
 
-    res.writeHead(200, {
+    const headers = {
       'Content-Type': contentType,
       'Content-Length': stats.size,
       'Accept-Ranges': 'bytes',
       'Access-Control-Allow-Origin': '*'
-    });
+    };
+    if (filePath.endsWith('.json') || filePath.includes('data')) {
+      headers['Cache-Control'] = 'no-store, no-cache, must-revalidate';
+      headers['Pragma'] = 'no-cache';
+      headers['Expires'] = '0';
+    }
+    res.writeHead(200, headers);
 
     const stream = fs.createReadStream(filePath);
     stream.pipe(res);

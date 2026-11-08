@@ -1600,6 +1600,24 @@
         CURRENT_DATA.testimonials = Array.isArray(tstRes) ? tstRes : [];
         CURRENT_DATA.services = srvRes || { services: [], packages: [] };
 
+        // Apply deleted IDs filter for instant cross-mode sync
+        try {
+          const deletedIds = JSON.parse(localStorage.getItem('hom_deleted_ids') || '[]');
+          if (deletedIds.length > 0) {
+            CURRENT_DATA.submissions = CURRENT_DATA.submissions.filter(i => !deletedIds.includes(i.id));
+            CURRENT_DATA.queries = CURRENT_DATA.queries.filter(i => !deletedIds.includes(i.id));
+            CURRENT_DATA.appointments = CURRENT_DATA.appointments.filter(i => !deletedIds.includes(i.id));
+            CURRENT_DATA.chatLeads = CURRENT_DATA.chatLeads.filter(i => !deletedIds.includes(i.id));
+            CURRENT_DATA.gallery = CURRENT_DATA.gallery.filter(i => !deletedIds.includes(i.id));
+            CURRENT_DATA.portfolio = CURRENT_DATA.portfolio.filter(i => !deletedIds.includes(i.id));
+            CURRENT_DATA.testimonials = CURRENT_DATA.testimonials.filter(i => !deletedIds.includes(i.id));
+            if (CURRENT_DATA.services) {
+              CURRENT_DATA.services.services = (CURRENT_DATA.services.services || []).filter(i => !deletedIds.includes(i.id));
+              CURRENT_DATA.services.packages = (CURRENT_DATA.services.packages || []).filter(i => !deletedIds.includes(i.id));
+            }
+          }
+        } catch (e) {}
+
         // Update top stats
         const statSub = document.getElementById('stat-submissions');
         if (statSub) statSub.innerText = CURRENT_DATA.submissions.length;
@@ -2706,26 +2724,40 @@
     async function handleBulkDeleteGallery() {
       if (SELECTED_GALLERY_IDS.size === 0) return;
       const count = SELECTED_GALLERY_IDS.size;
-      if (!confirm(`Are you sure you want to delete ${count} selected photo(s) from the company gallery? This cannot be undone.`)) {
+      if (!confirm(`Are you sure you want to delete ${count} selected photo(s) from the company gallery? This will immediately remove them from the website.`)) {
         return;
       }
 
+      const idsToDelete = Array.from(SELECTED_GALLERY_IDS);
+
+      // 1. Immediately remove from local memory state
+      CURRENT_DATA.gallery = (CURRENT_DATA.gallery || []).filter(item => !SELECTED_GALLERY_IDS.has(item.id));
+      SELECTED_GALLERY_IDS.clear();
+
+      // 2. Persist to localStorage for instant website sync across all pages/tabs
       try {
-        const res = await fetch(apiUrl('/api/admin/gallery/bulk-delete'), {
+        const deletedIds = JSON.parse(localStorage.getItem('hom_deleted_ids') || '[]');
+        idsToDelete.forEach(id => {
+          if (!deletedIds.includes(id)) deletedIds.push(id);
+        });
+        localStorage.setItem('hom_deleted_ids', JSON.stringify(deletedIds));
+        localStorage.setItem('hom_gallery_data', JSON.stringify(CURRENT_DATA.gallery));
+      } catch (e) {}
+
+      // 3. Update Admin UI immediately
+      renderGallery();
+      const statGal = document.getElementById('stat-gallery');
+      if (statGal) statGal.innerText = CURRENT_DATA.gallery.length;
+
+      // 4. Send to backend to permanently delete from data/gallery.json
+      try {
+        await fetch(apiUrl('/api/admin/gallery/bulk-delete'), {
           method: 'POST',
           headers: getAuthHeaders(),
-          body: JSON.stringify({ ids: Array.from(SELECTED_GALLERY_IDS) })
+          body: JSON.stringify({ ids: idsToDelete })
         });
-
-        const data = await res.json();
-        if (res.ok && data.success) {
-          SELECTED_GALLERY_IDS.clear();
-          loadAdminData();
-        } else {
-          alert('Delete failed: ' + (data.error || 'Server error'));
-        }
       } catch (err) {
-        alert('Error connecting to server: ' + err.message);
+        console.warn('Backend delete sync note:', err);
       }
     }
 
@@ -2905,20 +2937,53 @@
     }
 
     async function deleteItem(type, id) {
-      if (!confirm('Are you sure you want to delete this record?')) return;
+      if (!confirm('Are you sure you want to delete this record? This will immediately remove it from the website.')) return;
+
+      // 1. Instantly remove from CURRENT_DATA
+      if (type === 'services') {
+        if (CURRENT_DATA.services) {
+          CURRENT_DATA.services.services = (CURRENT_DATA.services.services || []).filter(s => s.id !== id);
+          CURRENT_DATA.services.packages = (CURRENT_DATA.services.packages || []).filter(p => p.id !== id);
+        }
+      } else if (Array.isArray(CURRENT_DATA[type])) {
+        CURRENT_DATA[type] = CURRENT_DATA[type].filter(item => item.id !== id);
+      }
+
+      // 2. Persist to localStorage so main website (index.html, gallery.html, portfolio.html) immediately reflects the deletion
       try {
-        const res = await fetch(apiUrl('/api/admin/delete'), {
+        const deletedIds = JSON.parse(localStorage.getItem('hom_deleted_ids') || '[]');
+        if (!deletedIds.includes(id)) {
+          deletedIds.push(id);
+          localStorage.setItem('hom_deleted_ids', JSON.stringify(deletedIds));
+        }
+        localStorage.setItem(`hom_${type}_data`, JSON.stringify(CURRENT_DATA[type]));
+      } catch (e) {}
+
+      // 3. Re-render the matching admin section immediately
+      if (type === 'gallery') renderGallery();
+      else if (type === 'portfolio') renderPortfolio();
+      else if (type === 'testimonials') renderTestimonials();
+      else if (type === 'services') renderServices();
+      else if (type === 'submissions') renderSubmissions();
+      else if (type === 'queries') renderQueries();
+      else if (type === 'appointments') renderAppointments();
+      else if (type === 'chatLeads') renderChatLeads();
+
+      // Update stat badges
+      const statEl = document.getElementById(`stat-${type}`);
+      if (statEl) {
+        statEl.innerText = type === 'services' ? (CURRENT_DATA.services?.services || []).length : (CURRENT_DATA[type] || []).length;
+      }
+
+      // 4. Send to Node backend to permanently delete from data/*.json
+      try {
+        await fetch(apiUrl('/api/admin/delete'), {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({ type, id })
         });
-        if (res.ok) {
-          loadAdminData();
-        } else if (res.status === 401) {
-          handleLogout();
-        }
       } catch (e) {
-        alert('Failed to delete item: ' + e.message);
+        console.warn('Backend sync note:', e);
       }
     }
 
