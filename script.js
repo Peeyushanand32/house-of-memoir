@@ -595,9 +595,10 @@ async function initGallery() {
     });
   }
 
-  // Fetch dynamic gallery photos from backend
+  // Fetch dynamic gallery photos from backend with static fallback
   try {
-    const res = await fetch('/api/gallery');
+    let res = await fetch('/api/gallery');
+    if (!res.ok) res = await fetch('data/gallery.json');
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
@@ -606,7 +607,18 @@ async function initGallery() {
       }
     }
   } catch (err) {
-    console.log('Using pre-rendered gallery items:', err);
+    try {
+      const fallbackRes = await fetch('data/gallery.json');
+      if (fallbackRes.ok) {
+        const data = await fallbackRes.json();
+        if (Array.isArray(data) && data.length > 0) {
+          GALLERY_ITEMS = data;
+          renderDynamicGallery(GALLERY_ITEMS);
+        }
+      }
+    } catch (e2) {
+      console.log('Using pre-rendered gallery items:', err);
+    }
   }
 }
 
@@ -731,7 +743,8 @@ async function initDynamicPortfolio() {
   if (!portGrid && !homeGrid) return;
 
   try {
-    const res = await fetch('/api/portfolio');
+    let res = await fetch('/api/portfolio');
+    if (!res.ok) res = await fetch('data/portfolio.json');
     if (!res.ok) return;
     const books = await res.json();
     if (!Array.isArray(books) || books.length === 0) return;
@@ -786,7 +799,8 @@ async function initDynamicTestimonials() {
   if (!grid) return;
 
   try {
-    const res = await fetch('/api/testimonials');
+    let res = await fetch('/api/testimonials');
+    if (!res.ok) res = await fetch('data/testimonials.json');
     if (!res.ok) return;
     const list = await res.json();
     if (!Array.isArray(list) || list.length === 0) return;
@@ -828,7 +842,8 @@ async function initDynamicServices() {
   if (!srvGrid && !pkgGrid) return;
 
   try {
-    const res = await fetch('/api/services');
+    let res = await fetch('/api/services');
+    if (!res.ok) res = await fetch('data/services.json');
     if (!res.ok) return;
     const data = await res.json();
 
@@ -904,7 +919,8 @@ async function initDynamicHeroVideo() {
   if (!vid) return;
 
   try {
-    const res = await fetch('/api/site-config');
+    let res = await fetch('/api/site-config');
+    if (!res.ok) res = await fetch('data/site-config.json');
     if (!res.ok) return;
     const config = await res.json();
     if (!config) return;

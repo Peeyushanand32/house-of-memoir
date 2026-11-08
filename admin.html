@@ -1342,35 +1342,54 @@
 
       banner.classList.remove('hidden');
       if (manual) {
-        dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse';
-        title.innerText = 'Checking server connection...';
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse';
+        title.innerText = 'Connecting to server...';
       }
 
+      // Check 1: Live Node.js API (Backend mode)
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        const timeoutId = setTimeout(() => controller.abort(), 2500);
         const res = await fetch(apiUrl('/api/site-config'), { signal: controller.signal });
         clearTimeout(timeoutId);
 
         if (res.ok) {
+          const ctype = res.headers.get('content-type') || '';
+          if (ctype.includes('application/json')) {
+            banner.className = 'text-xs p-3 rounded-xl border bg-emerald-50 border-emerald-200 flex flex-col gap-1.5';
+            dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
+            title.className = 'font-bold text-emerald-800';
+            title.innerText = 'Server Status: Online & Connected (Live Backend)';
+            desc.innerText = 'Full-stack Node.js server active with real-time database synchronization.';
+            return true;
+          }
+        }
+      } catch (err) {}
+
+      // Check 2: Online Cloud Live (Render Static / Cloudflare CDN)
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2500);
+        const resStatic = await fetch(apiUrl('/data/site-config.json') + '?t=' + Date.now(), { signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (resStatic.ok) {
           banner.className = 'text-xs p-3 rounded-xl border bg-emerald-50 border-emerald-200 flex flex-col gap-1.5';
           dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
           title.className = 'font-bold text-emerald-800';
-          title.innerText = 'Server Status: Online & Connected';
-          desc.innerText = 'Local server is active on port 8000 and ready to accept credentials.';
+          title.innerText = 'Server Status: Online (Cloud Live)';
+          desc.innerHTML = 'Cloud connection active. Sign in with username <strong>admin</strong> and password <strong>admin123</strong>.';
           return true;
-        } else {
-          throw new Error('Server returned error status ' + res.status);
         }
-      } catch (err) {
-        banner.className = 'text-xs p-3 rounded-xl border bg-amber-50 border-amber-200 flex flex-col gap-1.5';
-        dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
-        title.className = 'font-bold text-amber-900';
-        title.innerText = 'Server Status: Offline / Unreachable';
-        desc.innerHTML = 'Local Node server port 8000 par running nahi hai.<br/>' +
-          '<strong>Solution:</strong> Project folder me <code>start-server.bat</code> par double-click karein ya terminal me <code>node server.js</code> command run karein.';
-        return false;
-      }
+      } catch (err) {}
+
+      // If both fail:
+      banner.className = 'text-xs p-3 rounded-xl border bg-amber-50 border-amber-200 flex flex-col gap-1.5';
+      dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
+      title.className = 'font-bold text-amber-900';
+      title.innerText = 'Server Status: Offline / Unreachable';
+      desc.innerHTML = 'Server se connection establish nahi ho pa raha hai. Please verify internet connection or start local server (start-server.bat).';
+      return false;
     }
 
     function togglePasswordVisibility(inputId, btn) {
@@ -1417,8 +1436,8 @@
       const errorText = document.getElementById('login-error-text');
       const btn = document.getElementById('login-submit-btn');
 
-      if (window.location.protocol === 'file:') {
-        errorText.innerHTML = 'Browser file security blocks login via <code>file://</code>.<br/><a href="http://localhost:8000/admin.html" class="underline font-bold text-blue-700 block mt-1">👉 Click Here to Open: http://localhost:8000/admin.html</a>';
+      if (!user || !pass) {
+        errorText.innerText = 'Please enter both username and password.';
         errorMsg.classList.remove('hidden');
         return;
       }
@@ -1427,42 +1446,88 @@
       btn.innerText = 'Verifying credentials...';
       errorMsg.classList.add('hidden');
 
+      let loginSuccess = false;
+      let authenticatedUser = user;
+      let authToken = '';
+
+      // 1. Try Live Node.js server API
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
         const res = await fetch(apiUrl('/api/admin/login'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: user, password: pass })
+          body: JSON.stringify({ username: user, password: pass }),
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
-        const data = await res.json();
-
-        if (res.ok && data.success) {
-          sessionStorage.setItem('hom_admin_token', data.token);
-          sessionStorage.setItem('hom_admin_user', data.username || user);
-          checkAuthStatus();
-        } else {
-          errorText.innerText = data.error || 'Invalid username or password';
-          errorMsg.classList.remove('hidden');
+        if (res.ok) {
+          const ctype = res.headers.get('content-type') || '';
+          if (ctype.includes('application/json')) {
+            const data = await res.json();
+            if (data && data.success) {
+              loginSuccess = true;
+              authenticatedUser = data.username || user;
+              authToken = data.token;
+            } else if (data && data.error) {
+              // Node server explicitly rejected password
+              errorText.innerText = data.error;
+              errorMsg.classList.remove('hidden');
+              btn.disabled = false;
+              btn.innerHTML = `<span class="material-symbols-outlined text-base">login</span> Sign In to Editorial Portal`;
+              return;
+            }
+          }
         }
       } catch (err) {
-        let msg = 'Network error or server unreachable.';
-        if (window.location.protocol === 'file:') {
-          msg += ' You opened this file via file://. Make sure the Node server is running (start-server.bat), or open http://localhost:8000/admin.html.';
-        } else {
-          msg += ' Please verify that the local server is running (run "node server.js").';
-        }
-        errorText.innerText = msg;
-        errorMsg.classList.remove('hidden');
-        checkServerHealth(true);
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = `<span class="material-symbols-outlined text-base">login</span> Sign In to Editorial Portal`;
+        console.warn('Node API unavailable, checking cloud static credentials...', err);
       }
+
+      // 2. Cloud / Static fallback (e.g. Render Static Site / Cloudflare CDN)
+      if (!loginSuccess) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3000);
+          const cfgRes = await fetch(apiUrl('/data/admin-config.json') + '?t=' + Date.now(), { signal: controller.signal });
+          clearTimeout(timeoutId);
+
+          if (cfgRes.ok) {
+            const cfg = await cfgRes.json();
+            if (cfg && user === cfg.username && pass === cfg.password) {
+              loginSuccess = true;
+              authenticatedUser = cfg.username;
+              authToken = 'cloud-session-' + Date.now();
+            }
+          }
+        } catch (e) {
+          console.warn('Static config check failed:', e);
+        }
+      }
+
+      // 3. Emergency hardcoded fallback for default credentials
+      if (!loginSuccess && user === 'admin' && pass === 'admin123') {
+        loginSuccess = true;
+        authenticatedUser = 'admin';
+        authToken = 'cloud-session-' + Date.now();
+      }
+
+      if (loginSuccess) {
+        sessionStorage.setItem('hom_admin_token', authToken || 'cloud-session-token');
+        sessionStorage.setItem('hom_admin_user', authenticatedUser);
+        checkAuthStatus();
+      } else {
+        errorText.innerText = 'Invalid username or password. Default username: admin | password: admin123';
+        errorMsg.classList.remove('hidden');
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = `<span class="material-symbols-outlined text-base">login</span> Sign In to Editorial Portal`;
     }
 
     async function handleLogout() {
       const token = sessionStorage.getItem('hom_admin_token');
-      if (token) {
+      if (token && !token.startsWith('cloud-session')) {
         fetch(apiUrl('/api/admin/logout'), {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }
@@ -1482,22 +1547,48 @@
     }
 
     // ==========================================
-    // DATA LOADING (Protected)
+    // DATA LOADING (Protected with Fallback)
     // ==========================================
-    async function loadAdminData() {
-      const headers = getAuthHeaders();
-
+    async function fetchSafeJson(apiEndpoint, fallbackFile, defaultValue) {
+      // 1. Try Live API Endpoint
       try {
-        const [statsRes, subRes, qryRes, aptRes, chatRes, galRes, portRes, tstRes, srvRes] = await Promise.all([
-          fetch(apiUrl('/api/stats'), { headers }).then(r => { if (r.status === 401) { handleLogout(); } return r.json(); }),
-          fetch(apiUrl('/api/admin/submissions'), { headers }).then(r => r.json()).catch(() => []),
-          fetch(apiUrl('/api/admin/queries'), { headers }).then(r => r.json()).catch(() => []),
-          fetch(apiUrl('/api/admin/appointments'), { headers }).then(r => r.json()).catch(() => []),
-          fetch(apiUrl('/api/admin/chat-leads'), { headers }).then(r => r.json()).catch(() => []),
-          fetch(apiUrl('/api/gallery')).then(r => r.json()).catch(() => []),
-          fetch(apiUrl('/api/portfolio')).then(r => r.json()).catch(() => []),
-          fetch(apiUrl('/api/testimonials')).then(r => r.json()).catch(() => []),
-          fetch(apiUrl('/api/services')).then(r => r.json()).catch(() => ({ services: [], packages: [] }))
+        const res = await fetch(apiUrl(apiEndpoint), { headers: getAuthHeaders() });
+        if (res.ok) {
+          const ctype = res.headers.get('content-type') || '';
+          if (ctype.includes('application/json')) {
+            return await res.json();
+          }
+          const text = await res.text();
+          if (text && (text.trim().startsWith('{') || text.trim().startsWith('['))) {
+            return JSON.parse(text);
+          }
+        }
+      } catch (e) {}
+
+      // 2. Try Fallback Static Data File
+      if (fallbackFile) {
+        try {
+          const res2 = await fetch(apiUrl(fallbackFile) + '?t=' + Date.now());
+          if (res2.ok) {
+            return await res2.json();
+          }
+        } catch (e) {}
+      }
+
+      return defaultValue;
+    }
+
+    async function loadAdminData() {
+      try {
+        const [subRes, qryRes, aptRes, chatRes, galRes, portRes, tstRes, srvRes] = await Promise.all([
+          fetchSafeJson('/api/admin/submissions', '/data/submissions.json', []),
+          fetchSafeJson('/api/admin/queries', '/data/queries.json', []),
+          fetchSafeJson('/api/admin/appointments', '/data/appointments.json', []),
+          fetchSafeJson('/api/admin/chat-leads', '/data/chat_leads.json', []),
+          fetchSafeJson('/api/gallery', '/data/gallery.json', []),
+          fetchSafeJson('/api/portfolio', '/data/portfolio.json', []),
+          fetchSafeJson('/api/testimonials', '/data/testimonials.json', []),
+          fetchSafeJson('/api/services', '/data/services.json', { services: [], packages: [] })
         ]);
 
         CURRENT_DATA.submissions = Array.isArray(subRes) ? subRes : [];
@@ -1510,12 +1601,18 @@
         CURRENT_DATA.services = srvRes || { services: [], packages: [] };
 
         // Update top stats
-        document.getElementById('stat-submissions').innerText = CURRENT_DATA.submissions.length;
-        document.getElementById('stat-appointments').innerText = CURRENT_DATA.appointments.length;
-        document.getElementById('stat-gallery').innerText = CURRENT_DATA.gallery.length;
-        document.getElementById('stat-portfolio').innerText = CURRENT_DATA.portfolio.length;
-        document.getElementById('stat-testimonials').innerText = CURRENT_DATA.testimonials.length;
-        document.getElementById('stat-services').innerText = (CURRENT_DATA.services.services || []).length;
+        const statSub = document.getElementById('stat-submissions');
+        if (statSub) statSub.innerText = CURRENT_DATA.submissions.length;
+        const statApt = document.getElementById('stat-appointments');
+        if (statApt) statApt.innerText = CURRENT_DATA.appointments.length;
+        const statGal = document.getElementById('stat-gallery');
+        if (statGal) statGal.innerText = CURRENT_DATA.gallery.length;
+        const statPort = document.getElementById('stat-portfolio');
+        if (statPort) statPort.innerText = CURRENT_DATA.portfolio.length;
+        const statTst = document.getElementById('stat-testimonials');
+        if (statTst) statTst.innerText = CURRENT_DATA.testimonials.length;
+        const statSrv = document.getElementById('stat-services');
+        if (statSrv) statSrv.innerText = (CURRENT_DATA.services.services || []).length;
 
         // Render all UI components
         renderPortfolio();
@@ -2953,13 +3050,16 @@
 
     async function loadSiteConfig() {
       try {
-        const res = await fetch(apiUrl('/api/site-config'));
-        if (res.ok) {
-          const cfg = await res.json();
-          if (document.getElementById('cfg-hero-video')) document.getElementById('cfg-hero-video').value = cfg.heroVideo || 'hero-video.mp4';
+        const cfg = await fetchSafeJson('/api/site-config', '/data/site-config.json', {
+          heroVideo: 'video/the-house-of-memoir.mp4',
+          heroTag: 'Cinematic Reel',
+          heroPoster: ''
+        });
+        if (cfg) {
+          if (document.getElementById('cfg-hero-video')) document.getElementById('cfg-hero-video').value = cfg.heroVideo || 'video/the-house-of-memoir.mp4';
           if (document.getElementById('cfg-hero-tag')) document.getElementById('cfg-hero-tag').value = cfg.heroTag || 'Cinematic Reel';
           if (document.getElementById('cfg-hero-poster')) document.getElementById('cfg-hero-poster').value = cfg.heroPoster || '';
-          previewAdminHeroVideo(cfg.heroVideo || 'hero-video.mp4');
+          previewAdminHeroVideo(cfg.heroVideo || 'video/the-house-of-memoir.mp4');
         }
       } catch (e) {}
     }
