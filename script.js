@@ -22,6 +22,22 @@ document.addEventListener('DOMContentLoaded', () => {
   initDynamicTestimonials();
   initDynamicServices();
   initDynamicHeroVideo();
+
+  // Live cross-tab synchronization listener: instantly updates pages when admin adds/deletes items
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'hom_portfolio_data' || e.key === 'hom_deleted_ids') {
+      initDynamicPortfolio();
+    }
+    if (e.key === 'hom_gallery_data' || e.key === 'hom_deleted_ids') {
+      initGallery();
+    }
+    if (e.key === 'hom_testimonials_data' || e.key === 'hom_deleted_ids') {
+      initDynamicTestimonials();
+    }
+    if (e.key === 'hom_services_data' || e.key === 'hom_deleted_ids') {
+      initDynamicServices();
+    }
+  });
 });
 
 // ==========================================

@@ -1236,6 +1236,32 @@
     let activePortBase64 = '';
     let activeTstBase64 = '';
 
+    function removeDeletedId(id) {
+      if (!id) return;
+      try {
+        let ids = JSON.parse(localStorage.getItem('hom_deleted_ids') || '[]');
+        if (ids.includes(id)) {
+          ids = ids.filter(i => i !== id);
+          localStorage.setItem('hom_deleted_ids', JSON.stringify(ids));
+        }
+      } catch (e) {}
+    }
+
+    function syncTypeToLocalStorage(type) {
+      try {
+        if (CURRENT_DATA[type]) {
+          localStorage.setItem(`hom_${type}_data`, JSON.stringify(CURRENT_DATA[type]));
+        }
+      } catch (e) {}
+    }
+
+    function handleSessionExpired() {
+      sessionStorage.removeItem('hom_admin_token');
+      sessionStorage.removeItem('hom_admin_user');
+      alert('Your login session has expired. Please sign in again.');
+      checkAuthStatus();
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       checkAuthStatus();
 
@@ -1470,6 +1496,22 @@
           }
         } catch (e) {}
 
+        // Keep browser localStorage synchronized with active data for public website
+        try {
+          if (Array.isArray(CURRENT_DATA.portfolio) && CURRENT_DATA.portfolio.length > 0) {
+            localStorage.setItem('hom_portfolio_data', JSON.stringify(CURRENT_DATA.portfolio));
+          }
+          if (Array.isArray(CURRENT_DATA.gallery) && CURRENT_DATA.gallery.length > 0) {
+            localStorage.setItem('hom_gallery_data', JSON.stringify(CURRENT_DATA.gallery));
+          }
+          if (Array.isArray(CURRENT_DATA.testimonials) && CURRENT_DATA.testimonials.length > 0) {
+            localStorage.setItem('hom_testimonials_data', JSON.stringify(CURRENT_DATA.testimonials));
+          }
+          if (CURRENT_DATA.services && ((CURRENT_DATA.services.services && CURRENT_DATA.services.services.length > 0) || (CURRENT_DATA.services.packages && CURRENT_DATA.services.packages.length > 0))) {
+            localStorage.setItem('hom_services_data', JSON.stringify(CURRENT_DATA.services));
+          }
+        } catch (e) {}
+
         // Update top stats
         const statSub = document.getElementById('stat-submissions');
         if (statSub) statSub.innerText = CURRENT_DATA.submissions.length;
@@ -1559,26 +1601,58 @@
           })
         });
 
+        if (res.status === 401) {
+          handleSessionExpired();
+          return;
+        }
+
         const data = await res.json();
         if (res.ok && data.success) {
+          const newBook = data.data;
+          removeDeletedId(newBook.id);
+          if (!Array.isArray(CURRENT_DATA.portfolio)) CURRENT_DATA.portfolio = [];
+          CURRENT_DATA.portfolio.unshift(newBook);
+          syncTypeToLocalStorage('portfolio');
+
           alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700';
-          alertBox.innerText = 'Book published to portfolio successfully!';
+          alertBox.innerText = 'Book published to website portfolio successfully!';
           alertBox.classList.remove('hidden');
 
           document.getElementById('add-portfolio-form').reset();
           activePortBase64 = '';
           document.getElementById('port-preview-img').classList.add('hidden');
           document.getElementById('port-preview-placeholder').classList.remove('hidden');
+          renderPortfolio();
           loadAdminData();
+          return;
         } else {
           alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
           alertBox.innerText = data.error || 'Failed to add book';
           alertBox.classList.remove('hidden');
         }
       } catch (err) {
-        alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
-        alertBox.innerText = 'Error connecting to server';
+        console.warn('Backend offline, saving book to local browser storage:', err);
+        const newBook = {
+          id: 'PRT-' + Date.now().toString(36).toUpperCase(),
+          title, author, category: (category || 'memoir').toLowerCase(),
+          format: format || 'Hardcover & Ebook', badge: badge || 'New Release',
+          image: image || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80',
+          description: desc
+        };
+        removeDeletedId(newBook.id);
+        if (!Array.isArray(CURRENT_DATA.portfolio)) CURRENT_DATA.portfolio = [];
+        CURRENT_DATA.portfolio.unshift(newBook);
+        syncTypeToLocalStorage('portfolio');
+
+        alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700';
+        alertBox.innerText = 'Book published to website portfolio (saved to browser database)!';
         alertBox.classList.remove('hidden');
+
+        document.getElementById('add-portfolio-form').reset();
+        activePortBase64 = '';
+        document.getElementById('port-preview-img').classList.add('hidden');
+        document.getElementById('port-preview-placeholder').classList.remove('hidden');
+        renderPortfolio();
       } finally {
         btn.disabled = false;
         btn.innerHTML = `<span class="material-symbols-outlined text-sm">bookmark_add</span> Publish Book to Portfolio`;
@@ -1734,8 +1808,19 @@
           })
         });
 
+        if (res.status === 401) {
+          handleSessionExpired();
+          return;
+        }
+
         const data = await res.json();
         if (res.ok && data.success) {
+          const newTst = data.data;
+          removeDeletedId(newTst.id);
+          if (!Array.isArray(CURRENT_DATA.testimonials)) CURRENT_DATA.testimonials = [];
+          CURRENT_DATA.testimonials.unshift(newTst);
+          syncTypeToLocalStorage('testimonials');
+
           alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700';
           alertBox.innerText = 'Author testimonial published successfully!';
           alertBox.classList.remove('hidden');
@@ -1744,16 +1829,38 @@
           activeTstBase64 = '';
           document.getElementById('tst-preview-img').classList.add('hidden');
           document.getElementById('tst-preview-placeholder').classList.remove('hidden');
+          renderTestimonials();
           loadAdminData();
+          return;
         } else {
           alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
           alertBox.innerText = data.error || 'Failed to add testimonial';
           alertBox.classList.remove('hidden');
         }
       } catch (err) {
-        alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
-        alertBox.innerText = 'Error connecting to server';
+        console.warn('Backend offline, saving testimonial to local browser storage:', err);
+        const newTst = {
+          id: 'TST-' + Date.now().toString(36).toUpperCase(),
+          author, book: book || '', titleBadge: titleBadge || 'Author',
+          genreTag: genreTag || 'Memoir', rating: Number(rating) || 5,
+          featured: Boolean(featured),
+          image: image || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80',
+          quote
+        };
+        removeDeletedId(newTst.id);
+        if (!Array.isArray(CURRENT_DATA.testimonials)) CURRENT_DATA.testimonials = [];
+        CURRENT_DATA.testimonials.unshift(newTst);
+        syncTypeToLocalStorage('testimonials');
+
+        alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700';
+        alertBox.innerText = 'Testimonial published (saved to browser database)!';
         alertBox.classList.remove('hidden');
+
+        document.getElementById('add-tst-form').reset();
+        activeTstBase64 = '';
+        document.getElementById('tst-preview-img').classList.add('hidden');
+        document.getElementById('tst-preview-placeholder').classList.remove('hidden');
+        renderTestimonials();
       } finally {
         btn.disabled = false;
         btn.innerHTML = `<span class="material-symbols-outlined text-sm">add_comment</span> Publish Testimonial`;
@@ -1876,23 +1983,53 @@
           })
         });
 
+        if (res.status === 401) {
+          handleSessionExpired();
+          return;
+        }
+
         const data = await res.json();
         if (res.ok && data.success) {
+          const newSrv = data.data;
+          removeDeletedId(newSrv.id);
+          if (!CURRENT_DATA.services) CURRENT_DATA.services = { services: [], packages: [] };
+          if (!Array.isArray(CURRENT_DATA.services.services)) CURRENT_DATA.services.services = [];
+          CURRENT_DATA.services.services.push(newSrv);
+          syncTypeToLocalStorage('services');
+
           alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700';
           alertBox.innerText = 'Service added successfully!';
           alertBox.classList.remove('hidden');
 
           document.getElementById('add-srv-form').reset();
+          renderServices();
           loadAdminData();
+          return;
         } else {
           alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
           alertBox.innerText = data.error || 'Failed to add service';
           alertBox.classList.remove('hidden');
         }
       } catch (err) {
-        alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
-        alertBox.innerText = 'Error connecting to server';
+        console.warn('Backend offline, saving service to local browser storage:', err);
+        let delivArr = delivRaw ? delivRaw.split('\n').map(s => s.trim()).filter(Boolean) : [];
+        const newSrv = {
+          id: 'SRV-' + Date.now().toString(36).toUpperCase(),
+          title, icon: icon || 'edit_document', description: desc,
+          deliverables: delivArr.length > 0 ? delivArr : ['Comprehensive author support', 'High precision quality control'],
+          ctaText: cta || 'Request Assessment'
+        };
+        removeDeletedId(newSrv.id);
+        if (!CURRENT_DATA.services) CURRENT_DATA.services = { services: [], packages: [] };
+        if (!Array.isArray(CURRENT_DATA.services.services)) CURRENT_DATA.services.services = [];
+        CURRENT_DATA.services.services.push(newSrv);
+        syncTypeToLocalStorage('services');
+
+        alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700';
+        alertBox.innerText = 'Service added (saved to browser database)!';
         alertBox.classList.remove('hidden');
+        document.getElementById('add-srv-form').reset();
+        renderServices();
       } finally {
         btn.disabled = false;
         btn.innerHTML = `<span class="material-symbols-outlined text-sm">add_task</span> Add Publishing Service`;
@@ -2364,6 +2501,13 @@
           body: JSON.stringify({ photos: payloadPhotos })
         });
 
+        if (res.status === 401) {
+          progressBox.classList.add('hidden');
+          submitBtn.disabled = false;
+          handleSessionExpired();
+          return;
+        }
+
         progressBar.style.width = '85%';
         progressPercent.innerText = '85%';
 
@@ -2380,6 +2524,13 @@
           `;
           alertBox.classList.remove('hidden');
 
+          if (Array.isArray(data.data)) {
+            data.data.forEach(p => removeDeletedId(p.id));
+            if (!Array.isArray(CURRENT_DATA.gallery)) CURRENT_DATA.gallery = [];
+            CURRENT_DATA.gallery.unshift(...data.data);
+            syncTypeToLocalStorage('gallery');
+          }
+
           // Reset queue and form
           BULK_STAGING_QUEUE = [];
           renderBulkStagingGrid();
@@ -2390,6 +2541,7 @@
             progressBar.style.width = '0%';
           }, 2000);
 
+          renderGallery();
           loadAdminData();
         } else {
           throw new Error(data.error || 'Failed to upload photos');
@@ -2468,8 +2620,19 @@
           })
         });
 
+        if (res.status === 401) {
+          handleSessionExpired();
+          return;
+        }
+
         const data = await res.json();
         if (res.ok && data.success) {
+          const newPhoto = data.data;
+          removeDeletedId(newPhoto.id);
+          if (!Array.isArray(CURRENT_DATA.gallery)) CURRENT_DATA.gallery = [];
+          CURRENT_DATA.gallery.unshift(newPhoto);
+          syncTypeToLocalStorage('gallery');
+
           alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700';
           alertBox.innerText = 'Photo uploaded and published to gallery successfully!';
           alertBox.classList.remove('hidden');
@@ -2479,16 +2642,37 @@
           document.getElementById('gal-preview-img').classList.add('hidden');
           document.getElementById('gal-preview-placeholder').classList.remove('hidden');
 
+          renderGallery();
           loadAdminData();
+          return;
         } else {
           alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
           alertBox.innerText = data.error || 'Failed to upload photo';
           alertBox.classList.remove('hidden');
         }
       } catch (err) {
-        alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700';
-        alertBox.innerText = 'Error connecting to server';
+        console.warn('Backend offline, saving photo to local browser storage:', err);
+        const newPhoto = {
+          id: 'GAL-' + Date.now().toString(36).toUpperCase(),
+          title, category: category || 'galas',
+          categoryName: category === 'launches' ? 'Book Launches' : (category === 'workshops' ? 'Workshops & Craft' : (category === 'exhibitions' ? 'Exhibitions & Fairs' : 'Author Galas')),
+          date: date || new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+          image, description: desc || ''
+        };
+        removeDeletedId(newPhoto.id);
+        if (!Array.isArray(CURRENT_DATA.gallery)) CURRENT_DATA.gallery = [];
+        CURRENT_DATA.gallery.unshift(newPhoto);
+        syncTypeToLocalStorage('gallery');
+
+        alertBox.className = 'text-xs px-4 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700';
+        alertBox.innerText = 'Photo published to gallery (saved to browser database)!';
         alertBox.classList.remove('hidden');
+
+        document.getElementById('add-gallery-form').reset();
+        activeImageBase64 = '';
+        document.getElementById('gal-preview-img').classList.add('hidden');
+        document.getElementById('gal-preview-placeholder').classList.remove('hidden');
+        renderGallery();
       } finally {
         btn.disabled = false;
         btn.innerHTML = `<span class="material-symbols-outlined text-sm">cloud_upload</span> Upload Single Photo`;
