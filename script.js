@@ -1,6 +1,13 @@
 // House of Memoir - Main Client Logic & Hybrid Form Submissions
 // Supports: Local Node REST API (/api/*) + Direct Cloud Email (Web3Forms/Formspree)
 
+const API_BASE = (window.location.protocol === 'file:') ? 'http://localhost:8000' : '';
+function apiUrl(path) {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  return API_BASE + path;
+}
+
 const CONFIG = {
   // Web3Forms Access Key (Get free key from https://web3forms.com/ if static hosting without Node)
   web3FormsKey: '',
@@ -640,22 +647,24 @@ async function initGallery() {
   // Fetch dynamic gallery photos from backend with static fallback & cache-busting
   try {
     const cacheBuster = '?t=' + Date.now();
-    let res = await fetch('/api/gallery' + cacheBuster);
-    if (!res.ok) res = await fetch('data/gallery.json' + cacheBuster);
+    let res = await fetch(apiUrl('/api/gallery') + cacheBuster);
+    if (!res.ok) res = await fetch(apiUrl('/data/gallery.json') + cacheBuster);
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data)) {
+      if (Array.isArray(data) && data.length > 0) {
         GALLERY_ITEMS = data.filter(item => !deletedIds.includes(item.id));
+        localStorage.setItem('hom_gallery_data', JSON.stringify(GALLERY_ITEMS));
         renderDynamicGallery(GALLERY_ITEMS);
       }
     }
   } catch (err) {
     try {
-      const fallbackRes = await fetch('data/gallery.json?t=' + Date.now());
+      const fallbackRes = await fetch(apiUrl('/data/gallery.json') + '?t=' + Date.now());
       if (fallbackRes.ok) {
         const data = await fallbackRes.json();
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           GALLERY_ITEMS = data.filter(item => !deletedIds.includes(item.id));
+          localStorage.setItem('hom_gallery_data', JSON.stringify(GALLERY_ITEMS));
           renderDynamicGallery(GALLERY_ITEMS);
         }
       }
@@ -854,7 +863,7 @@ async function initDynamicPortfolio() {
     const localPort = localStorage.getItem('hom_portfolio_data');
     if (localPort) {
       const parsed = JSON.parse(localPort);
-      if (Array.isArray(parsed)) {
+      if (Array.isArray(parsed) && parsed.length > 0) {
         renderBooks(parsed.filter(b => !deletedIds.includes(b.id)));
       }
     }
@@ -862,12 +871,14 @@ async function initDynamicPortfolio() {
 
   try {
     const cacheBuster = '?t=' + Date.now();
-    let res = await fetch('/api/portfolio' + cacheBuster);
-    if (!res.ok) res = await fetch('data/portfolio.json' + cacheBuster);
+    let res = await fetch(apiUrl('/api/portfolio') + cacheBuster);
+    if (!res.ok) res = await fetch(apiUrl('/data/portfolio.json') + cacheBuster);
     if (!res.ok) return;
     const books = await res.json();
-    if (Array.isArray(books)) {
-      renderBooks(books.filter(b => !deletedIds.includes(b.id)));
+    if (Array.isArray(books) && books.length > 0) {
+      const activeBooks = books.filter(b => !deletedIds.includes(b.id));
+      localStorage.setItem('hom_portfolio_data', JSON.stringify(activeBooks));
+      renderBooks(activeBooks);
     }
   } catch (err) {
     console.warn('Dynamic portfolio loading note:', err);
@@ -926,12 +937,14 @@ async function initDynamicTestimonials() {
 
   try {
     const cacheBuster = '?t=' + Date.now();
-    let res = await fetch('/api/testimonials' + cacheBuster);
-    if (!res.ok) res = await fetch('data/testimonials.json' + cacheBuster);
+    let res = await fetch(apiUrl('/api/testimonials') + cacheBuster);
+    if (!res.ok) res = await fetch(apiUrl('/data/testimonials.json') + cacheBuster);
     if (!res.ok) return;
     const list = await res.json();
-    if (Array.isArray(list)) {
-      renderTst(list.filter(item => !deletedIds.includes(item.id)));
+    if (Array.isArray(list) && list.length > 0) {
+      const activeList = list.filter(item => !deletedIds.includes(item.id));
+      localStorage.setItem('hom_testimonials_data', JSON.stringify(activeList));
+      renderTst(activeList);
     }
   } catch (err) {
     console.warn('Dynamic testimonials loading note:', err);
@@ -1014,15 +1027,17 @@ async function initDynamicServices() {
 
   try {
     const cacheBuster = '?t=' + Date.now();
-    let res = await fetch('/api/services' + cacheBuster);
-    if (!res.ok) res = await fetch('data/services.json' + cacheBuster);
+    let res = await fetch(apiUrl('/api/services') + cacheBuster);
+    if (!res.ok) res = await fetch(apiUrl('/data/services.json') + cacheBuster);
     if (!res.ok) return;
     const data = await res.json();
-    if (data) renderSrv(data);
+    if (data && ((data.services && data.services.length > 0) || (data.packages && data.packages.length > 0))) {
+      localStorage.setItem('hom_services_data', JSON.stringify(data));
+      renderSrv(data);
+    }
   } catch (err) {
     console.warn('Dynamic services loading note:', err);
   }
-}
 }
 
 // ==========================================
@@ -1044,8 +1059,8 @@ async function initDynamicHeroVideo() {
   if (!vid) return;
 
   try {
-    let res = await fetch('/api/site-config');
-    if (!res.ok) res = await fetch('data/site-config.json');
+    let res = await fetch(apiUrl('/api/site-config'));
+    if (!res.ok) res = await fetch(apiUrl('/data/site-config.json'));
     if (!res.ok) return;
     const config = await res.json();
     if (!config) return;

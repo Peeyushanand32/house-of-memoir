@@ -13,6 +13,7 @@ desktop.ini
 *.log
 node_modules/
 .env
+data/sessions.json
 
 # Large raw video masters (>100MB exceeds GitHub push limits)
 *.mov
