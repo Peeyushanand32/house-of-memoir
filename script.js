@@ -5,7 +5,7 @@ const CONFIG = {
   // Web3Forms Access Key (Get free key from https://web3forms.com/ if static hosting without Node)
   web3FormsKey: '',
   // Set your receiving email address here
-  notificationEmail: 'submissions@houseofmemoir.com',
+  notificationEmail: 'info@thehouseofmemoir.com',
   // Determines if running on local Node server
   isLocalServer: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.port !== ''
 };
@@ -455,7 +455,7 @@ const CHAT_KNOWLEDGE_BASE = {
   royalties: "At House of Memoir, authors retain 100% of all intellectual property, copyright, and worldwide sales royalties across print, digital, and audio formats.",
   submission: "We accept memoirs, literary fiction, historical non-fiction, and poetry. Submissions are reviewed by our senior editorial board within 4-6 weeks.",
   timeline: "A typical publication cycle spans 6 to 9 months: 8-12 weeks for developmental editing & copyediting, 4 weeks for typesetting and cover design, followed by proofing and global distribution.",
-  contact: "Our main editorial offices are located at 205, Shubham Business Tower, Sipri Bazar, Jhansi - 284003. You can also reach our desk at submissions@houseofmemoir.com.",
+  contact: "Our main editorial offices are located at 205, Shubham Business Tower, Sipri Bazar, Jhansi - 284003. You can also reach our desk at info@thehouseofmemoir.com.",
   instagram: "Follow our official Instagram @houseofmemoir.global at: https://www.instagram.com/houseofmemoir.global?igsi=emRqbzhvNHQ5cjJ6 for literary announcements, book releases, and behind-the-scenes craft!"
 };
 
