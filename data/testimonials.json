@@ -1,16 +1,5 @@
 [
   {
-    "id": "TST-01",
-    "author": "Eleanor Vance",
-    "book": "Chronicles of Silence",
-    "titleBadge": "New York Times Bestselling Author",
-    "genreTag": "Historical Memoir",
-    "rating": 5,
-    "quote": "House of Memoir transformed my raw manuscript into a masterpiece of modern literature. Their editorial rigor is unmatched, and their attention to physical hardcover quality is a rare luxury in today's digital age.",
-    "image": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80",
-    "featured": true
-  },
-  {
     "id": "TST-02",
     "author": "Julian Vance",
     "book": "The Golden Lattice",
