@@ -2876,8 +2876,8 @@
       tbody.innerHTML = CURRENT_DATA.submissions.map(item => `
         <tr class="hover:bg-gray-50/80 transition-colors">
           <td class="py-3 px-4 font-mono text-[11px] text-gray-500">
-            <span class="font-bold text-gray-800">${item.id || 'SUB'}</span><br/>
-            ${new Date(item.submittedAt || Date.now()).toLocaleDateString()}
+            <span class="font-bold text-[#1978e5] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${item.id || 'SUB'}</span><br/>
+            <span class="text-[10px] text-gray-400 mt-1 inline-block">${new Date(item.submittedAt || Date.now()).toLocaleDateString()}</span>
           </td>
           <td class="py-3 px-4 font-semibold text-gray-900">${item.authorName}</td>
           <td class="py-3 px-4 text-gray-600">
@@ -2910,7 +2910,10 @@
       }
       tbody.innerHTML = CURRENT_DATA.queries.map(item => `
         <tr class="hover:bg-gray-50/80 transition-colors">
-          <td class="py-3 px-4 font-mono text-[11px] text-gray-500">${new Date(item.submittedAt || Date.now()).toLocaleDateString()}</td>
+          <td class="py-3 px-4 font-mono text-[11px] text-gray-500">
+            <span class="font-bold text-[#1978e5] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${item.id || 'QRY'}</span><br/>
+            <span class="text-[10px] text-gray-400 mt-1 inline-block">${new Date(item.submittedAt || Date.now()).toLocaleDateString()}</span>
+          </td>
           <td class="py-3 px-4 font-semibold text-gray-900">${item.fullName}</td>
           <td class="py-3 px-4"><a href="mailto:${item.email}" class="text-[#1978e5] hover:underline">${item.email}</a></td>
           <td class="py-3 px-4 text-gray-600">${item.phone || 'N/A'}</td>
@@ -2932,7 +2935,10 @@
       }
       tbody.innerHTML = CURRENT_DATA.appointments.map(item => `
         <tr class="hover:bg-gray-50/80 transition-colors">
-          <td class="py-3 px-4 font-mono text-[11px] text-gray-500">${new Date(item.bookedAt || Date.now()).toLocaleDateString()}</td>
+          <td class="py-3 px-4 font-mono text-[11px] text-gray-500">
+            <span class="font-bold text-[#1978e5] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${item.id || 'APT'}</span><br/>
+            <span class="text-[10px] text-gray-400 mt-1 inline-block">${new Date(item.bookedAt || Date.now()).toLocaleDateString()}</span>
+          </td>
           <td class="py-3 px-4 font-semibold text-gray-900">${item.name}</td>
           <td class="py-3 px-4"><a href="mailto:${item.email}" class="text-[#1978e5] hover:underline">${item.email}</a></td>
           <td class="py-3 px-4">

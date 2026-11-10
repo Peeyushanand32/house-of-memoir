@@ -137,12 +137,17 @@ function initManuscriptModal() {
       };
 
       try {
-        await submitHybridData('/api/submissions', payload);
+        const res = await submitHybridData('/api/submissions', payload);
         closeModal();
         modalForm.reset();
         const statusEl = modalForm.querySelector('.file-upload-status, #file-upload-status');
         if (statusEl) statusEl.innerText = 'Click to browse or drag and drop file here';
-        showToast('Manuscript submitted successfully! Our editors will review your work within 4-6 weeks.');
+        const trackingId = res?.data?.id || '';
+        if (trackingId) {
+          showToast(`<div><strong>Manuscript Submitted!</strong><br/><span class="text-xs text-gray-300">Tracking ID:</span> <span class="font-mono font-bold text-amber-400 text-xs">${trackingId}</span><br/><span class="text-[11px] text-gray-400">Confirmation email sent to ${payload.email}</span></div>`, 8000);
+        } else {
+          showToast('Manuscript submitted successfully! Our editors will review your work within 4-6 weeks.');
+        }
       } catch (err) {
         console.error('Submission failed:', err);
         showToast('Manuscript submitted successfully! (Saved to review queue)');
@@ -223,10 +228,15 @@ function initPageForms() {
       };
 
       try {
-        await submitHybridData('/api/submissions', payload);
+        const res = await submitHybridData('/api/submissions', payload);
         submissionForm.reset();
         nextStep(1);
-        showToast('Application Submitted! Our editorial board will review your manuscript within 4 weeks.');
+        const trackingId = res?.data?.id || '';
+        if (trackingId) {
+          showToast(`<div><strong>Application Submitted!</strong><br/><span class="text-xs text-gray-300">Tracking ID:</span> <span class="font-mono font-bold text-amber-400 text-xs">${trackingId}</span><br/><span class="text-[11px] text-gray-400">Confirmation receipt emailed to ${payload.email}</span></div>`, 8000);
+        } else {
+          showToast('Application Submitted! Our editorial board will review your manuscript within 4 weeks.');
+        }
       } catch (err) {
         showToast('Application recorded successfully! Thank you.');
       } finally {
@@ -260,9 +270,14 @@ function initPageForms() {
       };
 
       try {
-        await submitHybridData('/api/queries', payload);
+        const res = await submitHybridData('/api/queries', payload);
         queryForm.reset();
-        showToast('Thank you! Your query has been submitted. Our team will contact you shortly.');
+        const trackingId = res?.data?.id || '';
+        if (trackingId) {
+          showToast(`<div><strong>Query Submitted!</strong><br/><span class="text-xs text-gray-300">Reference ID:</span> <span class="font-mono font-bold text-amber-400 text-xs">${trackingId}</span><br/><span class="text-[11px] text-gray-400">Confirmation emailed to ${payload.email}</span></div>`, 8000);
+        } else {
+          showToast('Thank you! Your query has been submitted. Our team will contact you shortly.');
+        }
       } catch (err) {
         showToast('Your inquiry has been received. Thank you!');
       } finally {
@@ -280,6 +295,7 @@ function initPageForms() {
 // ==========================================
 async function submitHybridData(apiEndpoint, data) {
   let backendSuccess = false;
+  let backendResponse = null;
 
   // 1. Try sending to Local/Node Backend API
   try {
@@ -290,8 +306,8 @@ async function submitHybridData(apiEndpoint, data) {
     });
     if (res.ok) {
       backendSuccess = true;
-      const json = await res.json();
-      console.log('Saved to The House of Memoir backend:', json);
+      backendResponse = await res.json();
+      console.log('Saved to The House of Memoir backend:', backendResponse);
     }
   } catch (err) {
     console.warn('Backend API endpoint not reached, falling back:', err.message);
@@ -316,7 +332,7 @@ async function submitHybridData(apiEndpoint, data) {
     }
   }
 
-  return { success: true };
+  return { success: backendSuccess, ...(backendResponse || {}) };
 }
 
 // ==========================================
@@ -412,8 +428,13 @@ function initCalendarPicker() {
       };
 
       try {
-        await submitHybridData('/api/appointments', payload);
-        showToast(`Consultation Booked for Nov ${selectedCalendarDay} at ${selectedTimeSlot}! Check email confirmation.`);
+        const res = await submitHybridData('/api/appointments', payload);
+        const trackingId = res?.data?.id || '';
+        if (trackingId) {
+          showToast(`<div><strong>Consultation Booked!</strong><br/><span class="text-xs text-gray-300">Booking ID:</span> <span class="font-mono font-bold text-amber-400 text-xs">${trackingId}</span><br/><span class="text-[11px] text-gray-400">Confirmation sent for Nov ${selectedCalendarDay} at ${selectedTimeSlot}</span></div>`, 8000);
+        } else {
+          showToast(`Consultation Booked for Nov ${selectedCalendarDay} at ${selectedTimeSlot}! Check email confirmation.`);
+        }
       } catch (e) {
         showToast(`Consultation Booked for Nov ${selectedCalendarDay} at ${selectedTimeSlot}!`);
       }
@@ -582,20 +603,21 @@ function initSupportChat() {
 // ==========================================
 // 10. Toast Notification
 // ==========================================
-function showToast(message) {
+function showToast(message, duration = 6000) {
   let toast = document.getElementById('toast-notification');
   if (!toast) {
     toast = document.createElement('div');
     toast.id = 'toast-notification';
-    toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#000613] text-white px-6 py-3.5 rounded-full shadow-2xl flex items-center gap-3 animate-scale-up text-sm font-medium border border-[#1978e5]/40';
+    toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#000613] text-white px-6 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 animate-scale-up text-sm font-medium border border-[#1978e5]/40 max-w-[92vw] md:max-w-md';
     document.body.appendChild(toast);
   }
-  toast.innerHTML = `<span class="material-symbols-outlined text-[#1978e5]">check_circle</span><span>${message}</span>`;
+  toast.innerHTML = `<span class="material-symbols-outlined text-[#1978e5] text-2xl flex-shrink-0">check_circle</span><div class="leading-snug">${message}</div>`;
   toast.style.display = 'flex';
 
-  setTimeout(() => {
+  if (window._toastTimer) clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => {
     toast.style.display = 'none';
-  }, 5000);
+  }, duration);
 }
 
 // ==========================================

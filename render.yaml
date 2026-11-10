@@ -13,3 +13,7 @@ services:
         value: admin
       - key: ADMIN_PASS
         value: admin123
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false

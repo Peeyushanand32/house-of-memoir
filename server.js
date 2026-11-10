@@ -4,6 +4,12 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { MongoClient } = require('mongodb');
+let nodemailer = null;
+try {
+  nodemailer = require('nodemailer');
+} catch (e) {
+  console.warn('[EMAIL] nodemailer module not loaded');
+}
 
 const PORT = process.env.PORT || 8000;
 const PUBLIC_DIR = __dirname;
@@ -40,6 +46,245 @@ Object.entries(DB_FILES).forEach(([key, filePath]) => {
     }
   }
 });
+
+// ==========================================
+// Automated Email Notifications (Nodemailer)
+// ==========================================
+const SMTP_USER = process.env.SMTP_USER || '';
+const SMTP_PASS = (process.env.SMTP_PASS || '').replace(/\s+/g, ''); // strip spaces from App Password
+
+let mailTransporter = null;
+if (nodemailer && SMTP_USER && SMTP_PASS) {
+  try {
+    mailTransporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: SMTP_USER,
+        pass: SMTP_PASS
+      }
+    });
+    console.log(`[EMAIL] SMTP Transporter initialized successfully for: ${SMTP_USER}`);
+  } catch (err) {
+    console.error('[EMAIL] Failed to initialize SMTP transporter:', err.message);
+  }
+}
+
+async function sendClientConfirmationEmail(type, item) {
+  if (!mailTransporter) {
+    console.log(`[EMAIL] Transporter not configured. Skipping email for ID: ${item?.id}`);
+    return false;
+  }
+  if (!item || !item.email) {
+    console.log(`[EMAIL] No recipient email found for item ${item?.id}`);
+    return false;
+  }
+
+  const clientEmail = (item.email || '').trim();
+  if (!clientEmail.includes('@')) return false;
+
+  const brandGold = '#c59b27';
+  const brandBlue = '#1978e5';
+  const brandDark = '#000613';
+
+  let subject = '';
+  let heading = '';
+  let detailsHtml = '';
+
+  if (type === 'submissions') {
+    subject = `Manuscript Submission Receipt: ${item.id} | The House of Memoir`;
+    heading = `Manuscript Submission Acknowledgment`;
+    detailsHtml = `
+      <p style="font-size:15px; color:#374151; line-height:1.6; margin-bottom:16px;">
+        Dear <strong>${item.authorName || 'Author'}</strong>,
+      </p>
+      <p style="font-size:14px; color:#4b5563; line-height:1.6; margin-bottom:20px;">
+        Thank you for submitting your work to <strong>The House of Memoir</strong>. We have successfully registered your manuscript with our Editorial Board under your unique tracking reference:
+      </p>
+      <div style="background:#f0f7ff; border:1px solid #bfdbfe; border-left:5px solid ${brandBlue}; border-radius:12px; padding:18px 20px; margin:22px 0; text-align:center;">
+        <span style="font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:#6b7280; font-weight:700; display:block; margin-bottom:4px;">Unique Tracking / Reference ID</span>
+        <span style="font-family:monospace, monospace; font-size:26px; font-weight:800; color:${brandBlue}; letter-spacing:2px;">${item.id}</span>
+      </div>
+      <table style="width:100%; border-collapse:collapse; margin:20px 0; font-size:13px; color:#374151;">
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280; width:35%;">Working Title:</td>
+          <td style="padding:10px 0; font-weight:600; color:#111827;">${item.title || 'Untitled'}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Genre:</td>
+          <td style="padding:10px 0;">${item.genre || 'General'}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Contact Phone:</td>
+          <td style="padding:10px 0;">${item.phone || 'N/A'}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Editorial Status:</td>
+          <td style="padding:10px 0;"><span style="background:#fef3c7; color:#92400e; padding:3px 10px; border-radius:999px; font-weight:700; font-size:11px;">Under Editorial Review</span></td>
+        </tr>
+        <tr>
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Submission Date:</td>
+          <td style="padding:10px 0;">${new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</td>
+        </tr>
+      </table>
+      <div style="background:#f9fafb; border-radius:10px; padding:16px; margin:20px 0; font-size:13px; color:#4b5563; line-height:1.6;">
+        <strong style="color:#111827; display:block; margin-bottom:6px;">Next Steps:</strong>
+        1. Our senior acquiring editors will review your manuscript scope and sample chapters.<br/>
+        2. A senior editorial consultant will connect with you via email or phone within <strong>24–48 business hours</strong>.<br/>
+        3. Please quote your Tracking ID (<strong>${item.id}</strong>) in any future correspondence with our team.
+      </div>
+    `;
+  } else if (type === 'queries') {
+    subject = `Enquiry Acknowledgment: ${item.id} | The House of Memoir`;
+    heading = `Enquiry Received & Registered`;
+    detailsHtml = `
+      <p style="font-size:15px; color:#374151; line-height:1.6; margin-bottom:16px;">
+        Dear <strong>${item.fullName || 'Valued Client'}</strong>,
+      </p>
+      <p style="font-size:14px; color:#4b5563; line-height:1.6; margin-bottom:20px;">
+        Thank you for contacting <strong>The House of Memoir</strong>. We have registered your enquiry with our publishing advisory desk under your unique reference code:
+      </p>
+      <div style="background:#f0f7ff; border:1px solid #bfdbfe; border-left:5px solid ${brandBlue}; border-radius:12px; padding:18px 20px; margin:22px 0; text-align:center;">
+        <span style="font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:#6b7280; font-weight:700; display:block; margin-bottom:4px;">Unique Enquiry Reference ID</span>
+        <span style="font-family:monospace, monospace; font-size:26px; font-weight:800; color:${brandBlue}; letter-spacing:2px;">${item.id}</span>
+      </div>
+      <table style="width:100%; border-collapse:collapse; margin:20px 0; font-size:13px; color:#374151;">
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280; width:35%;">Full Name:</td>
+          <td style="padding:10px 0; font-weight:600; color:#111827;">${item.fullName}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Phone Number:</td>
+          <td style="padding:10px 0;">${item.phone || 'N/A'}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Your Enquiry:</td>
+          <td style="padding:10px 0; color:#1f2937; font-style:italic;">"${item.query}"</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Status:</td>
+          <td style="padding:10px 0;"><span style="background:#e0f2fe; color:#0369a1; padding:3px 10px; border-radius:999px; font-weight:700; font-size:11px;">Assigned to Advisory Team</span></td>
+        </tr>
+      </table>
+      <div style="background:#f9fafb; border-radius:10px; padding:16px; margin:20px 0; font-size:13px; color:#4b5563; line-height:1.6;">
+        Our senior publishing team will review your message and reach out to you within <strong>24 business hours</strong>. If you have any additional notes, please feel free to reply directly to this email with reference ID <strong>${item.id}</strong>.
+      </div>
+    `;
+  } else if (type === 'appointments') {
+    subject = `Consultation Confirmed: ${item.id} | The House of Memoir`;
+    heading = `Editorial Consultation Confirmed`;
+    detailsHtml = `
+      <p style="font-size:15px; color:#374151; line-height:1.6; margin-bottom:16px;">
+        Dear <strong>${item.name || 'Author'}</strong>,
+      </p>
+      <p style="font-size:14px; color:#4b5563; line-height:1.6; margin-bottom:20px;">
+        Your private editorial consultation session has been scheduled with <strong>The House of Memoir</strong>:
+      </p>
+      <div style="background:#f0f7ff; border:1px solid #bfdbfe; border-left:5px solid ${brandBlue}; border-radius:12px; padding:18px 20px; margin:22px 0; text-align:center;">
+        <span style="font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:#6b7280; font-weight:700; display:block; margin-bottom:4px;">Consultation Appointment ID</span>
+        <span style="font-family:monospace, monospace; font-size:26px; font-weight:800; color:${brandBlue}; letter-spacing:2px;">${item.id}</span>
+      </div>
+      <table style="width:100%; border-collapse:collapse; margin:20px 0; font-size:13px; color:#374151;">
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280; width:35%;">Date:</td>
+          <td style="padding:10px 0; font-weight:700; color:#111827;">${item.date}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Time Slot:</td>
+          <td style="padding:10px 0; font-weight:700; color:${brandBlue};">${item.timeSlot}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Session Type:</td>
+          <td style="padding:10px 0;">${item.consultationType || 'Virtual 1-on-1 Consultation'}</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Status:</td>
+          <td style="padding:10px 0;"><span style="background:#dcfce7; color:#166534; padding:3px 10px; border-radius:999px; font-weight:700; font-size:11px;">Confirmed</span></td>
+        </tr>
+      </table>
+    `;
+  }
+
+  const fullHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
+    <body style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background:#f4f5f8; margin:0; padding:24px;">
+      <div style="max-width:600px; margin:0 auto; background:#ffffff; border-radius:16px; overflow:hidden; border:1px solid #e5e7eb; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+        <!-- Luxury Brand Header -->
+        <div style="background:${brandDark}; padding:32px 24px; text-align:center; border-bottom:3px solid ${brandGold};">
+          <h1 style="color:${brandGold}; font-family:Georgia, serif; font-size:26px; margin:0; font-weight:700; letter-spacing:1px;">The House of Memoir</h1>
+          <p style="color:#9ca3af; font-size:10px; text-transform:uppercase; letter-spacing:2px; margin:6px 0 0 0;">Where Legacies Are Written • Luxury Publishing</p>
+        </div>
+        <!-- Card Body -->
+        <div style="padding:32px 28px;">
+          <h2 style="font-family:Georgia, serif; font-size:20px; color:#111827; margin:0 0 16px 0; font-weight:700;">${heading}</h2>
+          ${detailsHtml}
+        </div>
+        <!-- Footer -->
+        <div style="background:#f9fafb; border-top:1px solid #e5e7eb; padding:24px 28px; text-align:center; font-size:12px; color:#6b7280;">
+          <p style="margin:0 0 8px 0; font-weight:700; color:#374151;">The House of Memoir Publishing House</p>
+          <p style="margin:0 0 8px 0;">205, Shubham Business Tower, Sipri Bazar, Jhansi - 284003</p>
+          <p style="margin:0 0 12px 0;">
+            Phone: <a href="tel:+916386313299" style="color:${brandBlue}; text-decoration:none; font-weight:600;">+91 6386313299</a> | 
+            Email: <a href="mailto:info@thehouseofmemoir.com" style="color:${brandBlue}; text-decoration:none;">info@thehouseofmemoir.com</a>
+          </p>
+          <p style="margin:16px 0 0 0; font-size:10px; color:#9ca3af;">© 2026 The House of Memoir. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  // 1. Dispatch email to Client
+  try {
+    const clientInfo = await mailTransporter.sendMail({
+      from: `"The House of Memoir" <${SMTP_USER}>`,
+      to: clientEmail,
+      subject: subject,
+      html: fullHtml
+    });
+    console.log(`[EMAIL] Auto-confirmation dispatched to client ${clientEmail} (${item.id}) - MsgID: ${clientInfo.messageId}`);
+  } catch (err) {
+    console.error(`[EMAIL] Failed to send email to client ${clientEmail}:`, err.message);
+  }
+
+  // 2. Dispatch admin notification alert to thehouseofmemoirjhansi@gmail.com
+  try {
+    const adminAlertSubject = `[NEW ${type.toUpperCase()}] ${item.id} - ${item.authorName || item.fullName || item.name || 'New Client'}`;
+    await mailTransporter.sendMail({
+      from: `"The House of Memoir Portal" <${SMTP_USER}>`,
+      to: SMTP_USER,
+      subject: adminAlertSubject,
+      html: `
+        <div style="font-family:sans-serif; padding:20px; background:#f9fafb;">
+          <div style="max-width:600px; margin:0 auto; background:#fff; padding:24px; border-radius:12px; border:1px solid #e5e7eb;">
+            <h2 style="color:${brandBlue}; margin-top:0;">New ${type.toUpperCase()} Received!</h2>
+            <p>A new form has been submitted on The House of Memoir website. Complete details:</p>
+            <p><strong>Tracking ID:</strong> <span style="font-family:monospace; font-size:18px; color:${brandBlue}; font-weight:bold;">${item.id}</span></p>
+            <p><strong>Client Name:</strong> ${item.authorName || item.fullName || item.name}</p>
+            <p><strong>Client Email:</strong> <a href="mailto:${item.email}">${item.email}</a></p>
+            <p><strong>Phone:</strong> ${item.phone || 'N/A'}</p>
+            ${item.title ? `<p><strong>Title:</strong> ${item.title}</p>` : ''}
+            ${item.genre ? `<p><strong>Genre:</strong> ${item.genre}</p>` : ''}
+            ${item.query ? `<p><strong>Query:</strong> ${item.query}</p>` : ''}
+            ${item.date ? `<p><strong>Date & Time:</strong> ${item.date} at ${item.timeSlot}</p>` : ''}
+            <div style="margin-top:24px; padding-top:16px; border-top:1px solid #eee;">
+              <a href="https://house-of-memoir-4nmv.onrender.com/admin.html" style="background:${brandBlue}; color:#fff; padding:10px 18px; border-radius:8px; text-decoration:none; display:inline-block; font-weight:bold; font-size:13px;">View in Admin Portal</a>
+            </div>
+          </div>
+        </div>
+      `
+    });
+    console.log(`[EMAIL] Admin notification dispatched to ${SMTP_USER} for item ${item.id}`);
+  } catch (err) {
+    console.warn(`[EMAIL] Admin notification failed:`, err.message);
+  }
+
+  return true;
+}
 
 function getAdminConfig() {
   try {
@@ -467,10 +712,13 @@ const server = http.createServer(async (req, res) => {
       all.unshift(newEntry);
       await writeDb('submissions', all);
 
+      // Asynchronously dispatch confirmation email to client and admin within 5-10 seconds
+      sendClientConfirmationEmail('submissions', newEntry).catch(e => console.warn('[EMAIL] Dispatch warning:', e.message));
+
       console.log(`\n[NEW SUBMISSION] From: ${newEntry.authorName} (${newEntry.email}) | Title: "${newEntry.title}"`);
       return sendJson(res, 201, {
         success: true,
-        message: 'Manuscript submitted successfully to The House of Memoir Editorial Board.',
+        message: `Manuscript submitted successfully to The House of Memoir Editorial Board! Your Unique Tracking ID is: ${newEntry.id}. A confirmation receipt has been emailed to ${newEntry.email}.`,
         data: newEntry
       });
     } catch (err) {
@@ -496,10 +744,13 @@ const server = http.createServer(async (req, res) => {
       all.unshift(newEntry);
       await writeDb('queries', all);
 
+      // Asynchronously dispatch confirmation email to client and admin within 5-10 seconds
+      sendClientConfirmationEmail('queries', newEntry).catch(e => console.warn('[EMAIL] Dispatch warning:', e.message));
+
       console.log(`\n[NEW QUERY] From: ${newEntry.fullName} (${newEntry.email}) | Query: "${newEntry.query.slice(0, 50)}..."`);
       return sendJson(res, 201, {
         success: true,
-        message: 'Your query has been recorded. Our editorial desk will reach out shortly.',
+        message: `Your enquiry has been registered under Unique Reference ID: ${newEntry.id}. A confirmation email has been dispatched to ${newEntry.email}.`,
         data: newEntry
       });
     } catch (err) {
@@ -527,10 +778,13 @@ const server = http.createServer(async (req, res) => {
       all.unshift(newEntry);
       await writeDb('appointments', all);
 
+      // Asynchronously dispatch confirmation email to client and admin within 5-10 seconds
+      sendClientConfirmationEmail('appointments', newEntry).catch(e => console.warn('[EMAIL] Dispatch warning:', e.message));
+
       console.log(`\n[NEW APPOINTMENT] Booked by: ${newEntry.name} | Date: ${newEntry.date} at ${newEntry.timeSlot}`);
       return sendJson(res, 201, {
         success: true,
-        message: 'Consultation appointment scheduled and confirmed.',
+        message: `Consultation appointment scheduled and confirmed under ID: ${newEntry.id}. Confirmation email dispatched to ${newEntry.email}.`,
         data: newEntry
       });
     } catch (err) {
