@@ -1,7 +1,9 @@
+require('dotenv').config();
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { MongoClient } = require('mongodb');
 
 const PORT = process.env.PORT || 8000;
 const PUBLIC_DIR = __dirname;
@@ -185,7 +187,7 @@ const CANONICAL_BOOKS = [
   }
 ];
 
-function readDb(type) {
+function readDbLocal(type) {
   try {
     const file = DB_FILES[type];
     const defaultVal = type === 'services' ? { services: [], packages: [] } : (type === 'siteConfig' ? { heroVideo: 'hero-video.mp4', heroPoster: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=1200&q=80', heroTag: 'Cinematic Reel' } : (type === 'portfolio' ? CANONICAL_BOOKS : []));
@@ -198,21 +200,132 @@ function readDb(type) {
     }
     return parsed;
   } catch (err) {
-    console.error(`Error reading ${type} DB:`, err);
+    console.error(`Error reading local ${type} DB:`, err);
     return type === 'services' ? { services: [], packages: [] } : (type === 'siteConfig' ? { heroVideo: 'hero-video.mp4', heroPoster: '' } : (type === 'portfolio' ? CANONICAL_BOOKS : []));
   }
 }
 
-function writeDb(type, data) {
+function writeDbLocal(type, data) {
   try {
     const file = DB_FILES[type];
     if (!file) return false;
     fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf8');
     return true;
   } catch (err) {
-    console.error(`Error writing ${type} DB:`, err);
+    console.error(`Error writing local ${type} DB:`, err);
     return false;
   }
+}
+
+// ==========================================
+// MongoDB Atlas Connection & Synchronization
+// ==========================================
+let mongoClient = null;
+let mongoDb = null;
+let isMongoConnected = false;
+
+const MONGODB_URI = process.env.MONGODB_URI || '';
+const DB_NAME = process.env.MONGODB_DB_NAME || 'house_of_memoir';
+
+async function initMongo() {
+  if (!MONGODB_URI) {
+    console.log('[DB] No MONGODB_URI found. Running with local JSON database.');
+    return;
+  }
+  try {
+    mongoClient = new MongoClient(MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000
+    });
+    await mongoClient.connect();
+    mongoDb = mongoClient.db(DB_NAME);
+    isMongoConnected = true;
+    console.log(`[DB] Successfully connected to MongoDB Atlas database: "${DB_NAME}"!`);
+    await seedMongoFromLocalFiles();
+  } catch (err) {
+    console.error('[DB] Failed to connect to MongoDB Atlas:', err.message);
+    console.log('[DB] Gracefully falling back to local JSON database.');
+  }
+}
+
+async function seedMongoFromLocalFiles() {
+  if (!isMongoConnected || !mongoDb) return;
+  const types = ['portfolio', 'gallery', 'testimonials', 'services', 'siteConfig', 'submissions', 'queries', 'appointments', 'chatLeads'];
+  for (const type of types) {
+    try {
+      const col = mongoDb.collection(type);
+      const count = await col.countDocuments();
+      if (count === 0) {
+        const localData = readDbLocal(type);
+        if (Array.isArray(localData) && localData.length > 0) {
+          await col.insertMany(localData.map(doc => ({ ...doc })));
+          console.log(`[DB SEED] Seeded ${localData.length} items into MongoDB collection "${type}"`);
+        } else if (localData && typeof localData === 'object' && !Array.isArray(localData)) {
+          await col.insertOne({ _id: 'config', ...localData });
+          console.log(`[DB SEED] Seeded config into MongoDB collection "${type}"`);
+        }
+      }
+    } catch (e) {
+      console.warn(`[DB SEED] Note for ${type}:`, e.message);
+    }
+  }
+}
+
+async function readDb(type) {
+  if (isMongoConnected && mongoDb) {
+    try {
+      const col = mongoDb.collection(type);
+      if (type === 'siteConfig') {
+        const doc = await col.findOne({ _id: 'config' });
+        if (doc) {
+          const { _id, ...clean } = doc;
+          return clean;
+        }
+      } else if (type === 'services') {
+        const doc = await col.findOne({ _id: 'all_services' });
+        if (doc) {
+          const { _id, ...clean } = doc;
+          return clean;
+        }
+      } else {
+        const docs = await col.find({}).toArray();
+        if (docs && docs.length > 0) {
+          return docs.map(d => {
+            const { _id, ...clean } = d;
+            return clean;
+          });
+        }
+      }
+    } catch (err) {
+      console.warn(`[DB] Error querying MongoDB for ${type}, falling back to local:`, err.message);
+    }
+  }
+  return readDbLocal(type);
+}
+
+async function writeDb(type, data) {
+  // Always update local disk as backup
+  writeDbLocal(type, data);
+
+  if (isMongoConnected && mongoDb) {
+    try {
+      const col = mongoDb.collection(type);
+      if (type === 'siteConfig') {
+        await col.updateOne({ _id: 'config' }, { $set: data }, { upsert: true });
+      } else if (type === 'services') {
+        await col.updateOne({ _id: 'all_services' }, { $set: data }, { upsert: true });
+      } else if (Array.isArray(data)) {
+        await col.deleteMany({});
+        if (data.length > 0) {
+          await col.insertMany(data.map(item => ({ ...item })));
+        }
+      }
+      return true;
+    } catch (err) {
+      console.error(`[DB] Error writing to MongoDB for ${type}:`, err.message);
+      return false;
+    }
+  }
+  return true;
 }
 
 const MIME_TYPES = {
@@ -400,9 +513,9 @@ const server = http.createServer(async (req, res) => {
         status: 'Under Review'
       };
 
-      const all = readDb('submissions');
+      const all = await readDb('submissions');
       all.unshift(newEntry);
-      writeDb('submissions', all);
+      await writeDb('submissions', all);
 
       console.log(`\n[NEW SUBMISSION] From: ${newEntry.authorName} (${newEntry.email}) | Title: "${newEntry.title}"`);
       return sendJson(res, 201, {
@@ -429,9 +542,9 @@ const server = http.createServer(async (req, res) => {
         status: 'Unread'
       };
 
-      const all = readDb('queries');
+      const all = await readDb('queries');
       all.unshift(newEntry);
-      writeDb('queries', all);
+      await writeDb('queries', all);
 
       console.log(`\n[NEW QUERY] From: ${newEntry.fullName} (${newEntry.email}) | Query: "${newEntry.query.slice(0, 50)}..."`);
       return sendJson(res, 201, {
@@ -460,9 +573,9 @@ const server = http.createServer(async (req, res) => {
         status: 'Confirmed'
       };
 
-      const all = readDb('appointments');
+      const all = await readDb('appointments');
       all.unshift(newEntry);
-      writeDb('appointments', all);
+      await writeDb('appointments', all);
 
       console.log(`\n[NEW APPOINTMENT] Booked by: ${newEntry.name} | Date: ${newEntry.date} at ${newEntry.timeSlot}`);
       return sendJson(res, 201, {
@@ -487,9 +600,9 @@ const server = http.createServer(async (req, res) => {
         page: payload.page || 'Home'
       };
 
-      const all = readDb('chatLeads');
+      const all = await readDb('chatLeads');
       all.unshift(newEntry);
-      writeDb('chatLeads', all);
+      await writeDb('chatLeads', all);
 
       return sendJson(res, 201, { success: true, data: newEntry });
     } catch (err) {
@@ -499,28 +612,28 @@ const server = http.createServer(async (req, res) => {
 
   // 5. Public Content Endpoints (Gallery, Portfolio, Testimonials, Services)
   if (reqPath === '/api/gallery' && req.method === 'GET') {
-    const gallery = readDb('gallery');
+    const gallery = await readDb('gallery');
     return sendJson(res, 200, gallery);
   }
 
   if (reqPath === '/api/portfolio' && req.method === 'GET') {
-    const portfolio = readDb('portfolio');
+    const portfolio = await readDb('portfolio');
     return sendJson(res, 200, portfolio);
   }
 
   if (reqPath === '/api/testimonials' && req.method === 'GET') {
-    const testimonials = readDb('testimonials');
+    const testimonials = await readDb('testimonials');
     return sendJson(res, 200, testimonials);
   }
 
   if (reqPath === '/api/services' && req.method === 'GET') {
-    const services = readDb('services');
+    const services = await readDb('services');
     return sendJson(res, 200, services);
   }
 
   // Public Site Config (Hero Video, Poster, etc.)
   if (reqPath === '/api/site-config' && req.method === 'GET') {
-    const config = readDb('siteConfig');
+    const config = await readDb('siteConfig');
     return sendJson(res, 200, config);
   }
 
@@ -529,14 +642,14 @@ const server = http.createServer(async (req, res) => {
     if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
     try {
       const payload = await parseBody(req);
-      const current = readDb('siteConfig');
+      const current = await readDb('siteConfig');
       const updated = {
         ...current,
         heroVideo: payload.heroVideo !== undefined ? payload.heroVideo.trim() : current.heroVideo,
         heroPoster: payload.heroPoster !== undefined ? payload.heroPoster.trim() : current.heroPoster,
         heroTag: payload.heroTag !== undefined ? payload.heroTag.trim() : current.heroTag
       };
-      writeDb('siteConfig', updated);
+      await writeDb('siteConfig', updated);
       console.log(`[CONFIG] Updated site config: heroVideo=${updated.heroVideo}`);
       return sendJson(res, 200, { success: true, message: 'Site configuration updated', data: updated });
     } catch (err) {
@@ -553,14 +666,14 @@ const server = http.createServer(async (req, res) => {
     if (!isValidSession(req)) {
       return sendJson(res, 401, { success: false, error: 'Unauthorized: Admin login required' });
     }
-    const submissions = readDb('submissions');
-    const queries = readDb('queries');
-    const appointments = readDb('appointments');
-    const chatLeads = readDb('chatLeads');
-    const gallery = readDb('gallery');
-    const portfolio = readDb('portfolio');
-    const testimonials = readDb('testimonials');
-    const srvData = readDb('services');
+    const submissions = await readDb('submissions');
+    const queries = await readDb('queries');
+    const appointments = await readDb('appointments');
+    const chatLeads = await readDb('chatLeads');
+    const gallery = await readDb('gallery');
+    const portfolio = await readDb('portfolio');
+    const testimonials = await readDb('testimonials');
+    const srvData = await readDb('services');
 
     return sendJson(res, 200, {
       totalSubmissions: submissions.length,
@@ -577,42 +690,42 @@ const server = http.createServer(async (req, res) => {
   // Admin Data Retrieval Endpoints (Protected)
   if (reqPath === '/api/admin/submissions' && req.method === 'GET') {
     if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
-    return sendJson(res, 200, readDb('submissions'));
+    return sendJson(res, 200, await readDb('submissions'));
   }
 
   if (reqPath === '/api/admin/queries' && req.method === 'GET') {
     if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
-    return sendJson(res, 200, readDb('queries'));
+    return sendJson(res, 200, await readDb('queries'));
   }
 
   if (reqPath === '/api/admin/appointments' && req.method === 'GET') {
     if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
-    return sendJson(res, 200, readDb('appointments'));
+    return sendJson(res, 200, await readDb('appointments'));
   }
 
   if (reqPath === '/api/admin/chat-leads' && req.method === 'GET') {
     if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
-    return sendJson(res, 200, readDb('chatLeads'));
+    return sendJson(res, 200, await readDb('chatLeads'));
   }
 
   if (reqPath === '/api/admin/gallery' && req.method === 'GET') {
     if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
-    return sendJson(res, 200, readDb('gallery'));
+    return sendJson(res, 200, await readDb('gallery'));
   }
 
   if (reqPath === '/api/admin/portfolio' && req.method === 'GET') {
     if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
-    return sendJson(res, 200, readDb('portfolio'));
+    return sendJson(res, 200, await readDb('portfolio'));
   }
 
   if (reqPath === '/api/admin/testimonials' && req.method === 'GET') {
     if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
-    return sendJson(res, 200, readDb('testimonials'));
+    return sendJson(res, 200, await readDb('testimonials'));
   }
 
   if (reqPath === '/api/admin/services' && req.method === 'GET') {
     if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
-    return sendJson(res, 200, readDb('services'));
+    return sendJson(res, 200, await readDb('services'));
   }
 
   // Admin Add Gallery Photo Endpoint (Protected)
@@ -644,9 +757,9 @@ const server = http.createServer(async (req, res) => {
         description: description ? description.trim() : ''
       };
 
-      const all = readDb('gallery');
+      const all = await readDb('gallery');
       all.unshift(newPhoto);
-      writeDb('gallery', all);
+      await writeDb('gallery', all);
 
       console.log(`\n[NEW GALLERY PHOTO] Added: "${newPhoto.title}" | Category: ${newPhoto.category}`);
       return sendJson(res, 201, { success: true, message: 'Photo uploaded to company gallery successfully', data: newPhoto });
@@ -696,9 +809,9 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 400, { success: false, error: 'No valid photos found in request' });
       }
 
-      const all = readDb('gallery');
+      const all = await readDb('gallery');
       all.unshift(...addedItems);
-      writeDb('gallery', all);
+      await writeDb('gallery', all);
 
       console.log(`\n[BULK GALLERY UPLOAD] Added ${addedItems.length} new photos to gallery!`);
       return sendJson(res, 201, {
@@ -722,7 +835,7 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 400, { success: false, error: 'No photo IDs provided' });
       }
 
-      let all = readDb('gallery');
+      let all = await readDb('gallery');
       const toDelete = all.filter(item => ids.includes(item.id));
 
       toDelete.forEach(item => {
@@ -737,7 +850,7 @@ const server = http.createServer(async (req, res) => {
       });
 
       all = all.filter(item => !ids.includes(item.id));
-      writeDb('gallery', all);
+      await writeDb('gallery', all);
 
       console.log(`\n[BULK GALLERY DELETE] Removed ${toDelete.length} photos`);
       return sendJson(res, 200, {
@@ -771,9 +884,9 @@ const server = http.createServer(async (req, res) => {
         badge: badge ? badge.trim() : 'New Release'
       };
 
-      const all = readDb('portfolio');
+      const all = await readDb('portfolio');
       all.unshift(newBook);
-      writeDb('portfolio', all);
+      await writeDb('portfolio', all);
 
       console.log(`\n[NEW PORTFOLIO BOOK] Added: "${newBook.title}" by ${newBook.author}`);
       return sendJson(res, 201, { success: true, message: 'Book added to publications portfolio successfully', data: newBook });
@@ -792,7 +905,7 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 400, { success: false, error: 'Book ID, title, and author are required' });
       }
 
-      let all = readDb('portfolio');
+      let all = await readDb('portfolio');
       const idx = all.findIndex(b => b.id === id);
       if (idx === -1) {
         return sendJson(res, 404, { success: false, error: 'Book not found' });
@@ -809,7 +922,7 @@ const server = http.createServer(async (req, res) => {
         badge: badge ? badge.trim() : all[idx].badge
       };
 
-      writeDb('portfolio', all);
+      await writeDb('portfolio', all);
       return sendJson(res, 200, { success: true, message: 'Portfolio book updated successfully', data: all[idx] });
     } catch (err) {
       return sendJson(res, 500, { success: false, error: err.message });
@@ -838,9 +951,9 @@ const server = http.createServer(async (req, res) => {
         featured: Boolean(featured)
       };
 
-      const all = readDb('testimonials');
+      const all = await readDb('testimonials');
       all.unshift(newTestimonial);
-      writeDb('testimonials', all);
+      await writeDb('testimonials', all);
 
       console.log(`\n[NEW TESTIMONIAL] Added from author: "${newTestimonial.author}"`);
       return sendJson(res, 201, { success: true, message: 'Testimonial added successfully', data: newTestimonial });
@@ -859,7 +972,7 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 400, { success: false, error: 'Testimonial ID, author, and quote are required' });
       }
 
-      let all = readDb('testimonials');
+      let all = await readDb('testimonials');
       const idx = all.findIndex(t => t.id === id);
       if (idx === -1) {
         return sendJson(res, 404, { success: false, error: 'Testimonial not found' });
@@ -877,7 +990,7 @@ const server = http.createServer(async (req, res) => {
         featured: featured !== undefined ? Boolean(featured) : all[idx].featured
       };
 
-      writeDb('testimonials', all);
+      await writeDb('testimonials', all);
       return sendJson(res, 200, { success: true, message: 'Testimonial updated successfully', data: all[idx] });
     } catch (err) {
       return sendJson(res, 500, { success: false, error: err.message });
@@ -910,10 +1023,10 @@ const server = http.createServer(async (req, res) => {
         ctaText: ctaText ? ctaText.trim() : 'Request Service Assessment'
       };
 
-      const srvData = readDb('services');
+      const srvData = await readDb('services');
       srvData.services = srvData.services || [];
       srvData.services.push(newService);
-      writeDb('services', srvData);
+      await writeDb('services', srvData);
 
       console.log(`\n[NEW SERVICE] Added: "${newService.title}"`);
       return sendJson(res, 201, { success: true, message: 'Publishing service added successfully', data: newService });
@@ -939,7 +1052,7 @@ const server = http.createServer(async (req, res) => {
         delivArr = deliverables.split('\n').map(s => s.trim()).filter(Boolean);
       }
 
-      const srvData = readDb('services');
+      const srvData = await readDb('services');
       srvData.services = srvData.services || [];
       const idx = srvData.services.findIndex(s => s.id === id);
       if (idx === -1) {
@@ -955,7 +1068,7 @@ const server = http.createServer(async (req, res) => {
         ctaText: ctaText ? ctaText.trim() : srvData.services[idx].ctaText
       };
 
-      writeDb('services', srvData);
+      await writeDb('services', srvData);
       return sendJson(res, 200, { success: true, message: 'Service updated successfully', data: srvData.services[idx] });
     } catch (err) {
       return sendJson(res, 500, { success: false, error: err.message });
@@ -972,9 +1085,9 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 400, { success: false, error: 'Packages must be an array' });
       }
 
-      const srvData = readDb('services');
+      const srvData = await readDb('services');
       srvData.packages = packages;
-      writeDb('services', srvData);
+      await writeDb('services', srvData);
 
       return sendJson(res, 200, { success: true, message: 'Publishing packages updated successfully', data: srvData.packages });
     } catch (err) {
@@ -993,14 +1106,14 @@ const server = http.createServer(async (req, res) => {
       }
 
       if (type === 'services') {
-        const srvData = readDb('services');
+        const srvData = await readDb('services');
         srvData.services = (srvData.services || []).filter(item => item.id !== id);
         srvData.packages = (srvData.packages || []).filter(item => item.id !== id);
-        writeDb('services', srvData);
+        await writeDb('services', srvData);
         return sendJson(res, 200, { success: true, message: `Service/Package ${id} deleted` });
       }
 
-      let all = readDb(type);
+      let all = await readDb(type);
       if (Array.isArray(all)) {
         if (type === 'gallery') {
           const itemToDelete = all.find(item => item.id === id);
@@ -1014,7 +1127,7 @@ const server = http.createServer(async (req, res) => {
           }
         }
         all = all.filter(item => item.id !== id);
-        writeDb(type, all);
+        await writeDb(type, all);
       }
 
       return sendJson(res, 200, { success: true, message: `Item ${id} deleted` });
@@ -1095,7 +1208,7 @@ const server = http.createServer(async (req, res) => {
   });
 });
 
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, '0.0.0.0', async () => {
   console.log(`\n=================================================`);
   console.log(` House of Memoir Protected Hybrid Server is running!`);
   console.log(` Port: ${PORT}`);
@@ -1104,4 +1217,7 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(` Default Admin User: admin`);
   console.log(` Default Admin Pass: admin123`);
   console.log(`=================================================\n`);
+
+  // Initialize MongoDB Atlas connection (if MONGODB_URI is provided)
+  await initMongo().catch(err => console.error('[DB] Mongo startup error:', err.message));
 });
