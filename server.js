@@ -126,64 +126,14 @@ function isValidSession(req) {
 
 const CANONICAL_BOOKS = [
   {
-    id: "PRT-01",
-    title: "Chronicles of Silence",
-    author: "Victoria Sterling",
+    id: "PRT-MW9QB561-47CF",
+    title: "A Scholar's Odyssey",
+    author: "Prof. Mukesh Pandey",
     category: "memoir",
     image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80",
-    description: "A poignant memoir tracing family heritage, survival, and post-war restoration across mid-century Europe.",
+    description: "Vice Chancellor, Bundelkhand University,\nJhansi.",
     format: "Hardcover & Ebook",
-    badge: "NYT Bestseller"
-  },
-  {
-    id: "PRT-02",
-    title: "The Golden Lattice",
-    author: "Julian Vance",
-    category: "fiction",
-    image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=80",
-    description: "A sweeping novel set against the backdrop of Renaissance Venice and architectural masterworks.",
-    format: "Cloth Collector's Edition",
-    badge: "Editor's Choice"
-  },
-  {
-    id: "PRT-03",
-    title: "Echoes of the Guild",
-    author: "Dr. Marcus Thorne",
-    category: "nonfiction",
-    image: "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=600&q=80",
-    description: "An authoritative historical survey of printing press traditions, letterpress craft, and archival typography.",
-    format: "Academic & Library Edition",
-    badge: "Guild Award Winner"
-  },
-  {
-    id: "PRT-04",
-    title: "Solitude in Verse",
-    author: "Helena Moreau",
-    category: "poetry",
-    image: "https://images.unsplash.com/photo-1474939557548-f842486be195?auto=format&fit=crop&w=600&q=80",
-    description: "A lyrical collection exploring silence, natural landscapes, and the weight of spoken memory.",
-    format: "Handbound Paper Edition",
-    badge: "Poetry Prize Finalist"
-  },
-  {
-    id: "PRT-05",
-    title: "The Last Sanctuary",
-    author: "Ambassador Richard Hayes",
-    category: "memoir",
-    image: "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=600&q=80",
-    description: "Diplomatic memoirs revealing behind-the-scenes negotiations, cold war statecraft, and personal conviction.",
-    format: "Leather Deluxe Hardcover",
-    badge: "Global Best Seller"
-  },
-  {
-    id: "PRT-06",
-    title: "Shadows Over Alexandria",
-    author: "Charles Montgomery",
-    category: "fiction",
-    image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=600&q=80",
-    description: "An evocative historical thriller centering around forgotten manuscripts and ancient library vaults.",
-    format: "Hardcover & Audiobook",
-    badge: "Critics Choice"
+    badge: "New Release"
   }
 ];
 
@@ -195,8 +145,8 @@ function readDbLocal(type) {
     const content = fs.readFileSync(file, 'utf8');
     const parsed = JSON.parse(content || 'null');
     if (!parsed) return defaultVal;
-    if (type === 'portfolio' && Array.isArray(parsed) && parsed.length === 0) {
-      return CANONICAL_BOOKS;
+    if (type === 'portfolio' && Array.isArray(parsed)) {
+      return parsed;
     }
     return parsed;
   } catch (err) {
