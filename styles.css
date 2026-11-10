@@ -1,5 +1,11 @@
 /* Custom Stylesheet for House of Memoir */
 
+/* Global Justified Alignment for all Paragraphs across the website */
+p {
+  text-align: justify;
+  text-justify: inter-word;
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;

@@ -1146,7 +1146,7 @@ const server = http.createServer(async (req, res) => {
       'Accept-Ranges': 'bytes',
       'Access-Control-Allow-Origin': '*'
     };
-    if (filePath.endsWith('.json') || filePath.endsWith('.js') || filePath.endsWith('.html') || filePath.includes('data')) {
+    if (filePath.endsWith('.json') || filePath.endsWith('.js') || filePath.endsWith('.html') || filePath.endsWith('.css') || filePath.includes('data')) {
       headers['Cache-Control'] = 'no-store, no-cache, must-revalidate';
       headers['Pragma'] = 'no-cache';
       headers['Expires'] = '0';
