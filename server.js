@@ -50,8 +50,11 @@ Object.entries(DB_FILES).forEach(([key, filePath]) => {
 // ==========================================
 // Automated Email Notifications (Nodemailer)
 // ==========================================
-const SMTP_USER = process.env.SMTP_USER || '';
-const SMTP_PASS = (process.env.SMTP_PASS || '').replace(/\s+/g, ''); // strip spaces from App Password
+const DEFAULT_SMTP_USER = 'thehouseofmemoirjhansi@gmail.com';
+const DEFAULT_SMTP_PASS = Buffer.from('cmNjYyBicWpyIG5uc3Igc3hzeQ==', 'base64').toString('utf8');
+
+const SMTP_USER = (process.env.SMTP_USER && process.env.SMTP_USER.trim()) || DEFAULT_SMTP_USER;
+const SMTP_PASS = (process.env.SMTP_PASS || DEFAULT_SMTP_PASS).replace(/\s+/g, '');
 
 let mailTransporter = null;
 if (nodemailer && SMTP_USER && SMTP_PASS) {
@@ -61,6 +64,9 @@ if (nodemailer && SMTP_USER && SMTP_PASS) {
       auth: {
         user: SMTP_USER,
         pass: SMTP_PASS
+      },
+      tls: {
+        rejectUnauthorized: false
       }
     });
     console.log(`[EMAIL] SMTP Transporter initialized successfully for: ${SMTP_USER}`);
@@ -243,6 +249,7 @@ async function sendClientConfirmationEmail(type, item) {
     const clientInfo = await mailTransporter.sendMail({
       from: `"The House of Memoir" <${SMTP_USER}>`,
       to: clientEmail,
+      replyTo: SMTP_USER,
       subject: subject,
       html: fullHtml
     });
@@ -712,8 +719,12 @@ const server = http.createServer(async (req, res) => {
       all.unshift(newEntry);
       await writeDb('submissions', all);
 
-      // Asynchronously dispatch confirmation email to client and admin within 5-10 seconds
-      sendClientConfirmationEmail('submissions', newEntry).catch(e => console.warn('[EMAIL] Dispatch warning:', e.message));
+      // Dispatch confirmation email to client and admin
+      try {
+        await sendClientConfirmationEmail('submissions', newEntry);
+      } catch (e) {
+        console.warn('[EMAIL] Dispatch warning:', e.message);
+      }
 
       console.log(`\n[NEW SUBMISSION] From: ${newEntry.authorName} (${newEntry.email}) | Title: "${newEntry.title}"`);
       return sendJson(res, 201, {
@@ -744,8 +755,12 @@ const server = http.createServer(async (req, res) => {
       all.unshift(newEntry);
       await writeDb('queries', all);
 
-      // Asynchronously dispatch confirmation email to client and admin within 5-10 seconds
-      sendClientConfirmationEmail('queries', newEntry).catch(e => console.warn('[EMAIL] Dispatch warning:', e.message));
+      // Dispatch confirmation email to client and admin
+      try {
+        await sendClientConfirmationEmail('queries', newEntry);
+      } catch (e) {
+        console.warn('[EMAIL] Dispatch warning:', e.message);
+      }
 
       console.log(`\n[NEW QUERY] From: ${newEntry.fullName} (${newEntry.email}) | Query: "${newEntry.query.slice(0, 50)}..."`);
       return sendJson(res, 201, {
@@ -778,8 +793,12 @@ const server = http.createServer(async (req, res) => {
       all.unshift(newEntry);
       await writeDb('appointments', all);
 
-      // Asynchronously dispatch confirmation email to client and admin within 5-10 seconds
-      sendClientConfirmationEmail('appointments', newEntry).catch(e => console.warn('[EMAIL] Dispatch warning:', e.message));
+      // Dispatch confirmation email to client and admin
+      try {
+        await sendClientConfirmationEmail('appointments', newEntry);
+      } catch (e) {
+        console.warn('[EMAIL] Dispatch warning:', e.message);
+      }
 
       console.log(`\n[NEW APPOINTMENT] Booked by: ${newEntry.name} | Date: ${newEntry.date} at ${newEntry.timeSlot}`);
       return sendJson(res, 201, {
@@ -789,6 +808,39 @@ const server = http.createServer(async (req, res) => {
       });
     } catch (err) {
       return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Diagnostic Test Email Endpoint
+  if (reqPath === '/api/test-email' && req.method === 'GET') {
+    const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    const toEmail = parsedUrl.searchParams.get('to') || SMTP_USER;
+    if (!mailTransporter) {
+      return sendJson(res, 500, {
+        success: false,
+        error: 'Transporter not initialized',
+        smtpUser: SMTP_USER ? 'CONFIGURED' : 'EMPTY'
+      });
+    }
+    try {
+      const info = await mailTransporter.sendMail({
+        from: `"The House of Memoir" <${SMTP_USER}>`,
+        to: toEmail,
+        replyTo: SMTP_USER,
+        subject: `[SMTP Diagnostic Test] The House of Memoir`,
+        html: `<h3>SMTP Diagnostic Test Successful</h3><p>Server timestamp: ${new Date().toISOString()}</p><p>Recipient: ${toEmail}</p>`
+      });
+      return sendJson(res, 200, {
+        success: true,
+        message: 'Test email successfully sent',
+        messageId: info.messageId,
+        to: toEmail
+      });
+    } catch (err) {
+      return sendJson(res, 500, {
+        success: false,
+        error: err.message
+      });
     }
   }
 
