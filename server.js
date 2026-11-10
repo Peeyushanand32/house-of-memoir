@@ -470,7 +470,7 @@ const server = http.createServer(async (req, res) => {
       console.log(`\n[NEW SUBMISSION] From: ${newEntry.authorName} (${newEntry.email}) | Title: "${newEntry.title}"`);
       return sendJson(res, 201, {
         success: true,
-        message: 'Manuscript submitted successfully to House of Memoir Editorial Board.',
+        message: 'Manuscript submitted successfully to The House of Memoir Editorial Board.',
         data: newEntry
       });
     } catch (err) {
@@ -1108,7 +1108,7 @@ const server = http.createServer(async (req, res) => {
       return res.end(`
         <!DOCTYPE html>
         <html>
-        <head><title>404 Not Found - House of Memoir</title></head>
+        <head><title>404 Not Found - The House of Memoir</title></head>
         <body style="font-family: sans-serif; text-align: center; padding: 60px; background: #f9f9ff; color: #1a1b20;">
           <h1 style="color: #1978e5; font-size: 48px; margin-bottom: 10px;">404</h1>
           <h2>Page Not Found</h2>
@@ -1160,7 +1160,7 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, '0.0.0.0', async () => {
   console.log(`\n=================================================`);
-  console.log(` House of Memoir Protected Hybrid Server is running!`);
+  console.log(` The House of Memoir Protected Hybrid Server is running!`);
   console.log(` Port: ${PORT}`);
   console.log(` URL:  http://localhost:${PORT}/`);
   console.log(` Admin Portal: http://localhost:${PORT}/admin.html`);

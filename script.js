@@ -1,4 +1,4 @@
-// House of Memoir - Main Client Logic & Hybrid Form Submissions
+// The House of Memoir - Main Client Logic & Hybrid Form Submissions
 // Supports: Local Node REST API (/api/*) + Direct Cloud Email (Web3Forms/Formspree)
 
 const API_BASE = (window.location.protocol === 'file:') ? 'http://localhost:8000' : '';
@@ -291,7 +291,7 @@ async function submitHybridData(apiEndpoint, data) {
     if (res.ok) {
       backendSuccess = true;
       const json = await res.json();
-      console.log('Saved to House of Memoir backend:', json);
+      console.log('Saved to The House of Memoir backend:', json);
     }
   } catch (err) {
     console.warn('Backend API endpoint not reached, falling back:', err.message);
@@ -305,8 +305,8 @@ async function submitHybridData(apiEndpoint, data) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           access_key: CONFIG.web3FormsKey,
-          subject: `[House of Memoir] New ${data.source || 'Submission'}`,
-          from_name: 'House of Memoir Portal',
+          subject: `[The House of Memoir] New ${data.source || 'Submission'}`,
+          from_name: 'The House of Memoir Portal',
           ...data
         })
       });
@@ -475,7 +475,7 @@ function initAllDropzones() {
 // 9. Interactive Smart Editorial Concierge Chat
 // ==========================================
 const CHAT_KNOWLEDGE_BASE = {
-  royalties: "At House of Memoir, authors retain 100% of all intellectual property, copyright, and worldwide sales royalties across print, digital, and audio formats.",
+  royalties: "At The House of Memoir, authors retain 100% of all intellectual property, copyright, and worldwide sales royalties across print, digital, and audio formats.",
   submission: "We accept memoirs, literary fiction, historical non-fiction, and poetry. Submissions are reviewed by our senior editorial board within 4-6 weeks.",
   timeline: "A typical publication cycle spans 6 to 9 months: 8-12 weeks for developmental editing & copyediting, 4 weeks for typesetting and cover design, followed by proofing and global distribution.",
   contact: "Our main editorial offices are located at 205, Shubham Business Tower, Sipri Bazar, Jhansi - 284003. You can also reach our desk at info@thehouseofmemoir.com or call +91 6386313299.",
@@ -538,7 +538,7 @@ function initSupportChat() {
     // Smart Bot response logic
     setTimeout(() => {
       const lower = text.toLowerCase();
-      let reply = "Thank you for reaching out to House of Memoir. Would you like to schedule a private consultation or submit your manuscript?";
+      let reply = "Thank you for reaching out to The House of Memoir. Would you like to schedule a private consultation or submit your manuscript?";
 
       if (lower.includes('royalt') || lower.includes('right') || lower.includes('earning') || lower.includes('percent')) {
         reply = CHAT_KNOWLEDGE_BASE.royalties;
