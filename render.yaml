@@ -4,5 +4,12 @@ services:
     name: house-of-memoir
     env: node
     plan: free
-    buildCommand: ""
+    buildCommand: "npm install"
     startCommand: "node server.js"
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: ADMIN_USER
+        value: admin
+      - key: ADMIN_PASS
+        value: admin123

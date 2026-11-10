@@ -3011,15 +3011,20 @@
         statEl.innerText = type === 'services' ? (CURRENT_DATA.services?.services || []).length : (CURRENT_DATA[type] || []).length;
       }
 
-      // 4. Send to Node backend to permanently delete from data/*.json
+      // 4. Send to Node backend to permanently delete from MongoDB / data files
       try {
-        await fetch(apiUrl('/api/admin/delete'), {
+        const res = await fetch(apiUrl('/api/admin/delete'), {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({ type, id })
         });
+        if (!res.ok) {
+          console.warn('Backend sync warning: Status ' + res.status);
+          alert('⚠️ Warning: Cloud server (Node.js) par delete sync nahi hua (Status: ' + res.status + '). Yeh change sirf is device ke browser me show hoga. Real-time sync ke liye Render par Web Service hona zaroori hai.');
+        }
       } catch (e) {
         console.warn('Backend sync note:', e);
+        alert('⚠️ Warning: Cloud server se connect nahi ho saka. Yeh delete sirf is device ke browser me show hoga.');
       }
     }
 
