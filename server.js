@@ -48,13 +48,15 @@ Object.entries(DB_FILES).forEach(([key, filePath]) => {
 });
 
 // ==========================================
-// Automated Email Notifications (Nodemailer)
+// Automated Email Notifications (Hybrid: HTTPS & SMTP)
 // ==========================================
 const DEFAULT_SMTP_USER = 'thehouseofmemoirjhansi@gmail.com';
 const DEFAULT_SMTP_PASS = Buffer.from('cmNjYyBicWpyIG5uc3Igc3hzeQ==', 'base64').toString('utf8');
 
 const SMTP_USER = (process.env.SMTP_USER && process.env.SMTP_USER.trim()) || DEFAULT_SMTP_USER;
 const SMTP_PASS = (process.env.SMTP_PASS || DEFAULT_SMTP_PASS).replace(/\s+/g, '');
+const GMAIL_WEBHOOK_URL = (process.env.GMAIL_WEBHOOK_URL || '').trim();
+const BREVO_API_KEY = (process.env.BREVO_API_KEY || '').trim();
 
 let mailTransporter = null;
 if (nodemailer && SMTP_USER && SMTP_PASS) {
@@ -65,21 +67,78 @@ if (nodemailer && SMTP_USER && SMTP_PASS) {
         user: SMTP_USER,
         pass: SMTP_PASS
       },
+      connectionTimeout: 4000,
+      greetingTimeout: 4000,
+      socketTimeout: 5000,
       tls: {
         rejectUnauthorized: false
       }
     });
-    console.log(`[EMAIL] SMTP Transporter initialized successfully for: ${SMTP_USER}`);
+    console.log(`[EMAIL] SMTP Transporter initialized for: ${SMTP_USER}`);
   } catch (err) {
     console.error('[EMAIL] Failed to initialize SMTP transporter:', err.message);
   }
 }
 
-async function sendClientConfirmationEmail(type, item) {
-  if (!mailTransporter) {
-    console.log(`[EMAIL] Transporter not configured. Skipping email for ID: ${item?.id}`);
-    return false;
+async function dispatchEmail(to, subject, html) {
+  // Method 1: Google Apps Script Web App (HTTPS Port 443 - Bypasses all cloud port blocks)
+  const scriptUrl = process.env.GMAIL_WEBHOOK_URL || GMAIL_WEBHOOK_URL;
+  if (scriptUrl && scriptUrl.startsWith('http')) {
+    try {
+      const res = await fetch(scriptUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to, subject, html })
+      });
+      const data = await res.json();
+      console.log(`[EMAIL-HTTPS] Dispatched via Google Webhook to ${to}:`, data);
+      return { success: true, via: 'google_script', ...data };
+    } catch (err) {
+      console.warn('[EMAIL-HTTPS] Google webhook failed, falling back:', err.message);
+    }
   }
+
+  // Method 2: Brevo REST API (HTTPS Port 443)
+  const brevoKey = process.env.BREVO_API_KEY || BREVO_API_KEY;
+  if (brevoKey) {
+    try {
+      const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': brevoKey
+        },
+        body: JSON.stringify({
+          sender: { name: 'The House of Memoir', email: SMTP_USER },
+          to: [{ email: to }],
+          replyTo: { email: SMTP_USER, name: 'The House of Memoir' },
+          subject: subject,
+          htmlContent: html
+        })
+      });
+      const data = await res.json();
+      console.log(`[EMAIL-HTTPS] Dispatched via Brevo API to ${to}:`, data);
+      return { success: true, via: 'brevo', ...data };
+    } catch (err) {
+      console.warn('[EMAIL-HTTPS] Brevo API failed, falling back:', err.message);
+    }
+  }
+
+  // Method 3: Direct SMTP via Nodemailer (Port 465 / 587)
+  if (mailTransporter) {
+    return await mailTransporter.sendMail({
+      from: `"The House of Memoir" <${SMTP_USER}>`,
+      to,
+      replyTo: SMTP_USER,
+      subject,
+      html
+    });
+  }
+
+  throw new Error('No email transporter or HTTPS webhook available');
+}
+
+async function sendClientConfirmationEmail(type, item) {
   if (!item || !item.email) {
     console.log(`[EMAIL] No recipient email found for item ${item?.id}`);
     return false;
@@ -246,14 +305,8 @@ async function sendClientConfirmationEmail(type, item) {
 
   // 1. Dispatch email to Client
   try {
-    const clientInfo = await mailTransporter.sendMail({
-      from: `"The House of Memoir" <${SMTP_USER}>`,
-      to: clientEmail,
-      replyTo: SMTP_USER,
-      subject: subject,
-      html: fullHtml
-    });
-    console.log(`[EMAIL] Auto-confirmation dispatched to client ${clientEmail} (${item.id}) - MsgID: ${clientInfo.messageId}`);
+    const clientInfo = await dispatchEmail(clientEmail, subject, fullHtml);
+    console.log(`[EMAIL] Auto-confirmation dispatched to client ${clientEmail} (${item.id})`, clientInfo);
   } catch (err) {
     console.error(`[EMAIL] Failed to send email to client ${clientEmail}:`, err.message);
   }
@@ -261,30 +314,26 @@ async function sendClientConfirmationEmail(type, item) {
   // 2. Dispatch admin notification alert to thehouseofmemoirjhansi@gmail.com
   try {
     const adminAlertSubject = `[NEW ${type.toUpperCase()}] ${item.id} - ${item.authorName || item.fullName || item.name || 'New Client'}`;
-    await mailTransporter.sendMail({
-      from: `"The House of Memoir Portal" <${SMTP_USER}>`,
-      to: SMTP_USER,
-      subject: adminAlertSubject,
-      html: `
-        <div style="font-family:sans-serif; padding:20px; background:#f9fafb;">
-          <div style="max-width:600px; margin:0 auto; background:#fff; padding:24px; border-radius:12px; border:1px solid #e5e7eb;">
-            <h2 style="color:${brandBlue}; margin-top:0;">New ${type.toUpperCase()} Received!</h2>
-            <p>A new form has been submitted on The House of Memoir website. Complete details:</p>
-            <p><strong>Tracking ID:</strong> <span style="font-family:monospace; font-size:18px; color:${brandBlue}; font-weight:bold;">${item.id}</span></p>
-            <p><strong>Client Name:</strong> ${item.authorName || item.fullName || item.name}</p>
-            <p><strong>Client Email:</strong> <a href="mailto:${item.email}">${item.email}</a></p>
-            <p><strong>Phone:</strong> ${item.phone || 'N/A'}</p>
-            ${item.title ? `<p><strong>Title:</strong> ${item.title}</p>` : ''}
-            ${item.genre ? `<p><strong>Genre:</strong> ${item.genre}</p>` : ''}
-            ${item.query ? `<p><strong>Query:</strong> ${item.query}</p>` : ''}
-            ${item.date ? `<p><strong>Date & Time:</strong> ${item.date} at ${item.timeSlot}</p>` : ''}
-            <div style="margin-top:24px; padding-top:16px; border-top:1px solid #eee;">
-              <a href="https://house-of-memoir-4nmv.onrender.com/admin.html" style="background:${brandBlue}; color:#fff; padding:10px 18px; border-radius:8px; text-decoration:none; display:inline-block; font-weight:bold; font-size:13px;">View in Admin Portal</a>
-            </div>
+    const adminAlertHtml = `
+      <div style="font-family:sans-serif; padding:20px; background:#f9fafb;">
+        <div style="max-width:600px; margin:0 auto; background:#fff; padding:24px; border-radius:12px; border:1px solid #e5e7eb;">
+          <h2 style="color:${brandBlue}; margin-top:0;">New ${type.toUpperCase()} Received!</h2>
+          <p>A new form has been submitted on The House of Memoir website. Complete details:</p>
+          <p><strong>Tracking ID:</strong> <span style="font-family:monospace; font-size:18px; color:${brandBlue}; font-weight:bold;">${item.id}</span></p>
+          <p><strong>Client Name:</strong> ${item.authorName || item.fullName || item.name}</p>
+          <p><strong>Client Email:</strong> <a href="mailto:${item.email}">${item.email}</a></p>
+          <p><strong>Phone:</strong> ${item.phone || 'N/A'}</p>
+          ${item.title ? `<p><strong>Title:</strong> ${item.title}</p>` : ''}
+          ${item.genre ? `<p><strong>Genre:</strong> ${item.genre}</p>` : ''}
+          ${item.query ? `<p><strong>Query:</strong> ${item.query}</p>` : ''}
+          ${item.date ? `<p><strong>Date & Time:</strong> ${item.date} at ${item.timeSlot}</p>` : ''}
+          <div style="margin-top:24px; padding-top:16px; border-top:1px solid #eee;">
+            <a href="https://house-of-memoir-4nmv.onrender.com/admin.html" style="background:${brandBlue}; color:#fff; padding:10px 18px; border-radius:8px; text-decoration:none; display:inline-block; font-weight:bold; font-size:13px;">View in Admin Portal</a>
           </div>
         </div>
-      `
-    });
+      </div>
+    `;
+    await dispatchEmail(SMTP_USER, adminAlertSubject, adminAlertHtml);
     console.log(`[EMAIL] Admin notification dispatched to ${SMTP_USER} for item ${item.id}`);
   } catch (err) {
     console.warn(`[EMAIL] Admin notification failed:`, err.message);
@@ -815,26 +864,17 @@ const server = http.createServer(async (req, res) => {
   if (reqPath === '/api/test-email' && req.method === 'GET') {
     const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     const toEmail = parsedUrl.searchParams.get('to') || SMTP_USER;
-    if (!mailTransporter) {
-      return sendJson(res, 500, {
-        success: false,
-        error: 'Transporter not initialized',
-        smtpUser: SMTP_USER ? 'CONFIGURED' : 'EMPTY'
-      });
-    }
     try {
-      const info = await mailTransporter.sendMail({
-        from: `"The House of Memoir" <${SMTP_USER}>`,
-        to: toEmail,
-        replyTo: SMTP_USER,
-        subject: `[SMTP Diagnostic Test] The House of Memoir`,
-        html: `<h3>SMTP Diagnostic Test Successful</h3><p>Server timestamp: ${new Date().toISOString()}</p><p>Recipient: ${toEmail}</p>`
-      });
+      const info = await dispatchEmail(
+        toEmail,
+        `[Diagnostic Test] The House of Memoir - ${new Date().toISOString()}`,
+        `<h3>Email Diagnostic Test Successful</h3><p>Server timestamp: ${new Date().toISOString()}</p><p>Recipient: ${toEmail}</p>`
+      );
       return sendJson(res, 200, {
         success: true,
-        message: 'Test email successfully sent',
-        messageId: info.messageId,
-        to: toEmail
+        message: 'Test email successfully dispatched',
+        to: toEmail,
+        info: info
       });
     } catch (err) {
       return sendJson(res, 500, {
