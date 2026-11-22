@@ -500,7 +500,9 @@ const CHAT_KNOWLEDGE_BASE = {
   submission: "We accept memoirs, literary fiction, historical non-fiction, and poetry. Submissions are reviewed by our senior editorial board within 4-6 weeks.",
   timeline: "A typical publication cycle spans 6 to 9 months: 8-12 weeks for developmental editing & copyediting, 4 weeks for typesetting and cover design, followed by proofing and global distribution.",
   contact: "Our main editorial offices are located at 205, Shubham Business Tower, Sipri Bazar, Jhansi - 284003. You can also reach our desk at info@thehouseofmemoir.com or call +91 6386313299.",
-  instagram: "Follow our official Instagram @houseofmemoir.global at: https://www.instagram.com/houseofmemoir.global?igsi=emRqbzhvNHQ5cjJ6 for literary announcements, book releases, and behind-the-scenes craft!"
+  instagram: "Follow our official Instagram @houseofmemoir.global at: https://www.instagram.com/houseofmemoir.global?igsi=emRqbzhvNHQ5cjJ6 for literary announcements, book releases, and behind-the-scenes craft!",
+  pricing: "Our publishing packages include Collector's Hardcover ($6,800) and Sovereign Bespoke ($12,500), both offering 100% author royalties. Check our Services page or leave your email/phone for a custom quote.",
+  help: "We are here to help! You can ask about our publishing process, book editing, packages, or leave your phone/email to schedule a direct call with our senior editors."
 };
 
 function initSupportChat() {
@@ -513,16 +515,18 @@ function initSupportChat() {
 
   if (!chatBtn || !chatWindow) return;
 
-  chatBtn.addEventListener('click', () => {
+  chatBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
     chatWindow.classList.toggle('hidden');
     chatWindow.classList.toggle('flex');
     if (!chatWindow.classList.contains('hidden') && chatInput) {
-      chatInput.focus();
+      setTimeout(() => chatInput.focus(), 100);
     }
   });
 
   if (closeChat) {
-    closeChat.addEventListener('click', () => {
+    closeChat.addEventListener('click', (e) => {
+      e.stopPropagation();
       chatWindow.classList.add('hidden');
       chatWindow.classList.remove('flex');
     });
@@ -532,8 +536,8 @@ function initSupportChat() {
     if (!chatMessages) return;
     const msgDiv = document.createElement('div');
     msgDiv.className = isUser
-      ? 'bg-[#1978e5] text-white p-3 rounded-2xl rounded-tr-none text-xs ml-auto max-w-[85%] shadow-sm'
-      : 'bg-white text-gray-800 p-3 rounded-2xl rounded-tl-none border border-gray-200 text-xs mr-auto max-w-[85%] shadow-sm';
+      ? 'bg-[#1978e5] text-white p-3 rounded-2xl rounded-tr-none text-xs ml-auto max-w-[85%] shadow-sm leading-relaxed'
+      : 'bg-white text-gray-800 p-3 rounded-2xl rounded-tl-none border border-gray-200 text-xs mr-auto max-w-[85%] shadow-sm leading-relaxed';
     msgDiv.innerText = text;
     chatMessages.appendChild(msgDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -547,45 +551,58 @@ function initSupportChat() {
     appendMessage(text, true);
     chatInput.value = '';
 
-    // Record lead if phone or email is detected
-    if (text.includes('@') || text.match(/\d{7,}/)) {
-      submitHybridData('/api/chat-lead', {
-        message: text,
-        contact: text,
-        page: document.title
-      });
-    }
+    // ALWAYS save every chat inquiry to backend so admin can view it
+    const contactInfo = (text.match(/[\w.-]+@[\w.-]+\.\w+/) || text.match(/\+?\d{10,13}/) || ['Visitor'])[0];
+    submitHybridData('/api/chat-lead', {
+      message: text,
+      contact: contactInfo,
+      page: document.title
+    });
 
-    // Smart Bot response logic
+    // Smart Bot response logic with typing effect
     setTimeout(() => {
       const lower = text.toLowerCase();
-      let reply = "Thank you for reaching out to The House of Memoir. Would you like to schedule a private consultation or submit your manuscript?";
+      let reply = "Thank you for reaching out to The House of Memoir. Would you like to schedule a private consultation or submit your manuscript? You can also share your phone number or email so our editorial team can contact you.";
 
       if (lower.includes('royalt') || lower.includes('right') || lower.includes('earning') || lower.includes('percent')) {
         reply = CHAT_KNOWLEDGE_BASE.royalties;
       } else if (lower.includes('submit') || lower.includes('manuscript') || lower.includes('guideline') || lower.includes('genre')) {
         reply = CHAT_KNOWLEDGE_BASE.submission;
-      } else if (lower.includes('time') || lower.includes('how long') || lower.includes('process') || lower.includes('month')) {
+      } else if (lower.includes('time') || lower.includes('how long') || lower.includes('process') || lower.includes('month') || lower.includes('kitna time')) {
         reply = CHAT_KNOWLEDGE_BASE.timeline;
-      } else if (lower.includes('address') || lower.includes('contact') || lower.includes('email') || lower.includes('phone') || lower.includes('office')) {
+      } else if (lower.includes('address') || lower.includes('contact') || lower.includes('email') || lower.includes('phone') || lower.includes('office') || lower.includes('call') || lower.includes('number')) {
         reply = CHAT_KNOWLEDGE_BASE.contact;
       } else if (lower.includes('instagram') || lower.includes('insta') || lower.includes('ig') || lower.includes('social')) {
         reply = CHAT_KNOWLEDGE_BASE.instagram;
-      } else if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey')) {
-        reply = "Hello! Welcome to the House of Memoir editorial desk. Are you interested in submitting a manuscript or booking a consultation?";
+      } else if (lower.includes('price') || lower.includes('cost') || lower.includes('package') || lower.includes('charge') || lower.includes('rate') || lower.includes('fee') || lower.includes('kitna') || lower.includes('paisa')) {
+        reply = CHAT_KNOWLEDGE_BASE.pricing;
+      } else if (lower.includes('help') || lower.includes('madad') || lower.includes('assist') || lower.includes('support')) {
+        reply = CHAT_KNOWLEDGE_BASE.help;
+      } else if (lower.includes('publish') || lower.includes('book') || lower.includes('kitab') || lower.includes('novel')) {
+        reply = "House of Memoir provides end-to-end editorial, custom cover & interior design, global distribution (Amazon, Barnes & Noble, Ingram), and literary PR. Click 'Submit Manuscript' at the top to begin!";
+      } else if (lower.includes('appointment') || lower.includes('consult') || lower.includes('meet') || lower.includes('baat')) {
+        reply = "You can book a 1-on-1 editorial consultation directly on our Appointment page, or leave your phone/email here and our team will get in touch!";
+      } else if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey') || lower.includes('namaste')) {
+        reply = "Hello! Welcome to The House of Memoir editorial desk. How can we assist you with your manuscript or publishing journey today?";
       }
 
       appendMessage(reply, false);
-    }, 600);
+    }, 500);
   }
 
   if (chatSendBtn) {
-    chatSendBtn.addEventListener('click', handleSend);
+    chatSendBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleSend();
+    });
   }
 
   if (chatInput) {
     chatInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') handleSend();
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleSend();
+      }
     });
   }
 
@@ -593,6 +610,12 @@ function initSupportChat() {
   window.sendQuickChat = function(topic) {
     if (CHAT_KNOWLEDGE_BASE[topic]) {
       appendMessage(topic.toUpperCase() + ' QUESTION', true);
+      // Also record quick chat inquiry
+      submitHybridData('/api/chat-lead', {
+        message: 'Quick Topic: ' + topic,
+        contact: 'Visitor Click',
+        page: document.title
+      });
       setTimeout(() => {
         appendMessage(CHAT_KNOWLEDGE_BASE[topic], false);
       }, 400);
@@ -600,7 +623,6 @@ function initSupportChat() {
   };
 }
 
-// ==========================================
 // 10. Toast Notification
 // ==========================================
 function showToast(message, duration = 6000) {

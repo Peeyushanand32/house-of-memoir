@@ -1,0 +1,35 @@
+[
+  {
+    "id": "TST-02",
+    "author": "Julian Vance",
+    "book": "The Golden Lattice",
+    "titleBadge": "Author",
+    "genreTag": "Literary Fiction",
+    "rating": 5,
+    "quote": "Retaining 100% of my royalties while receiving traditional Big-5 level editorial guidance was the best decision of my writing career.",
+    "image": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
+    "featured": false
+  },
+  {
+    "id": "TST-03",
+    "author": "Dr. Marcus Thorne",
+    "book": "Echoes of the Guild",
+    "titleBadge": "Guild Award Winner",
+    "genreTag": "Non-Fiction",
+    "rating": 5,
+    "quote": "The custom leather binding and gold foil embossing blew my expectations away. It's a true heirloom.",
+    "image": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80",
+    "featured": false
+  },
+  {
+    "id": "TST-04",
+    "author": "Helena Moreau",
+    "book": "Solitude in Verse",
+    "titleBadge": "Poetry Prize Finalist",
+    "genreTag": "Poetry",
+    "rating": 5,
+    "quote": "Their PR team secured podcast features and library acquisitions that put my poetry collection into the hands of readers across three continents.",
+    "image": "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80",
+    "featured": true
+  }
+]
