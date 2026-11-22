@@ -274,14 +274,20 @@ function initPageForms() {
         submitBtn.innerText = 'Sending...';
       }
 
-      const inputs = queryForm.querySelectorAll('input, textarea');
+      const nameInput = queryForm.querySelector('input[type="text"]');
+      const emailInput = queryForm.querySelector('input[type="email"]');
+      const phoneInput = queryForm.querySelector('input[type="tel"]') || queryForm.querySelectorAll('input')[2];
+      const queryInput = queryForm.querySelector('textarea');
+
       const payload = {
-        fullName: inputs[0] ? inputs[0].value : '',
-        email: inputs[1] ? inputs[1].value : '',
-        phone: inputs[2] ? inputs[2].value : '',
-        query: inputs[3] ? inputs[3].value : '',
+        fullName: nameInput ? nameInput.value.trim() : 'Visitor',
+        email: emailInput ? emailInput.value.trim() : '',
+        phone: phoneInput ? phoneInput.value.trim() : '',
+        query: queryInput ? queryInput.value.trim() : '',
         source: 'General Query Form'
       };
+
+      console.log('[GENERAL QUERY SUBMIT]', payload);
 
       try {
         const res = await submitHybridData('/api/queries', payload);
