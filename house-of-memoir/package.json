@@ -1,0 +1,26 @@
+{
+  "name": "house-of-memoir",
+  "version": "1.0.0",
+  "description": "House of Memoir - Luxury Book Publishing Platform with Hybrid API & Submissions Management",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "publishing",
+    "book-platform",
+    "manuscript-submission",
+    "house-of-memoir"
+  ],
+  "author": "Peeyush Anand",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^18.0.10",
+    "mongodb": "^7.8.0",
+    "nodemailer": "^10.5.0"
+  }
+}

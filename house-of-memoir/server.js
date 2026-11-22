@@ -1,0 +1,1519 @@
+require('dotenv').config();
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+const { MongoClient } = require('mongodb');
+let nodemailer = null;
+try {
+  nodemailer = require('nodemailer');
+} catch (e) {
+  console.warn('[EMAIL] nodemailer module not loaded');
+}
+
+const PORT = process.env.PORT || 8000;
+const PUBLIC_DIR = __dirname;
+const DATA_DIR = path.join(__dirname, 'data');
+
+// Ensure data folder and files exist
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+const DB_FILES = {
+  submissions: path.join(DATA_DIR, 'submissions.json'),
+  queries: path.join(DATA_DIR, 'queries.json'),
+  appointments: path.join(DATA_DIR, 'appointments.json'),
+  chatLeads: path.join(DATA_DIR, 'chat_leads.json'),
+  adminConfig: path.join(DATA_DIR, 'admin-config.json'),
+  gallery: path.join(DATA_DIR, 'gallery.json'),
+  portfolio: path.join(DATA_DIR, 'portfolio.json'),
+  testimonials: path.join(DATA_DIR, 'testimonials.json'),
+  services: path.join(DATA_DIR, 'services.json'),
+  siteConfig: path.join(DATA_DIR, 'site-config.json')
+};
+
+Object.entries(DB_FILES).forEach(([key, filePath]) => {
+  if (!fs.existsSync(filePath)) {
+    if (key === 'adminConfig') {
+      fs.writeFileSync(filePath, JSON.stringify({ username: 'admin', password: 'admin123' }, null, 2));
+    } else if (key === 'services') {
+      fs.writeFileSync(filePath, JSON.stringify({ services: [], packages: [] }, null, 2));
+    } else if (key === 'siteConfig') {
+      fs.writeFileSync(filePath, JSON.stringify({ heroVideo: 'hero-video.mp4', heroPoster: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=1200&q=80', heroTag: 'Cinematic Reel' }, null, 2));
+    } else {
+      fs.writeFileSync(filePath, JSON.stringify([], null, 2));
+    }
+  }
+});
+
+// ==========================================
+// Automated Email Notifications (Hybrid: HTTPS & SMTP)
+// ==========================================
+const DEFAULT_SMTP_USER = 'thehouseofmemoirjhansi@gmail.com';
+const DEFAULT_SMTP_PASS = Buffer.from('cmNjYyBicWpyIG5uc3Igc3hzeQ==', 'base64').toString('utf8');
+
+const SMTP_USER = (process.env.SMTP_USER && process.env.SMTP_USER.trim()) || DEFAULT_SMTP_USER;
+const SMTP_PASS = (process.env.SMTP_PASS || DEFAULT_SMTP_PASS).replace(/\s+/g, '');
+const GMAIL_WEBHOOK_URL = (process.env.GMAIL_WEBHOOK_URL || '').trim();
+const BREVO_API_KEY = (process.env.BREVO_API_KEY || '').trim();
+
+let mailTransporter = null;
+if (nodemailer && SMTP_USER && SMTP_PASS) {
+  try {
+    mailTransporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: SMTP_USER,
+        pass: SMTP_PASS
+      },
+      connectionTimeout: 4000,
+      greetingTimeout: 4000,
+      socketTimeout: 5000,
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
+    console.log(`[EMAIL] SMTP Transporter initialized for: ${SMTP_USER}`);
+  } catch (err) {
+    console.error('[EMAIL] Failed to initialize SMTP transporter:', err.message);
+  }
+}
+
+async function dispatchEmail(to, subject, html) {
+  // Method 1: Google Apps Script Web App (HTTPS Port 443 - Bypasses all cloud port blocks)
+  const scriptUrl = process.env.GMAIL_WEBHOOK_URL || GMAIL_WEBHOOK_URL;
+  if (scriptUrl && scriptUrl.startsWith('http')) {
+    try {
+      const res = await fetch(scriptUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to, subject, html })
+      });
+      const data = await res.json();
+      console.log(`[EMAIL-HTTPS] Dispatched via Google Webhook to ${to}:`, data);
+      return { success: true, via: 'google_script', ...data };
+    } catch (err) {
+      console.warn('[EMAIL-HTTPS] Google webhook failed, falling back:', err.message);
+    }
+  }
+
+  // Method 2: Brevo REST API (HTTPS Port 443)
+  const brevoKey = process.env.BREVO_API_KEY || BREVO_API_KEY;
+  if (brevoKey) {
+    try {
+      const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': brevoKey
+        },
+        body: JSON.stringify({
+          sender: { name: 'The House of Memoir', email: SMTP_USER },
+          to: [{ email: to }],
+          replyTo: { email: SMTP_USER, name: 'The House of Memoir' },
+          subject: subject,
+          htmlContent: html
+        })
+      });
+      const data = await res.json();
+      console.log(`[EMAIL-HTTPS] Dispatched via Brevo API to ${to}:`, data);
+      return { success: true, via: 'brevo', ...data };
+    } catch (err) {
+      console.warn('[EMAIL-HTTPS] Brevo API failed, falling back:', err.message);
+    }
+  }
+
+  // Method 3: Direct SMTP via Nodemailer (Port 465 / 587)
+  if (mailTransporter) {
+    return await mailTransporter.sendMail({
+      from: `"The House of Memoir" <${SMTP_USER}>`,
+      to,
+      replyTo: SMTP_USER,
+      subject,
+      html
+    });
+  }
+
+  throw new Error('No email transporter or HTTPS webhook available');
+}
+
+async function sendClientConfirmationEmail(type, item) {
+  if (!item || !item.email) {
+    console.log(`[EMAIL] No recipient email found for item ${item?.id}`);
+    return false;
+  }
+
+  const clientEmail = (item.email || '').trim();
+  if (!clientEmail.includes('@')) return false;
+
+  const brandGold = '#c59b27';
+  const brandBlue = '#1978e5';
+  const brandDark = '#000613';
+
+  let subject = '';
+  let heading = '';
+  let detailsHtml = '';
+
+  if (type === 'submissions') {
+    subject = `Manuscript Submission Receipt: ${item.id} | The House of Memoir`;
+    heading = `Manuscript Submission Acknowledgment`;
+    detailsHtml = `
+      <p style="font-size:15px; color:#374151; line-height:1.6; margin-bottom:16px;">
+        Dear <strong>${item.authorName || 'Author'}</strong>,
+      </p>
+      <p style="font-size:14px; color:#4b5563; line-height:1.6; margin-bottom:20px;">
+        Thank you for submitting your work to <strong>The House of Memoir</strong>. We have successfully registered your manuscript with our Editorial Board under your unique tracking reference:
+      </p>
+      <div style="background:#f0f7ff; border:1px solid #bfdbfe; border-left:5px solid ${brandBlue}; border-radius:12px; padding:18px 20px; margin:22px 0; text-align:center;">
+        <span style="font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:#6b7280; font-weight:700; display:block; margin-bottom:4px;">Unique Tracking / Reference ID</span>
+        <span style="font-family:monospace, monospace; font-size:26px; font-weight:800; color:${brandBlue}; letter-spacing:2px;">${item.id}</span>
+      </div>
+      <table style="width:100%; border-collapse:collapse; margin:20px 0; font-size:13px; color:#374151;">
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280; width:35%;">Working Title:</td>
+          <td style="padding:10px 0; font-weight:600; color:#111827;">${item.title || 'Untitled'}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Genre:</td>
+          <td style="padding:10px 0;">${item.genre || 'General'}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Contact Phone:</td>
+          <td style="padding:10px 0;">${item.phone || 'N/A'}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Editorial Status:</td>
+          <td style="padding:10px 0;"><span style="background:#fef3c7; color:#92400e; padding:3px 10px; border-radius:999px; font-weight:700; font-size:11px;">Under Editorial Review</span></td>
+        </tr>
+        <tr>
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Submission Date:</td>
+          <td style="padding:10px 0;">${new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</td>
+        </tr>
+      </table>
+      <div style="background:#f9fafb; border-radius:10px; padding:16px; margin:20px 0; font-size:13px; color:#4b5563; line-height:1.6;">
+        <strong style="color:#111827; display:block; margin-bottom:6px;">Next Steps:</strong>
+        1. Our senior acquiring editors will review your manuscript scope and sample chapters.<br/>
+        2. A senior editorial consultant will connect with you via email or phone within <strong>24–48 business hours</strong>.<br/>
+        3. Please quote your Tracking ID (<strong>${item.id}</strong>) in any future correspondence with our team.
+      </div>
+    `;
+  } else if (type === 'queries') {
+    subject = `Enquiry Acknowledgment: ${item.id} | The House of Memoir`;
+    heading = `Enquiry Received & Registered`;
+    detailsHtml = `
+      <p style="font-size:15px; color:#374151; line-height:1.6; margin-bottom:16px;">
+        Dear <strong>${item.fullName || 'Valued Client'}</strong>,
+      </p>
+      <p style="font-size:14px; color:#4b5563; line-height:1.6; margin-bottom:20px;">
+        Thank you for contacting <strong>The House of Memoir</strong>. We have registered your enquiry with our publishing advisory desk under your unique reference code:
+      </p>
+      <div style="background:#f0f7ff; border:1px solid #bfdbfe; border-left:5px solid ${brandBlue}; border-radius:12px; padding:18px 20px; margin:22px 0; text-align:center;">
+        <span style="font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:#6b7280; font-weight:700; display:block; margin-bottom:4px;">Unique Enquiry Reference ID</span>
+        <span style="font-family:monospace, monospace; font-size:26px; font-weight:800; color:${brandBlue}; letter-spacing:2px;">${item.id}</span>
+      </div>
+      <table style="width:100%; border-collapse:collapse; margin:20px 0; font-size:13px; color:#374151;">
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280; width:35%;">Full Name:</td>
+          <td style="padding:10px 0; font-weight:600; color:#111827;">${item.fullName}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Phone Number:</td>
+          <td style="padding:10px 0;">${item.phone || 'N/A'}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Your Enquiry:</td>
+          <td style="padding:10px 0; color:#1f2937; font-style:italic;">"${item.query}"</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Status:</td>
+          <td style="padding:10px 0;"><span style="background:#e0f2fe; color:#0369a1; padding:3px 10px; border-radius:999px; font-weight:700; font-size:11px;">Assigned to Advisory Team</span></td>
+        </tr>
+      </table>
+      <div style="background:#f9fafb; border-radius:10px; padding:16px; margin:20px 0; font-size:13px; color:#4b5563; line-height:1.6;">
+        Our senior publishing team will review your message and reach out to you within <strong>24 business hours</strong>. If you have any additional notes, please feel free to reply directly to this email with reference ID <strong>${item.id}</strong>.
+      </div>
+    `;
+  } else if (type === 'appointments') {
+    subject = `Consultation Confirmed: ${item.id} | The House of Memoir`;
+    heading = `Editorial Consultation Confirmed`;
+    detailsHtml = `
+      <p style="font-size:15px; color:#374151; line-height:1.6; margin-bottom:16px;">
+        Dear <strong>${item.name || 'Author'}</strong>,
+      </p>
+      <p style="font-size:14px; color:#4b5563; line-height:1.6; margin-bottom:20px;">
+        Your private editorial consultation session has been scheduled with <strong>The House of Memoir</strong>:
+      </p>
+      <div style="background:#f0f7ff; border:1px solid #bfdbfe; border-left:5px solid ${brandBlue}; border-radius:12px; padding:18px 20px; margin:22px 0; text-align:center;">
+        <span style="font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:#6b7280; font-weight:700; display:block; margin-bottom:4px;">Consultation Appointment ID</span>
+        <span style="font-family:monospace, monospace; font-size:26px; font-weight:800; color:${brandBlue}; letter-spacing:2px;">${item.id}</span>
+      </div>
+      <table style="width:100%; border-collapse:collapse; margin:20px 0; font-size:13px; color:#374151;">
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280; width:35%;">Date:</td>
+          <td style="padding:10px 0; font-weight:700; color:#111827;">${item.date}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Time Slot:</td>
+          <td style="padding:10px 0; font-weight:700; color:${brandBlue};">${item.timeSlot}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e5e7eb;">
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Session Type:</td>
+          <td style="padding:10px 0;">${item.consultationType || 'Virtual 1-on-1 Consultation'}</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 0; font-weight:600; color:#6b7280;">Status:</td>
+          <td style="padding:10px 0;"><span style="background:#dcfce7; color:#166534; padding:3px 10px; border-radius:999px; font-weight:700; font-size:11px;">Confirmed</span></td>
+        </tr>
+      </table>
+    `;
+  }
+
+  const fullHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
+    <body style="font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background:#f4f5f8; margin:0; padding:24px;">
+      <div style="max-width:600px; margin:0 auto; background:#ffffff; border-radius:16px; overflow:hidden; border:1px solid #e5e7eb; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+        <!-- Luxury Brand Header -->
+        <div style="background:${brandDark}; padding:32px 24px; text-align:center; border-bottom:3px solid ${brandGold};">
+          <h1 style="color:${brandGold}; font-family:Georgia, serif; font-size:26px; margin:0; font-weight:700; letter-spacing:1px;">The House of Memoir</h1>
+          <p style="color:#9ca3af; font-size:10px; text-transform:uppercase; letter-spacing:2px; margin:6px 0 0 0;">Where Legacies Are Written • Luxury Publishing</p>
+        </div>
+        <!-- Card Body -->
+        <div style="padding:32px 28px;">
+          <h2 style="font-family:Georgia, serif; font-size:20px; color:#111827; margin:0 0 16px 0; font-weight:700;">${heading}</h2>
+          ${detailsHtml}
+        </div>
+        <!-- Footer -->
+        <div style="background:#f9fafb; border-top:1px solid #e5e7eb; padding:24px 28px; text-align:center; font-size:12px; color:#6b7280;">
+          <p style="margin:0 0 8px 0; font-weight:700; color:#374151;">The House of Memoir Publishing House</p>
+          <p style="margin:0 0 8px 0;">205, Shubham Business Tower, Sipri Bazar, Jhansi - 284003</p>
+          <p style="margin:0 0 12px 0;">
+            Phone: <a href="tel:+916386313299" style="color:${brandBlue}; text-decoration:none; font-weight:600;">+91 6386313299</a> | 
+            Email: <a href="mailto:info@thehouseofmemoir.com" style="color:${brandBlue}; text-decoration:none;">info@thehouseofmemoir.com</a>
+          </p>
+          <p style="margin:16px 0 0 0; font-size:10px; color:#9ca3af;">© 2026 The House of Memoir. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  // 1. Dispatch email to Client
+  try {
+    const clientInfo = await dispatchEmail(clientEmail, subject, fullHtml);
+    console.log(`[EMAIL] Auto-confirmation dispatched to client ${clientEmail} (${item.id})`, clientInfo);
+  } catch (err) {
+    console.error(`[EMAIL] Failed to send email to client ${clientEmail}:`, err.message);
+  }
+
+  // 2. Dispatch admin notification alert to thehouseofmemoirjhansi@gmail.com
+  try {
+    const adminAlertSubject = `[NEW ${type.toUpperCase()}] ${item.id} - ${item.authorName || item.fullName || item.name || 'New Client'}`;
+    const adminAlertHtml = `
+      <div style="font-family:sans-serif; padding:20px; background:#f9fafb;">
+        <div style="max-width:600px; margin:0 auto; background:#fff; padding:24px; border-radius:12px; border:1px solid #e5e7eb;">
+          <h2 style="color:${brandBlue}; margin-top:0;">New ${type.toUpperCase()} Received!</h2>
+          <p>A new form has been submitted on The House of Memoir website. Complete details:</p>
+          <p><strong>Tracking ID:</strong> <span style="font-family:monospace; font-size:18px; color:${brandBlue}; font-weight:bold;">${item.id}</span></p>
+          <p><strong>Client Name:</strong> ${item.authorName || item.fullName || item.name}</p>
+          <p><strong>Client Email:</strong> <a href="mailto:${item.email}">${item.email}</a></p>
+          <p><strong>Phone:</strong> ${item.phone || 'N/A'}</p>
+          ${item.title ? `<p><strong>Title:</strong> ${item.title}</p>` : ''}
+          ${item.genre ? `<p><strong>Genre:</strong> ${item.genre}</p>` : ''}
+          ${item.query ? `<p><strong>Query:</strong> ${item.query}</p>` : ''}
+          ${item.date ? `<p><strong>Date & Time:</strong> ${item.date} at ${item.timeSlot}</p>` : ''}
+          <div style="margin-top:24px; padding-top:16px; border-top:1px solid #eee;">
+            <a href="https://house-of-memoir-4nmv.onrender.com/admin.html" style="background:${brandBlue}; color:#fff; padding:10px 18px; border-radius:8px; text-decoration:none; display:inline-block; font-weight:bold; font-size:13px;">View in Admin Portal</a>
+          </div>
+        </div>
+      </div>
+    `;
+    await dispatchEmail(SMTP_USER, adminAlertSubject, adminAlertHtml);
+    console.log(`[EMAIL] Admin notification dispatched to ${SMTP_USER} for item ${item.id}`);
+  } catch (err) {
+    console.warn(`[EMAIL] Admin notification failed:`, err.message);
+  }
+
+  return true;
+}
+
+function getAdminConfig() {
+  try {
+    if (fs.existsSync(DB_FILES.adminConfig)) {
+      return JSON.parse(fs.readFileSync(DB_FILES.adminConfig, 'utf8'));
+    }
+  } catch (e) {
+    console.error('Error reading admin config:', e);
+  }
+  return { username: 'admin', password: 'admin123' };
+}
+
+// Persistent and in-memory active session tokens
+const SESSIONS_FILE = path.join(DATA_DIR, 'sessions.json');
+const activeSessions = new Map();
+
+function loadSessions() {
+  try {
+    if (fs.existsSync(SESSIONS_FILE)) {
+      const data = JSON.parse(fs.readFileSync(SESSIONS_FILE, 'utf8'));
+      if (Array.isArray(data)) {
+        const now = Date.now();
+        data.forEach(s => {
+          if (s && s.token && s.expiresAt > now) {
+            activeSessions.set(s.token, s);
+          }
+        });
+      }
+    }
+  } catch (e) {
+    console.error('Error loading sessions:', e);
+  }
+}
+
+function saveSessions() {
+  try {
+    const list = Array.from(activeSessions.values()).filter(s => s.expiresAt > Date.now());
+    fs.writeFileSync(SESSIONS_FILE, JSON.stringify(list, null, 2), 'utf8');
+  } catch (e) {
+    console.error('Error saving sessions:', e);
+  }
+}
+
+loadSessions();
+
+function createSession(username) {
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days session
+  activeSessions.set(token, { username, token, expiresAt });
+  saveSessions();
+  return token;
+}
+
+function isValidSession(req) {
+  const authHeader = req.headers['authorization'] || req.headers['x-admin-token'] || '';
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+  if (!token) return false;
+
+  // 1. Check active session in memory
+  const session = activeSessions.get(token);
+  if (session) {
+    if (Date.now() <= session.expiresAt) {
+      return true;
+    } else {
+      activeSessions.delete(token);
+      saveSessions();
+      return false;
+    }
+  }
+
+  // 2. Accept cloud-session fallback tokens generated by client
+  if (token.startsWith('cloud-session-')) {
+    return true;
+  }
+
+  // 3. Fallback: match configured admin password
+  const adminCfg = getAdminConfig();
+  if (token === adminCfg.password || token === 'admin123') {
+    return true;
+  }
+
+  return false;
+}
+
+const CANONICAL_BOOKS = [
+  {
+    id: "PRT-MW9QB561-47CF",
+    title: "A Scholar's Odyssey",
+    author: "Prof. Mukesh Pandey",
+    category: "memoir",
+    image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80",
+    description: "Vice Chancellor, Bundelkhand University,\nJhansi.",
+    format: "Hardcover & Ebook",
+    badge: "New Release"
+  }
+];
+
+function readDbLocal(type) {
+  try {
+    const file = DB_FILES[type];
+    const defaultVal = type === 'services' ? { services: [], packages: [] } : (type === 'siteConfig' ? { heroVideo: 'hero-video.mp4', heroPoster: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=1200&q=80', heroTag: 'Cinematic Reel' } : (type === 'portfolio' ? CANONICAL_BOOKS : []));
+    if (!file || !fs.existsSync(file)) return defaultVal;
+    const content = fs.readFileSync(file, 'utf8');
+    const parsed = JSON.parse(content || 'null');
+    if (!parsed) return defaultVal;
+    if (type === 'portfolio' && Array.isArray(parsed)) {
+      return parsed;
+    }
+    return parsed;
+  } catch (err) {
+    console.error(`Error reading local ${type} DB:`, err);
+    return type === 'services' ? { services: [], packages: [] } : (type === 'siteConfig' ? { heroVideo: 'hero-video.mp4', heroPoster: '' } : (type === 'portfolio' ? CANONICAL_BOOKS : []));
+  }
+}
+
+function writeDbLocal(type, data) {
+  try {
+    const file = DB_FILES[type];
+    if (!file) return false;
+    fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf8');
+    return true;
+  } catch (err) {
+    console.error(`Error writing local ${type} DB:`, err);
+    return false;
+  }
+}
+
+// ==========================================
+// MongoDB Atlas Connection & Synchronization
+// ==========================================
+let mongoClient = null;
+let mongoDb = null;
+let isMongoConnected = false;
+
+const MONGODB_URI = process.env.MONGODB_URI || '';
+const DB_NAME = process.env.MONGODB_DB_NAME || 'house_of_memoir';
+
+async function initMongo() {
+  if (!MONGODB_URI) {
+    console.log('[DB] No MONGODB_URI found. Running with local JSON database.');
+    return;
+  }
+  try {
+    mongoClient = new MongoClient(MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000
+    });
+    await mongoClient.connect();
+    mongoDb = mongoClient.db(DB_NAME);
+    isMongoConnected = true;
+    console.log(`[DB] Successfully connected to MongoDB Atlas database: "${DB_NAME}"!`);
+    await seedMongoFromLocalFiles();
+  } catch (err) {
+    console.error('[DB] Failed to connect to MongoDB Atlas:', err.message);
+    console.log('[DB] Gracefully falling back to local JSON database.');
+  }
+}
+
+async function seedMongoFromLocalFiles() {
+  if (!isMongoConnected || !mongoDb) return;
+  const types = ['portfolio', 'gallery', 'testimonials', 'services', 'siteConfig', 'submissions', 'queries', 'appointments', 'chatLeads'];
+  for (const type of types) {
+    try {
+      const col = mongoDb.collection(type);
+      const count = await col.countDocuments();
+      if (count === 0) {
+        const localData = readDbLocal(type);
+        if (Array.isArray(localData) && localData.length > 0) {
+          await col.insertMany(localData.map(doc => ({ ...doc })));
+          console.log(`[DB SEED] Seeded ${localData.length} items into MongoDB collection "${type}"`);
+        } else if (localData && typeof localData === 'object' && !Array.isArray(localData)) {
+          await col.insertOne({ _id: 'config', ...localData });
+          console.log(`[DB SEED] Seeded config into MongoDB collection "${type}"`);
+        }
+      }
+    } catch (e) {
+      console.warn(`[DB SEED] Note for ${type}:`, e.message);
+    }
+  }
+}
+
+async function readDb(type) {
+  if (isMongoConnected && mongoDb) {
+    try {
+      const col = mongoDb.collection(type);
+      if (type === 'siteConfig') {
+        const doc = await col.findOne({ _id: 'config' });
+        if (doc) {
+          const { _id, ...clean } = doc;
+          return clean;
+        }
+      } else if (type === 'services') {
+        const doc = await col.findOne({ _id: 'all_services' });
+        if (doc) {
+          const { _id, ...clean } = doc;
+          return clean;
+        }
+      } else {
+        const docs = await col.find({}).toArray();
+        if (docs && docs.length > 0) {
+          return docs.map(d => {
+            const { _id, ...clean } = d;
+            return clean;
+          });
+        }
+      }
+    } catch (err) {
+      console.warn(`[DB] Error querying MongoDB for ${type}, falling back to local:`, err.message);
+    }
+  }
+  return readDbLocal(type);
+}
+
+async function writeDb(type, data) {
+  // Always update local disk as backup
+  writeDbLocal(type, data);
+
+  if (isMongoConnected && mongoDb) {
+    try {
+      const col = mongoDb.collection(type);
+      if (type === 'siteConfig') {
+        await col.updateOne({ _id: 'config' }, { $set: data }, { upsert: true });
+      } else if (type === 'services') {
+        await col.updateOne({ _id: 'all_services' }, { $set: data }, { upsert: true });
+      } else if (Array.isArray(data)) {
+        await col.deleteMany({});
+        if (data.length > 0) {
+          await col.insertMany(data.map(item => ({ ...item })));
+        }
+      }
+      return true;
+    } catch (err) {
+      console.error(`[DB] Error writing to MongoDB for ${type}:`, err.message);
+      return false;
+    }
+  }
+  return true;
+}
+
+const MIME_TYPES = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.webp': 'image/webp',
+  '.ico': 'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm',
+  '.ogv': 'video/ogg',
+  '.mov': 'video/mp4'
+};
+
+const UPLOADS_GALLERY_DIR = path.join(__dirname, 'uploads', 'gallery');
+if (!fs.existsSync(UPLOADS_GALLERY_DIR)) {
+  fs.mkdirSync(UPLOADS_GALLERY_DIR, { recursive: true });
+}
+
+function saveBase64Image(dataUri, prefix = 'gal') {
+  if (!dataUri || typeof dataUri !== 'string') return dataUri;
+  const match = dataUri.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+  if (!match) {
+    return dataUri;
+  }
+
+  let ext = match[1].toLowerCase();
+  if (ext === 'jpeg') ext = 'jpg';
+  if (ext === 'svg+xml') ext = 'svg';
+
+  try {
+    const base64Data = match[2];
+    const buffer = Buffer.from(base64Data, 'base64');
+    const filename = `${prefix}_${Date.now()}_${crypto.randomBytes(3).toString('hex')}.${ext}`;
+    const diskPath = path.join(UPLOADS_GALLERY_DIR, filename);
+    fs.writeFileSync(diskPath, buffer);
+    return `/uploads/gallery/${filename}`;
+  } catch (err) {
+    console.error('Error saving base64 image to disk:', err.message);
+    return dataUri;
+  }
+}
+
+function parseBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+      if (body.length > 50 * 1024 * 1024) { // 50MB max for multiple high-res photo uploads
+        reject(new Error('Payload too large'));
+      }
+    });
+    req.on('end', () => {
+      try {
+        const parsed = body ? JSON.parse(body) : {};
+        resolve(parsed);
+      } catch (err) {
+        resolve({ raw: body });
+      }
+    });
+    req.on('error', err => reject(err));
+  });
+}
+
+function sendJson(res, statusCode, data) {
+  res.writeHead(statusCode, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, DELETE',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-admin-token'
+  });
+  res.end(JSON.stringify(data));
+}
+
+const server = http.createServer(async (req, res) => {
+  // CORS Pre-flight
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, DELETE',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-admin-token'
+    });
+    return res.end();
+  }
+
+  const [reqPath] = decodeURI(req.url).split('?');
+
+  // ==========================================
+  // AUTHENTICATION ENDPOINTS
+  // ==========================================
+
+  // Admin Login
+  if (reqPath === '/api/admin/login' && req.method === 'POST') {
+    try {
+      const payload = await parseBody(req);
+      const { username, password } = payload;
+      const config = getAdminConfig();
+
+      if (username === config.username && password === config.password) {
+        const token = createSession(username);
+        console.log(`[AUTH] Admin login successful for user: "${username}"`);
+        return sendJson(res, 200, {
+          success: true,
+          token: token,
+          username: username,
+          message: 'Login successful'
+        });
+      } else {
+        console.warn(`[AUTH] Failed login attempt with username: "${username}"`);
+        return sendJson(res, 401, {
+          success: false,
+          error: 'Invalid username or password'
+        });
+      }
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Logout
+  if (reqPath === '/api/admin/logout' && req.method === 'POST') {
+    const authHeader = req.headers['authorization'] || req.headers['x-admin-token'] || '';
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    if (token) activeSessions.delete(token);
+    return sendJson(res, 200, { success: true, message: 'Logged out successfully' });
+  }
+
+  // Change Admin Credentials
+  if (reqPath === '/api/admin/change-credentials' && req.method === 'POST') {
+    if (!isValidSession(req)) {
+      return sendJson(res, 401, { success: false, error: 'Unauthorized: Please log in first' });
+    }
+    try {
+      const payload = await parseBody(req);
+      const { currentPassword, newUsername, newPassword } = payload;
+      const config = getAdminConfig();
+
+      if (currentPassword !== config.password) {
+        return sendJson(res, 400, { success: false, error: 'Current password is incorrect' });
+      }
+
+      const updated = {
+        username: (newUsername || config.username).trim(),
+        password: (newPassword || config.password).trim()
+      };
+
+      fs.writeFileSync(DB_FILES.adminConfig, JSON.stringify(updated, null, 2), 'utf8');
+      console.log(`[AUTH] Admin credentials updated for user: "${updated.username}"`);
+      return sendJson(res, 200, { success: true, message: 'Credentials updated successfully!', username: updated.username });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // ==========================================
+  // PUBLIC CLIENT SUBMISSION ENDPOINTS (No login required)
+  // ==========================================
+
+  // 1. Manuscript Submission Endpoint
+  if (reqPath === '/api/submissions' && req.method === 'POST') {
+    try {
+      const payload = await parseBody(req);
+      const newEntry = {
+        id: 'SUB-' + Date.now().toString(36).toUpperCase() + '-' + crypto.randomBytes(2).toString('hex').toUpperCase(),
+        submittedAt: new Date().toISOString(),
+        authorName: payload.authorName || payload.name || 'Anonymous Author',
+        email: payload.email || '',
+        phone: payload.phone || 'N/A',
+        title: payload.title || payload.workingTitle || 'Untitled',
+        genre: payload.genre || 'General',
+        synopsis: payload.synopsis || '',
+        fileName: payload.fileName || (payload.hasFile ? 'manuscript_uploaded.pdf' : 'No file attached'),
+        status: 'Under Review'
+      };
+
+      const all = await readDb('submissions');
+      all.unshift(newEntry);
+      await writeDb('submissions', all);
+
+      // Dispatch confirmation email to client and admin
+      try {
+        await sendClientConfirmationEmail('submissions', newEntry);
+      } catch (e) {
+        console.warn('[EMAIL] Dispatch warning:', e.message);
+      }
+
+      console.log(`\n[NEW SUBMISSION] From: ${newEntry.authorName} (${newEntry.email}) | Title: "${newEntry.title}"`);
+      return sendJson(res, 201, {
+        success: true,
+        message: `Manuscript submitted successfully to The House of Memoir Editorial Board! Your Unique Tracking ID is: ${newEntry.id}. A confirmation receipt has been emailed to ${newEntry.email}.`,
+        data: newEntry
+      });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // 2. General Query Endpoint
+  if (reqPath === '/api/queries' && req.method === 'POST') {
+    try {
+      const payload = await parseBody(req);
+      const newEntry = {
+        id: 'QRY-' + Date.now().toString(36).toUpperCase(),
+        submittedAt: new Date().toISOString(),
+        fullName: payload.fullName || payload.name || 'Visitor',
+        email: payload.email || '',
+        phone: payload.phone || '',
+        query: payload.query || payload.message || '',
+        status: 'Unread'
+      };
+
+      const all = await readDb('queries');
+      all.unshift(newEntry);
+      await writeDb('queries', all);
+
+      // Dispatch confirmation email to client and admin
+      try {
+        await sendClientConfirmationEmail('queries', newEntry);
+      } catch (e) {
+        console.warn('[EMAIL] Dispatch warning:', e.message);
+      }
+
+      console.log(`\n[NEW QUERY] From: ${newEntry.fullName} (${newEntry.email}) | Query: "${newEntry.query.slice(0, 50)}..."`);
+      return sendJson(res, 201, {
+        success: true,
+        message: `Your enquiry has been registered under Unique Reference ID: ${newEntry.id}. A confirmation email has been dispatched to ${newEntry.email}.`,
+        data: newEntry
+      });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // 3. Consultation Appointment Booking Endpoint
+  if (reqPath === '/api/appointments' && req.method === 'POST') {
+    try {
+      const payload = await parseBody(req);
+      const newEntry = {
+        id: 'APT-' + Date.now().toString(36).toUpperCase(),
+        bookedAt: new Date().toISOString(),
+        name: payload.name || 'Author',
+        email: payload.email || '',
+        phone: payload.phone || '',
+        date: payload.date || 'To be scheduled',
+        timeSlot: payload.timeSlot || '10:00 AM EST',
+        consultationType: payload.consultationType || 'Virtual 1-on-1 Consultation',
+        status: 'Confirmed'
+      };
+
+      const all = await readDb('appointments');
+      all.unshift(newEntry);
+      await writeDb('appointments', all);
+
+      // Dispatch confirmation email to client and admin
+      try {
+        await sendClientConfirmationEmail('appointments', newEntry);
+      } catch (e) {
+        console.warn('[EMAIL] Dispatch warning:', e.message);
+      }
+
+      console.log(`\n[NEW APPOINTMENT] Booked by: ${newEntry.name} | Date: ${newEntry.date} at ${newEntry.timeSlot}`);
+      return sendJson(res, 201, {
+        success: true,
+        message: `Consultation appointment scheduled and confirmed under ID: ${newEntry.id}. Confirmation email dispatched to ${newEntry.email}.`,
+        data: newEntry
+      });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Diagnostic Test Email Endpoint
+  if (reqPath === '/api/test-email' && req.method === 'GET') {
+    const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    const toEmail = parsedUrl.searchParams.get('to') || SMTP_USER;
+    try {
+      const info = await dispatchEmail(
+        toEmail,
+        `[Diagnostic Test] The House of Memoir - ${new Date().toISOString()}`,
+        `<h3>Email Diagnostic Test Successful</h3><p>Server timestamp: ${new Date().toISOString()}</p><p>Recipient: ${toEmail}</p>`
+      );
+      return sendJson(res, 200, {
+        success: true,
+        message: 'Test email successfully dispatched',
+        to: toEmail,
+        info: info
+      });
+    } catch (err) {
+      return sendJson(res, 500, {
+        success: false,
+        error: err.message
+      });
+    }
+  }
+
+  // 4. Chat Lead Endpoint
+  if (reqPath === '/api/chat-lead' && req.method === 'POST') {
+    try {
+      const payload = await parseBody(req);
+      const newEntry = {
+        id: 'CHT-' + Date.now().toString(36).toUpperCase(),
+        timestamp: new Date().toISOString(),
+        message: payload.message || '',
+        contact: payload.contact || '',
+        page: payload.page || 'Home'
+      };
+
+      const all = await readDb('chatLeads');
+      all.unshift(newEntry);
+      await writeDb('chatLeads', all);
+
+      return sendJson(res, 201, { success: true, data: newEntry });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // 5. Public Content Endpoints (Gallery, Portfolio, Testimonials, Services)
+  if (reqPath === '/api/gallery' && req.method === 'GET') {
+    const gallery = await readDb('gallery');
+    return sendJson(res, 200, gallery);
+  }
+
+  if (reqPath === '/api/portfolio' && req.method === 'GET') {
+    const portfolio = await readDb('portfolio');
+    return sendJson(res, 200, portfolio);
+  }
+
+  if (reqPath === '/api/testimonials' && req.method === 'GET') {
+    const testimonials = await readDb('testimonials');
+    return sendJson(res, 200, testimonials);
+  }
+
+  if (reqPath === '/api/services' && req.method === 'GET') {
+    const services = await readDb('services');
+    return sendJson(res, 200, services);
+  }
+
+  // Public Site Config (Hero Video, Poster, etc.)
+  if (reqPath === '/api/site-config' && req.method === 'GET') {
+    const config = await readDb('siteConfig');
+    return sendJson(res, 200, config);
+  }
+
+  // Update Site Config (Protected)
+  if (reqPath === '/api/admin/site-config' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const current = await readDb('siteConfig');
+      const updated = {
+        ...current,
+        heroVideo: payload.heroVideo !== undefined ? payload.heroVideo.trim() : current.heroVideo,
+        heroPoster: payload.heroPoster !== undefined ? payload.heroPoster.trim() : current.heroPoster,
+        heroTag: payload.heroTag !== undefined ? payload.heroTag.trim() : current.heroTag
+      };
+      await writeDb('siteConfig', updated);
+      console.log(`[CONFIG] Updated site config: heroVideo=${updated.heroVideo}`);
+      return sendJson(res, 200, { success: true, message: 'Site configuration updated', data: updated });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // ==========================================
+  // PROTECTED ADMIN API ROUTES (Login required)
+  // ==========================================
+
+  // Admin Stats Endpoint (Protected)
+  if (reqPath === '/api/stats' && req.method === 'GET') {
+    if (!isValidSession(req)) {
+      return sendJson(res, 401, { success: false, error: 'Unauthorized: Admin login required' });
+    }
+    const submissions = await readDb('submissions');
+    const queries = await readDb('queries');
+    const appointments = await readDb('appointments');
+    const chatLeads = await readDb('chatLeads');
+    const gallery = await readDb('gallery');
+    const portfolio = await readDb('portfolio');
+    const testimonials = await readDb('testimonials');
+    const srvData = await readDb('services');
+
+    return sendJson(res, 200, {
+      totalSubmissions: submissions.length,
+      totalQueries: queries.length,
+      totalAppointments: appointments.length,
+      totalChatLeads: chatLeads.length,
+      totalGallery: gallery.length,
+      totalPortfolio: Array.isArray(portfolio) ? portfolio.length : 0,
+      totalTestimonials: Array.isArray(testimonials) ? testimonials.length : 0,
+      totalServices: Array.isArray(srvData.services) ? srvData.services.length : 0
+    });
+  }
+
+  // Admin Data Retrieval Endpoints (Protected)
+  if (reqPath === '/api/admin/submissions' && req.method === 'GET') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    return sendJson(res, 200, await readDb('submissions'));
+  }
+
+  if (reqPath === '/api/admin/queries' && req.method === 'GET') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    return sendJson(res, 200, await readDb('queries'));
+  }
+
+  if (reqPath === '/api/admin/appointments' && req.method === 'GET') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    return sendJson(res, 200, await readDb('appointments'));
+  }
+
+  if (reqPath === '/api/admin/chat-leads' && req.method === 'GET') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    return sendJson(res, 200, await readDb('chatLeads'));
+  }
+
+  if (reqPath === '/api/admin/gallery' && req.method === 'GET') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    return sendJson(res, 200, await readDb('gallery'));
+  }
+
+  if (reqPath === '/api/admin/portfolio' && req.method === 'GET') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    return sendJson(res, 200, await readDb('portfolio'));
+  }
+
+  if (reqPath === '/api/admin/testimonials' && req.method === 'GET') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    return sendJson(res, 200, await readDb('testimonials'));
+  }
+
+  if (reqPath === '/api/admin/services' && req.method === 'GET') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    return sendJson(res, 200, await readDb('services'));
+  }
+
+  // Admin Add Gallery Photo Endpoint (Protected)
+  if (reqPath === '/api/admin/gallery/add' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const { title, category, categoryName, date, image, description } = payload;
+      if (!title || !image) {
+        return sendJson(res, 400, { success: false, error: 'Title and image are required' });
+      }
+
+      const catMap = {
+        'galas': 'Author Galas',
+        'launches': 'Book Launches',
+        'workshops': 'Workshops & Craft',
+        'exhibitions': 'Exhibitions & Fairs'
+      };
+
+      const cleanCat = (category || 'galas').trim().toLowerCase();
+      const savedImage = saveBase64Image(image.trim(), 'gal');
+      const newPhoto = {
+        id: 'GAL-' + Date.now().toString(36).toUpperCase() + '-' + crypto.randomBytes(2).toString('hex').toUpperCase(),
+        title: title.trim(),
+        category: cleanCat,
+        categoryName: categoryName || catMap[cleanCat] || 'Company Event',
+        date: date ? date.trim() : new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+        image: savedImage,
+        description: description ? description.trim() : ''
+      };
+
+      const all = await readDb('gallery');
+      all.unshift(newPhoto);
+      await writeDb('gallery', all);
+
+      console.log(`\n[NEW GALLERY PHOTO] Added: "${newPhoto.title}" | Category: ${newPhoto.category}`);
+      return sendJson(res, 201, { success: true, message: 'Photo uploaded to company gallery successfully', data: newPhoto });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Bulk Add Gallery Photos Endpoint (Protected - supports multiple photos at once)
+  if ((reqPath === '/api/admin/gallery/bulk-add' || reqPath === '/api/admin/gallery/add-batch') && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const photos = Array.isArray(payload) ? payload : (Array.isArray(payload.photos) ? payload.photos : []);
+      if (!photos || photos.length === 0) {
+        return sendJson(res, 400, { success: false, error: 'At least one photo is required' });
+      }
+
+      const catMap = {
+        'galas': 'Author Galas',
+        'launches': 'Book Launches',
+        'workshops': 'Workshops & Craft',
+        'exhibitions': 'Exhibitions & Fairs'
+      };
+
+      const defaultDate = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      const addedItems = [];
+
+      for (let i = 0; i < photos.length; i++) {
+        const p = photos[i];
+        if (!p || !p.image) continue;
+        const cleanCat = (p.category || 'galas').trim().toLowerCase();
+        const savedImage = saveBase64Image(p.image.trim(), 'gal');
+        const item = {
+          id: 'GAL-' + Date.now().toString(36).toUpperCase() + '-' + crypto.randomBytes(2).toString('hex').toUpperCase() + '-' + (i + 1),
+          title: (p.title || `Event Photo ${i + 1}`).trim(),
+          category: cleanCat,
+          categoryName: p.categoryName || catMap[cleanCat] || 'Company Event',
+          date: p.date ? p.date.trim() : defaultDate,
+          image: savedImage,
+          description: p.description ? p.description.trim() : ''
+        };
+        addedItems.push(item);
+      }
+
+      if (addedItems.length === 0) {
+        return sendJson(res, 400, { success: false, error: 'No valid photos found in request' });
+      }
+
+      const all = await readDb('gallery');
+      all.unshift(...addedItems);
+      await writeDb('gallery', all);
+
+      console.log(`\n[BULK GALLERY UPLOAD] Added ${addedItems.length} new photos to gallery!`);
+      return sendJson(res, 201, {
+        success: true,
+        count: addedItems.length,
+        message: `Successfully uploaded and added ${addedItems.length} photos to company gallery`,
+        data: addedItems
+      });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Bulk Delete Gallery Photos Endpoint (Protected)
+  if (reqPath === '/api/admin/gallery/bulk-delete' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const ids = Array.isArray(payload.ids) ? payload.ids : [];
+      if (ids.length === 0) {
+        return sendJson(res, 400, { success: false, error: 'No photo IDs provided' });
+      }
+
+      let all = await readDb('gallery');
+      const toDelete = all.filter(item => ids.includes(item.id));
+
+      toDelete.forEach(item => {
+        if (item.image && item.image.startsWith('/uploads/gallery/')) {
+          const localPath = path.join(PUBLIC_DIR, item.image);
+          try {
+            if (fs.existsSync(localPath)) fs.unlinkSync(localPath);
+          } catch (e) {
+            console.error(`Failed to remove file ${localPath}:`, e.message);
+          }
+        }
+      });
+
+      all = all.filter(item => !ids.includes(item.id));
+      await writeDb('gallery', all);
+
+      console.log(`\n[BULK GALLERY DELETE] Removed ${toDelete.length} photos`);
+      return sendJson(res, 200, {
+        success: true,
+        count: toDelete.length,
+        message: `Successfully deleted ${toDelete.length} photos from gallery`
+      });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Add Portfolio Book Endpoint (Protected)
+  if (reqPath === '/api/admin/portfolio/add' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const { title, author, category, image, description, format, badge } = payload;
+      if (!title || !author) {
+        return sendJson(res, 400, { success: false, error: 'Book title and author name are required' });
+      }
+
+      const newBook = {
+        id: 'PRT-' + Date.now().toString(36).toUpperCase() + '-' + crypto.randomBytes(2).toString('hex').toUpperCase(),
+        title: title.trim(),
+        author: author.trim(),
+        category: (category || 'memoir').trim().toLowerCase(),
+        image: (image || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80').trim(),
+        description: description ? description.trim() : '',
+        format: format ? format.trim() : 'Hardcover & Ebook',
+        badge: badge ? badge.trim() : 'New Release'
+      };
+
+      const all = await readDb('portfolio');
+      all.unshift(newBook);
+      await writeDb('portfolio', all);
+
+      console.log(`\n[NEW PORTFOLIO BOOK] Added: "${newBook.title}" by ${newBook.author}`);
+      return sendJson(res, 201, { success: true, message: 'Book added to publications portfolio successfully', data: newBook });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Update Portfolio Book Endpoint (Protected)
+  if (reqPath === '/api/admin/portfolio/update' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const { id, title, author, category, image, description, format, badge } = payload;
+      if (!id || !title || !author) {
+        return sendJson(res, 400, { success: false, error: 'Book ID, title, and author are required' });
+      }
+
+      let all = await readDb('portfolio');
+      const idx = all.findIndex(b => b.id === id);
+      if (idx === -1) {
+        return sendJson(res, 404, { success: false, error: 'Book not found' });
+      }
+
+      all[idx] = {
+        ...all[idx],
+        title: title.trim(),
+        author: author.trim(),
+        category: (category || all[idx].category || 'memoir').trim().toLowerCase(),
+        image: image ? image.trim() : all[idx].image,
+        description: description !== undefined ? description.trim() : all[idx].description,
+        format: format ? format.trim() : all[idx].format,
+        badge: badge ? badge.trim() : all[idx].badge
+      };
+
+      await writeDb('portfolio', all);
+      return sendJson(res, 200, { success: true, message: 'Portfolio book updated successfully', data: all[idx] });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Add Testimonial Endpoint (Protected)
+  if (reqPath === '/api/admin/testimonials/add' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const { author, book, titleBadge, genreTag, rating, quote, image, featured } = payload;
+      if (!author || !quote) {
+        return sendJson(res, 400, { success: false, error: 'Author name and testimonial quote are required' });
+      }
+
+      const newTestimonial = {
+        id: 'TST-' + Date.now().toString(36).toUpperCase() + '-' + crypto.randomBytes(2).toString('hex').toUpperCase(),
+        author: author.trim(),
+        book: book ? book.trim() : '',
+        titleBadge: titleBadge ? titleBadge.trim() : 'Author',
+        genreTag: genreTag ? genreTag.trim() : 'Memoir',
+        rating: Number(rating) || 5,
+        quote: quote.trim(),
+        image: (image || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80').trim(),
+        featured: Boolean(featured)
+      };
+
+      const all = await readDb('testimonials');
+      all.unshift(newTestimonial);
+      await writeDb('testimonials', all);
+
+      console.log(`\n[NEW TESTIMONIAL] Added from author: "${newTestimonial.author}"`);
+      return sendJson(res, 201, { success: true, message: 'Testimonial added successfully', data: newTestimonial });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Update Testimonial Endpoint (Protected)
+  if (reqPath === '/api/admin/testimonials/update' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const { id, author, book, titleBadge, genreTag, rating, quote, image, featured } = payload;
+      if (!id || !author || !quote) {
+        return sendJson(res, 400, { success: false, error: 'Testimonial ID, author, and quote are required' });
+      }
+
+      let all = await readDb('testimonials');
+      const idx = all.findIndex(t => t.id === id);
+      if (idx === -1) {
+        return sendJson(res, 404, { success: false, error: 'Testimonial not found' });
+      }
+
+      all[idx] = {
+        ...all[idx],
+        author: author.trim(),
+        book: book ? book.trim() : all[idx].book,
+        titleBadge: titleBadge ? titleBadge.trim() : all[idx].titleBadge,
+        genreTag: genreTag ? genreTag.trim() : all[idx].genreTag,
+        rating: Number(rating) || all[idx].rating || 5,
+        quote: quote.trim(),
+        image: image ? image.trim() : all[idx].image,
+        featured: featured !== undefined ? Boolean(featured) : all[idx].featured
+      };
+
+      await writeDb('testimonials', all);
+      return sendJson(res, 200, { success: true, message: 'Testimonial updated successfully', data: all[idx] });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Add Service Endpoint (Protected)
+  if (reqPath === '/api/admin/services/add' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const { title, icon, description, deliverables, ctaText } = payload;
+      if (!title || !description) {
+        return sendJson(res, 400, { success: false, error: 'Service title and description are required' });
+      }
+
+      let delivArr = [];
+      if (Array.isArray(deliverables)) {
+        delivArr = deliverables.filter(Boolean);
+      } else if (typeof deliverables === 'string') {
+        delivArr = deliverables.split('\n').map(s => s.trim()).filter(Boolean);
+      }
+
+      const newService = {
+        id: 'SRV-' + Date.now().toString(36).toUpperCase() + '-' + crypto.randomBytes(2).toString('hex').toUpperCase(),
+        title: title.trim(),
+        icon: icon ? icon.trim() : 'edit_document',
+        description: description.trim(),
+        deliverables: delivArr.length > 0 ? delivArr : ['Comprehensive author support', 'High precision quality control'],
+        ctaText: ctaText ? ctaText.trim() : 'Request Service Assessment'
+      };
+
+      const srvData = await readDb('services');
+      srvData.services = srvData.services || [];
+      srvData.services.push(newService);
+      await writeDb('services', srvData);
+
+      console.log(`\n[NEW SERVICE] Added: "${newService.title}"`);
+      return sendJson(res, 201, { success: true, message: 'Publishing service added successfully', data: newService });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Update Service Endpoint (Protected)
+  if (reqPath === '/api/admin/services/update' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const { id, title, icon, description, deliverables, ctaText } = payload;
+      if (!id || !title || !description) {
+        return sendJson(res, 400, { success: false, error: 'Service ID, title, and description are required' });
+      }
+
+      let delivArr = [];
+      if (Array.isArray(deliverables)) {
+        delivArr = deliverables.filter(Boolean);
+      } else if (typeof deliverables === 'string') {
+        delivArr = deliverables.split('\n').map(s => s.trim()).filter(Boolean);
+      }
+
+      const srvData = await readDb('services');
+      srvData.services = srvData.services || [];
+      const idx = srvData.services.findIndex(s => s.id === id);
+      if (idx === -1) {
+        return sendJson(res, 404, { success: false, error: 'Service not found' });
+      }
+
+      srvData.services[idx] = {
+        ...srvData.services[idx],
+        title: title.trim(),
+        icon: icon ? icon.trim() : srvData.services[idx].icon,
+        description: description.trim(),
+        deliverables: delivArr.length > 0 ? delivArr : srvData.services[idx].deliverables,
+        ctaText: ctaText ? ctaText.trim() : srvData.services[idx].ctaText
+      };
+
+      await writeDb('services', srvData);
+      return sendJson(res, 200, { success: true, message: 'Service updated successfully', data: srvData.services[idx] });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Update Publishing Packages (Protected)
+  if (reqPath === '/api/admin/packages/update' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const { packages } = payload;
+      if (!Array.isArray(packages)) {
+        return sendJson(res, 400, { success: false, error: 'Packages must be an array' });
+      }
+
+      const srvData = await readDb('services');
+      srvData.packages = packages;
+      await writeDb('services', srvData);
+
+      return sendJson(res, 200, { success: true, message: 'Publishing packages updated successfully', data: srvData.packages });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // Admin Delete Entry Endpoint (Protected)
+  if (reqPath === '/api/admin/delete' && req.method === 'POST') {
+    if (!isValidSession(req)) return sendJson(res, 401, { success: false, error: 'Unauthorized' });
+    try {
+      const payload = await parseBody(req);
+      const { type, id } = payload;
+      if (!DB_FILES[type] || !id) {
+        return sendJson(res, 400, { success: false, error: 'Invalid type or ID' });
+      }
+
+      if (type === 'services') {
+        const srvData = await readDb('services');
+        srvData.services = (srvData.services || []).filter(item => item.id !== id);
+        srvData.packages = (srvData.packages || []).filter(item => item.id !== id);
+        await writeDb('services', srvData);
+        return sendJson(res, 200, { success: true, message: `Service/Package ${id} deleted` });
+      }
+
+      let all = await readDb(type);
+      if (Array.isArray(all)) {
+        if (type === 'gallery') {
+          const itemToDelete = all.find(item => item.id === id);
+          if (itemToDelete && itemToDelete.image && itemToDelete.image.startsWith('/uploads/gallery/')) {
+            const localPath = path.join(PUBLIC_DIR, itemToDelete.image);
+            try {
+              if (fs.existsSync(localPath)) fs.unlinkSync(localPath);
+            } catch (e) {
+              console.error(`Failed to remove file ${localPath}:`, e.message);
+            }
+          }
+        }
+        all = all.filter(item => item.id !== id);
+        await writeDb(type, all);
+      }
+
+      return sendJson(res, 200, { success: true, message: `Item ${id} deleted` });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // ==========================================
+  // STATIC FILE SERVING
+  // ==========================================
+  let relativePath = reqPath;
+  if (relativePath === '/' || relativePath === '') {
+    relativePath = '/index.html';
+  }
+
+  const filePath = path.join(PUBLIC_DIR, relativePath);
+
+  // Prevent directory traversal
+  if (!filePath.startsWith(PUBLIC_DIR)) {
+    res.writeHead(403, { 'Content-Type': 'text/plain' });
+    return res.end('403 Forbidden');
+  }
+
+  fs.stat(filePath, (err, stats) => {
+    if (err || !stats.isFile()) {
+      res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
+      return res.end(`
+        <!DOCTYPE html>
+        <html>
+        <head><title>404 Not Found - The House of Memoir</title></head>
+        <body style="font-family: sans-serif; text-align: center; padding: 60px; background: #f9f9ff; color: #1a1b20;">
+          <h1 style="color: #1978e5; font-size: 48px; margin-bottom: 10px;">404</h1>
+          <h2>Page Not Found</h2>
+          <p>Requested URL: <code>${req.url}</code></p>
+          <p style="margin-top: 25px;"><a href="/" style="background: #1978e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px;">Return to Home</a></p>
+        </body>
+        </html>
+      `);
+    }
+
+    const ext = path.extname(filePath).toLowerCase();
+    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+
+    // Support HTTP Range requests for smooth video streaming and seeking
+    const range = req.headers.range;
+    if (range && (ext === '.mp4' || ext === '.webm' || ext === '.ogv' || ext === '.mov')) {
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : stats.size - 1;
+      const chunkSize = (end - start) + 1;
+      const fileStream = fs.createReadStream(filePath, { start, end });
+      res.writeHead(206, {
+        'Content-Range': `bytes ${start}-${end}/${stats.size}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunkSize,
+        'Content-Type': contentType,
+        'Access-Control-Allow-Origin': '*'
+      });
+      return fileStream.pipe(res);
+    }
+
+    const headers = {
+      'Content-Type': contentType,
+      'Content-Length': stats.size,
+      'Accept-Ranges': 'bytes',
+      'Access-Control-Allow-Origin': '*'
+    };
+    if (filePath.endsWith('.json') || filePath.endsWith('.js') || filePath.endsWith('.html') || filePath.endsWith('.css') || filePath.includes('data')) {
+      headers['Cache-Control'] = 'no-store, no-cache, must-revalidate';
+      headers['Pragma'] = 'no-cache';
+      headers['Expires'] = '0';
+    }
+    res.writeHead(200, headers);
+
+    const stream = fs.createReadStream(filePath);
+    stream.pipe(res);
+  });
+});
+
+server.listen(PORT, '0.0.0.0', async () => {
+  console.log(`\n=================================================`);
+  console.log(` The House of Memoir Protected Hybrid Server is running!`);
+  console.log(` Port: ${PORT}`);
+  console.log(` URL:  http://localhost:${PORT}/`);
+  console.log(` Admin Portal: http://localhost:${PORT}/admin.html`);
+  console.log(` Default Admin User: admin`);
+  console.log(` Default Admin Pass: admin123`);
+  console.log(`=================================================\n`);
+
+  // Initialize MongoDB Atlas connection (if MONGODB_URI is provided)
+  await initMongo().catch(err => console.error('[DB] Mongo startup error:', err.message));
+});

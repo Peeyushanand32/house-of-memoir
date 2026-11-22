@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The House of Memoir - Why Choose The House of Memoir?</title>
+  <meta name="description" content="At The House of Memoir, we believe every life has a story worth preserving. We transform your personal journey, experiences, achievements, and memories into a professionally written and beautifully crafted book."/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css"/>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#f9f9ff",
+            "on-background": "#1a1b20",
+            "primary": "#1978e5",
+            "on-primary": "#ffffff",
+            "primary-container": "#ffffff",
+            "on-primary-container": "#1a1b20",
+            "tertiary-fixed": "#1978e5",
+            "surface": "#ffffff",
+            "on-surface": "#1a1b20",
+            "surface-container-lowest": "#ffffff",
+            "surface-container": "#f0f4f8",
+            "heritage-navy": "#000613"
+          },
+          fontFamily: {
+            display: ["Playfair Display", "serif"],
+            sans: ["Inter", "sans-serif"]
+          },
+          spacing: {
+            "margin-desktop": "64px",
+            "margin-mobile": "16px",
+            "container-max": "1280px",
+            "gutter": "24px"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col bg-[#f9f9ff] text-on-background">
+
+  <!-- Fixed & Adjusted Top Navigation Bar -->
+  <header class="bg-white/95 backdrop-blur-md sticky top-0 w-full z-50 border-b border-gray-200/80 shadow-sm transition-all duration-300">
+    <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-between items-center h-20">
+      
+      <!-- Brand Logo -->
+      <a href="index.html" class="flex items-center gap-3.5 group">
+        <img src="logo.png" alt="The House of Memoir Logo" class="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300"/>
+        <div class="flex flex-col justify-center">
+          <span class="font-display text-2xl font-bold text-[#c59b27] leading-none tracking-tight group-hover:text-[#1978e5] transition-colors">The House of Memoir</span>
+          <span class="text-[10px] tracking-[0.2em] uppercase mt-1 font-bold text-gray-900">WHERE LEGACIES ARE WRITTEN</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation Links -->
+      <nav class="hidden md:flex items-center gap-2 lg:gap-3 font-sans text-sm font-semibold">
+        <a href="index.html" class="bg-[#1978e5]/10 text-[#1978e5] font-bold px-3.5 py-2 rounded-xl border border-[#1978e5]/20 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-base">home</span>
+          Home
+        </a>
+        <a href="about.html" class="text-gray-700 hover:text-[#1978e5] hover:bg-gray-100/80 px-3 py-2 rounded-xl transition-all">About</a>
+        <a href="services.html" class="text-gray-700 hover:text-[#1978e5] hover:bg-gray-100/80 px-3 py-2 rounded-xl transition-all">Services</a>
+        <a href="portfolio.html" class="text-gray-700 hover:text-[#1978e5] hover:bg-gray-100/80 px-3 py-2 rounded-xl transition-all">Portfolio</a>
+        <a href="gallery.html" class="text-gray-700 hover:text-[#1978e5] hover:bg-gray-100/80 px-3 py-2 rounded-xl transition-all flex items-center gap-1">
+          <span class="material-symbols-outlined text-base text-[#c59b27]">photo_library</span> Gallery
+        </a>
+        <a href="testimonials.html" class="text-gray-700 hover:text-[#1978e5] hover:bg-gray-100/80 px-3 py-2 rounded-xl transition-all">Testimonials</a>
+        <a href="appointment.html" class="text-gray-700 hover:text-[#1978e5] hover:bg-gray-100/80 px-3 py-2 rounded-xl transition-all">Appointment/Query</a>
+      </nav>
+
+      <!-- Header Action Button -->
+      <div class="hidden md:flex items-center gap-3">
+        <button data-open-manuscript-modal class="font-sans font-semibold text-xs uppercase tracking-wider bg-[#1978e5] text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-md active:scale-95 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-base">upload_file</span>
+          Submit Manuscript
+        </button>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button data-mobile-menu-toggle class="md:hidden text-gray-900 p-2 focus:outline-none hover:text-[#1978e5] transition-colors">
+        <span class="material-symbols-outlined text-3xl">menu</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Navigation Drawer -->
+  <div id="mobile-menu" class="fixed inset-0 z-50 bg-[#000613]/95 backdrop-blur-lg hidden flex-col justify-between p-6 text-white transition-all">
+    <div class="flex justify-between items-center border-b border-white/10 pb-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-[#1978e5] flex items-center justify-center font-display font-bold">HM</div>
+        <span class="font-display text-xl font-bold">The House of Memoir</span>
+      </div>
+      <button id="close-mobile-menu" class="text-white p-2">
+        <span class="material-symbols-outlined text-3xl">close</span>
+      </button>
+    </div>
+    <div class="flex flex-col gap-6 font-display text-2xl py-8">
+      <a href="index.html" class="text-[#1978e5] font-bold">Home</a>
+      <a href="about.html" class="hover:text-[#1978e5] transition-colors">About Us</a>
+      <a href="services.html" class="hover:text-[#1978e5] transition-colors">Services</a>
+      <a href="portfolio.html" class="hover:text-[#1978e5] transition-colors">Portfolio</a>
+      <a href="gallery.html" class="hover:text-[#1978e5] transition-colors flex items-center gap-2">
+        <span class="material-symbols-outlined text-xl text-[#c59b27]">photo_library</span> Company Gallery
+      </a>
+      <a href="testimonials.html" class="hover:text-[#1978e5] transition-colors">Testimonials</a>
+      <a href="appointment.html" class="hover:text-[#1978e5] transition-colors">Appointment/Query</a>
+    </div>
+    <div class="pt-6 border-t border-white/10 flex flex-col gap-4">
+      <button data-open-manuscript-modal class="w-full bg-[#1978e5] text-white py-3.5 rounded font-sans font-semibold text-center flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined">upload_file</span>
+        Submit Manuscript
+      </button>
+    </div>
+  </div>
+
+  <main class="flex-grow">
+    <!-- Hero Section -->
+    <section class="py-20 md:py-28 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto flex flex-col lg:flex-row items-center gap-12 overflow-hidden">
+      <div class="w-full lg:w-1/2 flex flex-col gap-4">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1978e5]/10 text-[#1978e5] font-semibold text-xs uppercase tracking-widest w-fit animate-fade-in-up">
+          <span class="material-symbols-outlined text-base">auto_stories</span> Premier Book Publishing Platform
+        </div>
+        <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight animate-fade-in-up delay-100">
+          Why Choose The House of Memoir?
+        </h1>
+        <p class="text-base sm:text-lg text-gray-600 max-w-xl mt-2 mb-6 leading-relaxed animate-fade-in-up delay-200">
+          At The House of Memoir, we believe every life has a story worth preserving. We transform your personal journey, experiences, achievements, and memories into a professionally written and beautifully crafted book.
+        </p>
+        <div class="flex flex-wrap gap-4 animate-fade-in-up delay-300">
+          <button data-open-manuscript-modal class="font-semibold text-sm bg-[#1978e5] text-white px-8 py-4 rounded-xl hover:bg-blue-700 transition-all shadow-md active:scale-95 flex items-center gap-2">
+            <span>Submit Manuscript</span>
+            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+          </button>
+          <a href="appointment.html" class="font-semibold text-sm bg-white border border-gray-300 text-gray-800 px-8 py-4 rounded-xl hover:bg-gray-100 transition-colors shadow-sm inline-flex items-center gap-2">
+            <span>Book Free Consultation</span>
+            <span class="material-symbols-outlined text-sm text-[#1978e5]">calendar_month</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="w-full lg:w-1/2 mt-8 lg:mt-0 relative h-[420px] sm:h-[500px] animate-fade-in-up delay-400 group">
+        <div class="relative w-full h-full rounded-3xl overflow-hidden ambient-shadow border border-gray-200 bg-gray-950 shadow-2xl">
+          <!-- Main Hero Video -->
+          <video id="hero-main-video" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=1200&q=80" class="w-full h-full object-cover">
+            <source src="video/the-house-of-memoir.mp4" type="video/mp4"/>
+            <source src="video/the house of memoir4.mov" type="video/mp4"/>
+            <source src="video/the house of memoir4.mov" type="video/quicktime"/>
+            <source src="hero-video.mp4" type="video/mp4"/>
+            <img src="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=1200&q=80" alt="The House of Memoir Video" class="w-full h-full object-cover"/>
+          </video>
+          
+          <!-- Subtle Luxury Gradient Vignette -->
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30 pointer-events-none"></div>
+
+          <!-- Video Reel Controls & Live Indicator -->
+          <div class="absolute top-4 right-4 z-20 flex items-center gap-2">
+            <span id="hero-tag-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white text-[11px] font-semibold shadow-sm">
+              <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+              <span id="hero-tag-text">Cinematic Reel</span>
+            </span>
+            <button type="button" onclick="toggleHeroVideoMute()" id="hero-mute-btn" class="w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-black/80 transition-colors shadow-sm" title="Toggle Sound">
+              <span class="material-symbols-outlined text-base" id="hero-mute-icon">volume_off</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Feature Grid (Advantages for Our Clients) -->
+    <section class="py-24 bg-white border-y border-gray-200/80 px-margin-mobile md:px-margin-desktop">
+      <div class="max-w-container-max mx-auto">
+        <div class="text-center max-w-2xl mx-auto mb-16 animate-fade-in-up">
+          <h2 class="font-display text-3xl sm:text-5xl font-bold text-gray-900">Advantages for Our Clients</h2>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          <!-- Feature 1 -->
+          <div class="bg-[#f9f9ff] rounded-2xl p-6 border border-gray-200/80 shadow-sm flex flex-col items-start gap-3 hover:-translate-y-1.5 hover:shadow-md transition-all duration-300">
+            <div class="w-12 h-12 rounded-xl bg-[#1978e5]/10 border border-[#1978e5]/20 flex items-center justify-center text-[#1978e5]">
+              <span class="material-symbols-outlined text-2xl">auto_stories</span>
+            </div>
+            <h3 class="font-display text-lg font-bold text-gray-900 mt-1">Personalized Storytelling</h3>
+            <p class="text-gray-600 leading-relaxed text-sm">Every book is uniquely written to reflect your personality, experiences, emotions, and life journey.</p>
+          </div>
+
+          <!-- Feature 2 -->
+          <div class="bg-[#f9f9ff] rounded-2xl p-6 border border-gray-200/80 shadow-sm flex flex-col items-start gap-3 hover:-translate-y-1.5 hover:shadow-md transition-all duration-300">
+            <div class="w-12 h-12 rounded-xl bg-[#1978e5]/10 border border-[#1978e5]/20 flex items-center justify-center text-[#1978e5]">
+              <span class="material-symbols-outlined text-2xl">edit_note</span>
+            </div>
+            <h3 class="font-display text-lg font-bold text-gray-900 mt-1">Professional Writing</h3>
+            <p class="text-gray-600 leading-relaxed text-sm">Our expert approach ensures your story is engaging, meaningful, well-structured, and professionally presented.</p>
+          </div>
+
+          <!-- Feature 3 -->
+          <div class="bg-[#f9f9ff] rounded-2xl p-6 border border-gray-200/80 shadow-sm flex flex-col items-start gap-3 hover:-translate-y-1.5 hover:shadow-md transition-all duration-300">
+            <div class="w-12 h-12 rounded-xl bg-[#1978e5]/10 border border-[#1978e5]/20 flex items-center justify-center text-[#1978e5]">
+              <span class="material-symbols-outlined text-2xl">history_edu</span>
+            </div>
+            <h3 class="font-display text-lg font-bold text-gray-900 mt-1">Preserve Your Legacy</h3>
+            <p class="text-gray-600 leading-relaxed text-sm">Turn your memories, struggles, achievements, and life lessons into something your future generations can cherish.</p>
+          </div>
+
+          <!-- Feature 4 -->
+          <div class="bg-[#f9f9ff] rounded-2xl p-6 border border-gray-200/80 shadow-sm flex flex-col items-start gap-3 hover:-translate-y-1.5 hover:shadow-md transition-all duration-300">
+            <div class="w-12 h-12 rounded-xl bg-[#1978e5]/10 border border-[#1978e5]/20 flex items-center justify-center text-[#1978e5]">
+              <span class="material-symbols-outlined text-2xl">record_voice_over</span>
+            </div>
+            <h3 class="font-display text-lg font-bold text-gray-900 mt-1">Your Story, Your Voice</h3>
+            <p class="text-gray-600 leading-relaxed text-sm">We maintain your individuality and perspective so that the book genuinely represents you.</p>
+          </div>
+
+          <!-- Feature 5 -->
+          <div class="bg-[#f9f9ff] rounded-2xl p-6 border border-gray-200/80 shadow-sm flex flex-col items-start gap-3 hover:-translate-y-1.5 hover:shadow-md transition-all duration-300">
+            <div class="w-12 h-12 rounded-xl bg-[#1978e5]/10 border border-[#1978e5]/20 flex items-center justify-center text-[#1978e5]">
+              <span class="material-symbols-outlined text-2xl">support_agent</span>
+            </div>
+            <h3 class="font-display text-lg font-bold text-gray-900 mt-1">End-to-End Assistance</h3>
+            <p class="text-gray-600 leading-relaxed text-sm">From initial discussions and interviews to writing, editing, and final book preparation, we guide you throughout the process.</p>
+          </div>
+
+          <!-- Feature 6 -->
+          <div class="bg-[#f9f9ff] rounded-2xl p-6 border border-gray-200/80 shadow-sm flex flex-col items-start gap-3 hover:-translate-y-1.5 hover:shadow-md transition-all duration-300">
+            <div class="w-12 h-12 rounded-xl bg-[#1978e5]/10 border border-[#1978e5]/20 flex items-center justify-center text-[#1978e5]">
+              <span class="material-symbols-outlined text-2xl">verified_user</span>
+            </div>
+            <h3 class="font-display text-lg font-bold text-gray-900 mt-1">Confidentiality &amp; Trust</h3>
+            <p class="text-gray-600 leading-relaxed text-sm">Your personal experiences and information are treated with respect and confidentiality.</p>
+          </div>
+
+          <!-- Feature 7 -->
+          <div class="bg-[#f9f9ff] rounded-2xl p-6 border border-gray-200/80 shadow-sm flex flex-col items-start gap-3 hover:-translate-y-1.5 hover:shadow-md transition-all duration-300">
+            <div class="w-12 h-12 rounded-xl bg-[#1978e5]/10 border border-[#1978e5]/20 flex items-center justify-center text-[#1978e5]">
+              <span class="material-symbols-outlined text-2xl">menu_book</span>
+            </div>
+            <h3 class="font-display text-lg font-bold text-gray-900 mt-1">A Timeless Keepsake</h3>
+            <p class="text-gray-600 leading-relaxed text-sm">Own a professionally crafted autobiography or biography that you can proudly share with family, friends, and the world.</p>
+          </div>
+
+          <!-- Feature 8 -->
+          <div class="bg-[#f9f9ff] rounded-2xl p-6 border border-gray-200/80 shadow-sm flex flex-col items-start gap-3 hover:-translate-y-1.5 hover:shadow-md transition-all duration-300">
+            <div class="w-12 h-12 rounded-xl bg-[#1978e5]/10 border border-[#1978e5]/20 flex items-center justify-center text-[#1978e5]">
+              <span class="material-symbols-outlined text-2xl">stars</span>
+            </div>
+            <h3 class="font-display text-lg font-bold text-gray-900 mt-1">A Meaningful Investment</h3>
+            <p class="text-gray-600 leading-relaxed text-sm">Your life story becomes more than a book; it becomes a legacy that can inspire generations.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Counter -->
+    <section class="py-20 px-margin-mobile md:px-margin-desktop bg-[#f9f9ff] overflow-hidden">
+      <div class="max-w-container-max mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-center divide-y md:divide-y-0 md:divide-x divide-gray-200">
+        <div class="flex flex-col gap-2 py-4 animate-fade-in-up delay-100">
+          <span class="font-display text-5xl sm:text-6xl font-extrabold text-[#1978e5]">5</span>
+          <span class="text-xs font-bold text-gray-600 uppercase tracking-widest">Published Books</span>
+        </div>
+        <div class="flex flex-col gap-2 py-4 animate-fade-in-up delay-200">
+          <span class="font-display text-5xl sm:text-6xl font-extrabold text-[#1978e5]">5</span>
+          <span class="text-xs font-bold text-gray-600 uppercase tracking-widest">Authors</span>
+        </div>
+        <div class="flex flex-col gap-2 py-4 animate-fade-in-up delay-300">
+          <span class="font-display text-5xl sm:text-6xl font-extrabold text-[#1978e5]">120+</span>
+          <span class="text-xs font-bold text-gray-600 uppercase tracking-widest">Countries Distributed</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Publications Preview -->
+    <section class="py-24 bg-white border-t border-gray-200/80 px-margin-mobile md:px-margin-desktop">
+      <div class="max-w-container-max mx-auto">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-[#1978e5]">Featured Collection</span>
+            <h2 class="font-display text-3xl font-bold text-gray-900 mt-1">Recent Publications</h2>
+          </div>
+          <a href="portfolio.html" class="mt-4 sm:mt-0 font-semibold text-sm text-[#1978e5] hover:underline flex items-center gap-1">
+            View Full Catalogue <span class="material-symbols-outlined text-sm">arrow_forward</span>
+          </a>
+        </div>
+        <div id="home-portfolio-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          
+          <div class="book-card bg-[#f9f9ff] rounded-2xl overflow-hidden border border-gray-200 flex flex-col shadow-sm">
+            <div class="h-64 bg-gray-900 overflow-hidden relative">
+              <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80" alt="A Scholar’s Odyssey" class="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-500"/>
+              <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider text-gray-900">Memoir</span>
+            </div>
+            <div class="p-6 flex-grow flex flex-col justify-between">
+              <div>
+                <h3 class="font-display text-xl font-bold text-gray-900 mb-1">A Scholar’s Odyssey</h3>
+                <p class="text-xs text-[#1978e5] font-semibold mb-3">by Prof. Mukesh Pandey, Vice Chancellor of Bundelkhand University, Jhansi</p>
+                <p class="text-xs text-gray-600 line-clamp-2">Born in Sanchi in 1968, he grew up watching his father serve farmers and carrying his uncle’s lesson to be like a lamp that burns to light the way for others...</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Call To Action -->
+    <section class="py-20 bg-[#000613] text-white px-margin-mobile md:px-margin-desktop relative overflow-hidden">
+      <div class="max-w-container-max mx-auto text-center relative z-10">
+        <h2 class="font-display text-3xl sm:text-5xl font-bold mb-4">Ready to Share Your Masterpiece with the World?</h2>
+        <p class="text-base text-gray-300 max-w-2xl mx-auto mb-8">Our acquiring editors are actively accepting manuscripts across memoir, fiction, historical non-fiction, and poetry.</p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <button data-open-manuscript-modal class="bg-[#1978e5] text-white font-semibold text-sm px-8 py-4 rounded-xl hover:bg-blue-600 transition-all shadow-lg active:scale-95 flex items-center gap-2">
+            <span class="material-symbols-outlined text-base">upload_file</span>
+            Submit Your Manuscript
+          </button>
+          <a href="appointment.html" class="border border-white/30 text-white font-semibold text-sm px-8 py-4 rounded-xl hover:bg-white/10 transition-all flex items-center gap-2">
+            <span class="material-symbols-outlined text-base text-[#1978e5]">calendar_month</span>
+            Schedule Private Consultation
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white w-full pt-16 pb-8 text-gray-800 border-t border-gray-200">
+    <div class="max-w-container-max mx-auto px-margin-desktop grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div class="flex flex-col gap-4">
+        <a href="index.html" class="flex items-center gap-3.5">
+          <img src="logo.png" alt="The House of Memoir Logo" class="h-10 w-auto object-contain"/>
+          <span class="font-display text-xl font-bold text-[#c59b27]">The House of Memoir</span>
+        </a>
+        <p class="text-xs text-gray-600 leading-relaxed">
+          Crafting literary excellence for the modern era. Dedicated to high-contrast editorial craft, author sovereignty, and timeless physical bookmaking.
+        </p>
+      </div>
+      <div class="flex flex-col gap-3">
+        <h4 class="font-bold text-xs uppercase tracking-wider text-gray-900 mb-1">Navigation</h4>
+        <a href="index.html" class="text-sm text-gray-600 hover:text-[#1978e5]">Home</a>
+        <a href="about.html" class="text-sm text-gray-600 hover:text-[#1978e5]">About Us</a>
+        <a href="services.html" class="text-sm text-gray-600 hover:text-[#1978e5]">Services & Pricing</a>
+        <a href="portfolio.html" class="text-sm text-gray-600 hover:text-[#1978e5]">Publications Portfolio</a>
+        <a href="gallery.html" class="text-sm text-gray-600 hover:text-[#1978e5]">Company Events Gallery</a>
+      </div>
+      <div class="flex flex-col gap-3">
+        <h4 class="font-bold text-xs uppercase tracking-wider text-gray-900 mb-1">For Authors</h4>
+        <a href="appointment.html" class="text-sm text-gray-600 hover:text-[#1978e5]">Manuscript Submission</a>
+        <a href="appointment.html" class="text-sm text-gray-600 hover:text-[#1978e5]">Schedule Consultation</a>
+        <a href="testimonials.html" class="text-sm text-gray-600 hover:text-[#1978e5]">Author Reviews</a>
+      </div>
+      <div class="flex flex-col gap-3">
+        <h4 class="font-bold text-xs uppercase tracking-wider text-gray-900 mb-1">Editorial Office</h4>
+        <p class="text-sm text-gray-600">205, Shubham Business Tower, Sipri Bazar,<br/>Jhansi - 284003</p>
+        <p class="text-sm text-gray-600">Email: info@thehouseofmemoir.com</p>
+        <p class="text-sm text-[#1978e5] font-semibold"><a href="tel:+916386313299" class="hover:underline">+91 6386313299</a></p>
+        <a href="https://www.instagram.com/houseofmemoir.global?igsi=emRqbzhvNHQ5cjJ6" target="_blank" rel="noopener noreferrer" class="text-xs text-gray-600 hover:text-pink-600 flex items-center gap-1.5 transition-colors mt-0.5 font-medium">
+          <span class="w-5 h-5 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white flex items-center justify-center shrink-0">
+            <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </span>
+          @houseofmemoir.global
+        </a>
+      </div>
+    </div>
+    <div class="max-w-container-max mx-auto px-margin-desktop mt-12 pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+      <p>© 2026 The House of Memoir Publishing House. All rights reserved.</p>
+      <a href="admin.html" class="hover:text-[#1978e5] flex items-center gap-1 transition-colors">
+        <span class="material-symbols-outlined text-xs">admin_panel_settings</span> Editorial Portal
+      </a>
+    </div>
+  </footer>
+
+  <!-- Global Manuscript Submission Modal -->
+  <div id="manuscript-modal" class="fixed inset-0 z-50 modal-backdrop hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden border border-gray-200 animate-scale-up">
+      <div class="bg-[#000613] text-white p-6 flex justify-between items-center">
+        <div>
+          <h3 class="font-display text-2xl font-bold">Manuscript Submission</h3>
+          <p class="text-xs text-gray-400">Direct editorial review process</p>
+        </div>
+        <button id="close-manuscript-modal" class="text-gray-400 hover:text-white p-1">
+          <span class="material-symbols-outlined text-2xl">close</span>
+        </button>
+      </div>
+      <form id="modal-manuscript-form" class="p-6 space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Author Name *</label>
+            <input type="text" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-[#1978e5] text-sm" placeholder="Full Legal Name"/>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Email Address *</label>
+            <input type="email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-[#1978e5] text-sm" placeholder="author@example.com"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Working Title</label>
+            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-[#1978e5] text-sm" placeholder="Book Title"/>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Genre *</label>
+            <select required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-[#1978e5] text-sm">
+              <option value="Memoir">Memoir & Biography</option>
+              <option value="Fiction">Literary Fiction</option>
+              <option value="Historical">Historical Non-Fiction</option>
+              <option value="Poetry">Poetry & Essays</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Synopsis</label>
+          <textarea rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-[#1978e5] text-sm resize-none" placeholder="Brief summary of your manuscript..."></textarea>
+        </div>
+        <div id="manuscript-dropzone" class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-[#1978e5] cursor-pointer transition-colors">
+          <span class="material-symbols-outlined text-4xl text-[#1978e5]">upload_file</span>
+          <p class="text-sm font-semibold text-gray-800 mt-1">Upload Manuscript File (.pdf, .doc, .docx)</p>
+          <p id="file-upload-status" class="text-xs text-gray-500 mt-1">Click to browse or drag and drop file here</p>
+          <input type="file" id="manuscript-file-input" class="hidden" accept=".pdf,.doc,.docx"/>
+        </div>
+        <div class="flex justify-end gap-3 pt-2">
+          <button type="button" onclick="document.getElementById('manuscript-modal').classList.add('hidden')" class="px-5 py-2.5 text-sm text-gray-600 hover:text-gray-800">Cancel</button>
+          <button type="submit" class="bg-[#1978e5] text-white px-6 py-2.5 rounded-lg font-semibold text-sm hover:bg-blue-700 shadow-md">Submit Application</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Floating Actions (Instagram & Editorial Concierge Chat) -->
+  <div class="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
+    <!-- Floating Instagram Button (Above Editorial Concierge) -->
+    <a href="https://www.instagram.com/houseofmemoir.global?igsi=emRqbzhvNHQ5cjJ6" target="_blank" rel="noopener noreferrer" class="w-12 h-12 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white shadow-xl flex items-center justify-center hover:scale-110 hover:shadow-2xl transition-all duration-300 group" title="Follow The House of Memoir on Instagram (@houseofmemoir.global)" aria-label="The House of Memoir Instagram">
+      <svg class="w-6 h-6 fill-current group-hover:rotate-6 transition-transform" viewBox="0 0 24 24">
+        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+      </svg>
+    </a>
+
+    <!-- Support Chat Trigger Button -->
+    <button id="support-chat-btn" class="bg-[#1978e5] text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center hover:scale-105 transition-transform" aria-label="Open Editorial Concierge Chat">
+      <span class="material-symbols-outlined text-2xl">chat</span>
+    </button>
+    <div id="support-chat-window" class="hidden absolute bottom-18 right-0 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex-col">
+      <div class="bg-[#000613] text-white p-4 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+          <div>
+            <span class="font-bold text-sm block leading-none">Editorial Desk Concierge</span>
+            <span class="text-[10px] text-gray-400">The House of Memoir Advisory</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="https://www.instagram.com/houseofmemoir.global?igsi=emRqbzhvNHQ5cjJ6" target="_blank" rel="noopener noreferrer" class="text-pink-400 hover:text-pink-300 transition-colors p-1" title="Instagram @houseofmemoir.global">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </a>
+          <button id="close-support-chat" class="text-gray-400 hover:text-white p-1">
+            <span class="material-symbols-outlined text-lg">close</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Topic Chips -->
+      <div class="bg-gray-100/90 border-b border-gray-200 px-3 py-2 flex gap-1.5 overflow-x-auto text-[10px]">
+        <a href="https://www.instagram.com/houseofmemoir.global?igsi=emRqbzhvNHQ5cjJ6" target="_blank" rel="noopener noreferrer" class="shrink-0 bg-gradient-to-r from-purple-500 via-pink-500 to-amber-500 text-white font-medium px-2.5 py-1 rounded-full text-[10px] flex items-center gap-1 hover:opacity-90 transition-opacity">📸 Instagram</a>
+        <button onclick="sendQuickChat('royalties')" class="shrink-0 bg-white hover:bg-blue-50 hover:text-[#1978e5] border border-gray-200 px-2 py-1 rounded-full text-gray-700 transition-colors">💰 100% Royalty</button>
+        <button onclick="sendQuickChat('submission')" class="shrink-0 bg-white hover:bg-blue-50 hover:text-[#1978e5] border border-gray-200 px-2 py-1 rounded-full text-gray-700 transition-colors">📖 Guidelines</button>
+        <button onclick="sendQuickChat('timeline')" class="shrink-0 bg-white hover:bg-blue-50 hover:text-[#1978e5] border border-gray-200 px-2 py-1 rounded-full text-gray-700 transition-colors">⏳ Timeline</button>
+        <button onclick="sendQuickChat('contact')" class="shrink-0 bg-white hover:bg-blue-50 hover:text-[#1978e5] border border-gray-200 px-2 py-1 rounded-full text-gray-700 transition-colors">📍 Office</button>
+      </div>
+
+      <!-- Chat Messages Scroll Area -->
+      <div id="chat-messages" class="p-4 h-64 overflow-y-auto space-y-3 bg-gray-50 text-xs">
+        <div class="bg-white text-gray-800 p-3 rounded-2xl rounded-tl-none border border-gray-200 shadow-sm max-w-[85%]">
+          Welcome to The House of Memoir! How can our senior editors assist with your book or manuscript today?
+        </div>
+      </div>
+
+      <!-- Chat Input Box -->
+      <div class="p-3 bg-white border-t border-gray-200 flex gap-2">
+        <input type="text" id="chat-input" placeholder="Type a question or email address..." class="flex-1 border border-gray-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#1978e5]"/>
+        <button id="chat-send-btn" class="bg-[#1978e5] hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center">
+          <span class="material-symbols-outlined text-sm">send</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js?v=2.2"></script>
+</body>
+</html>
