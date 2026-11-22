@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": "SUB-MWRMIKEQ-B1BC",
+    "submittedAt": "2026-11-22T09:17:29.426Z",
+    "authorName": "Test Author",
+    "email": "peeyushanand32@gmail.com",
+    "phone": "N/A",
+    "title": "Test Memoir",
+    "genre": "Memoir",
+    "synopsis": "Test synopsis",
+    "fileName": "test.docx",
+    "status": "Under Review"
+  }
+]
