@@ -126,12 +126,22 @@ function initManuscriptModal() {
       const fileInput = modalForm.querySelector('input[type="file"]');
       const fileName = fileInput && fileInput.files.length > 0 ? fileInput.files[0].name : '';
 
+      const emailEl = modalForm.querySelector('input[type="email"]');
+      const textInputs = modalForm.querySelectorAll('input[type="text"]');
+      const authorName = (textInputs[0] ? textInputs[0].value.trim() : '') || 'Anonymous Author';
+      const email = emailEl ? emailEl.value.trim() : '';
+      const title = (textInputs[1] ? textInputs[1].value.trim() : '') || 'Untitled';
+      const genre = modalForm.querySelector('select') ? modalForm.querySelector('select').value : 'Memoir';
+      const synopsis = modalForm.querySelector('textarea') ? modalForm.querySelector('textarea').value : '';
+
+      console.log('[FORM SUBMIT] Extracted author:', authorName, 'email:', email, 'title:', title);
+
       const payload = {
-        authorName: (inputs[0] ? inputs[0].value : '') || 'Anonymous Author',
-        email: (inputs[1] ? inputs[1].value : '') || '',
-        title: (inputs[2] ? inputs[2].value : '') || 'Untitled',
-        genre: (modalForm.querySelector('select') ? modalForm.querySelector('select').value : 'Memoir'),
-        synopsis: (modalForm.querySelector('textarea') ? modalForm.querySelector('textarea').value : ''),
+        authorName: authorName,
+        email: email,
+        title: title,
+        genre: genre,
+        synopsis: synopsis,
         fileName: fileName,
         source: 'Global Manuscript Modal'
       };
@@ -210,15 +220,19 @@ function initPageForms() {
       const fileInput = submissionForm.querySelector('input[type="file"]');
       const fileName = fileInput && fileInput.files.length > 0 ? fileInput.files[0].name : '';
 
-      const firstName = inputs[0] ? inputs[0].value : '';
-      const lastName = inputs[1] ? inputs[1].value : '';
-      const email = inputs[2] ? inputs[2].value : '';
-      const title = inputs[3] ? inputs[3].value : '';
+      const emailEl = submissionForm.querySelector('input[type="email"]');
+      const textInputs = submissionForm.querySelectorAll('input[type="text"]');
+      const firstName = (textInputs[0] ? textInputs[0].value.trim() : '');
+      const lastName = (textInputs[1] ? textInputs[1].value.trim() : '');
+      const email = emailEl ? emailEl.value.trim() : '';
+      const title = (textInputs[2] ? textInputs[2].value.trim() : '') || 'Untitled';
       const genre = submissionForm.querySelector('select') ? submissionForm.querySelector('select').value : 'Memoir';
       const synopsis = submissionForm.querySelector('textarea') ? submissionForm.querySelector('textarea').value : '';
 
+      console.log('[STEP FORM SUBMIT] Extracted name:', firstName, lastName, 'email:', email, 'title:', title);
+
       const payload = {
-        authorName: `${firstName} ${lastName}`.trim(),
+        authorName: `${firstName} ${lastName}`.trim() || 'Author',
         email: email,
         title: title,
         genre: genre,
