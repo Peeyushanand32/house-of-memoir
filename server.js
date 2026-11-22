@@ -623,7 +623,7 @@ let mongoClient = null;
 let mongoDb = null;
 let isMongoConnected = false;
 
-const MONGODB_URI = process.env.MONGODB_URI || '';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://peeyushanand32_db_user:s09bnZb74BlZFtLi@cluster0.vo1mhkv.mongodb.net/house_of_memoir?retryWrites=true&w=majority';
 const DB_NAME = process.env.MONGODB_DB_NAME || 'house_of_memoir';
 
 async function initMongo() {
@@ -648,24 +648,36 @@ async function initMongo() {
 
 async function seedMongoFromLocalFiles() {
   if (!isMongoConnected || !mongoDb) return;
-  const types = ['portfolio', 'gallery', 'testimonials', 'services', 'siteConfig', 'submissions', 'queries', 'appointments', 'chatLeads'];
-  for (const type of types) {
-    try {
-      const col = mongoDb.collection(type);
-      const count = await col.countDocuments();
-      if (count === 0) {
-        const localData = readDbLocal(type);
-        if (Array.isArray(localData) && localData.length > 0) {
-          await col.insertMany(localData.map(doc => ({ ...doc })));
-          console.log(`[DB SEED] Seeded ${localData.length} items into MongoDB collection "${type}"`);
-        } else if (localData && typeof localData === 'object' && !Array.isArray(localData)) {
-          await col.insertOne({ _id: 'config', ...localData });
-          console.log(`[DB SEED] Seeded config into MongoDB collection "${type}"`);
-        }
-      }
-    } catch (e) {
-      console.warn(`[DB SEED] Note for ${type}:`, e.message);
+  try {
+    const metaCol = mongoDb.collection('_meta');
+    const lock = await metaCol.findOne({ _id: 'db_initialized' });
+    if (lock) {
+      console.log('[DB] Database already initialized. Skipping auto-seed to preserve user edits.');
+      return;
     }
+    const types = ['portfolio', 'gallery', 'testimonials', 'services', 'siteConfig', 'submissions', 'queries', 'appointments', 'chatLeads'];
+    for (const type of types) {
+      try {
+        const col = mongoDb.collection(type);
+        const count = await col.countDocuments();
+        if (count === 0) {
+          const localData = readDbLocal(type);
+          if (Array.isArray(localData) && localData.length > 0) {
+            await col.insertMany(localData.map(doc => ({ ...doc })));
+            console.log('[DB SEED] Initial seed into collection ' + type);
+          } else if (localData && typeof localData === 'object' && !Array.isArray(localData)) {
+            await col.insertOne({ _id: 'config', ...localData });
+            console.log('[DB SEED] Initial seed config into collection ' + type);
+          }
+        }
+      } catch (e) {
+        console.warn('[DB SEED] Note for ' + type + ':', e.message);
+      }
+    }
+    await metaCol.insertOne({ _id: 'db_initialized', initializedAt: new Date().toISOString() });
+    console.log('[DB] Database initialization lock acquired.');
+  } catch (err) {
+    console.warn('[DB SEED] Lock check note:', err.message);
   }
 }
 
@@ -687,7 +699,7 @@ async function readDb(type) {
         }
       } else {
         const docs = await col.find({}).toArray();
-        if (docs && docs.length > 0) {
+        if (Array.isArray(docs)) {
           return docs.map(d => {
             const { _id, ...clean } = d;
             return clean;

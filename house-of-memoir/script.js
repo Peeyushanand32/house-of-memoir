@@ -1015,7 +1015,7 @@ async function initDynamicPortfolio() {
     if (!res.ok) res = await fetch(apiUrl('/data/portfolio.json') + cacheBuster);
     if (!res.ok) return;
     const books = await res.json();
-    if (Array.isArray(books) && books.length > 0) {
+    if (Array.isArray(books)) {
       const activeBooks = books.filter(b => !deletedIds.includes(b.id));
       localStorage.setItem('hom_portfolio_data', JSON.stringify(activeBooks));
       renderBooks(activeBooks);
@@ -1081,7 +1081,7 @@ async function initDynamicTestimonials() {
     if (!res.ok) res = await fetch(apiUrl('/data/testimonials.json') + cacheBuster);
     if (!res.ok) return;
     const list = await res.json();
-    if (Array.isArray(list) && list.length > 0) {
+    if (Array.isArray(list)) {
       const activeList = list.filter(item => !deletedIds.includes(item.id));
       localStorage.setItem('hom_testimonials_data', JSON.stringify(activeList));
       renderTst(activeList);
