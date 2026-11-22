@@ -791,7 +791,7 @@ async function initGallery() {
     if (!res.ok) res = await fetch(apiUrl('/data/gallery.json') + cacheBuster);
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         GALLERY_ITEMS = data.filter(item => !deletedIds.includes(item.id));
         localStorage.setItem('hom_gallery_data', JSON.stringify(GALLERY_ITEMS));
         renderDynamicGallery(GALLERY_ITEMS);
@@ -802,7 +802,7 @@ async function initGallery() {
       const fallbackRes = await fetch(apiUrl('/data/gallery.json') + '?t=' + Date.now());
       if (fallbackRes.ok) {
         const data = await fallbackRes.json();
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           GALLERY_ITEMS = data.filter(item => !deletedIds.includes(item.id));
           localStorage.setItem('hom_gallery_data', JSON.stringify(GALLERY_ITEMS));
           renderDynamicGallery(GALLERY_ITEMS);
