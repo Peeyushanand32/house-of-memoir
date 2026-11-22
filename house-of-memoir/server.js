@@ -124,6 +124,33 @@ async function dispatchEmail(to, subject, html) {
     }
   }
 
+  
+  // Method 2b: Resend REST API (HTTPS Port 443 - Instant 1-sec Cloud Dispatch)
+  const resendKey = (process.env.RESEND_API_KEY || '').trim();
+  if (resendKey) {
+    try {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${resendKey}`
+        },
+        body: JSON.stringify({
+          from: 'The House of Memoir <onboarding@resend.dev>',
+          to: [to],
+          reply_to: SMTP_USER,
+          subject: subject,
+          html: html
+        })
+      });
+      const data = await res.json();
+      console.log(`[EMAIL-HTTPS] Dispatched via Resend to ${to}:`, data);
+      return { success: true, via: 'resend', ...data };
+    } catch (err) {
+      console.warn('[EMAIL-HTTPS] Resend API failed, falling back:', err.message);
+    }
+  }
+
   // Method 3: Direct SMTP via Nodemailer (Port 465 / 587)
   if (mailTransporter) {
     return await mailTransporter.sendMail({
