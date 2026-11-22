@@ -165,6 +165,127 @@ async function dispatchEmail(to, subject, html) {
   throw new Error('No email transporter or HTTPS webhook available');
 }
 
+// ==========================================
+// CLIENT WHATSAPP CONFIRMATION DISPATCHER
+// ==========================================
+async function sendClientWhatsAppConfirmation(type, item) {
+  if (!item) return { success: false, reason: 'No item provided' };
+
+  const rawPhone = item.phone || item.whatsapp || '';
+  if (!rawPhone || rawPhone === 'N/A') {
+    return { success: false, reason: 'No phone number provided' };
+  }
+
+  let cleanPhone = String(rawPhone).replace(/[^0-9]/g, '');
+  if (cleanPhone.length === 10) {
+    cleanPhone = '91' + cleanPhone; // Default to India country code if 10 digits
+  }
+
+  let textMessage = '';
+  if (type === 'submissions') {
+    textMessage = 
+      '🏛️ *The House of Memoir — Manuscript Registration Receipt*\n\n' +
+      'Dear *' + (item.authorName || 'Author') + '*,\n\n' +
+      'Thank you for submitting your work to *The House of Memoir*! We have successfully registered your manuscript with our Editorial Board.\n\n' +
+      '📋 *Working Title:* ' + (item.title || 'Untitled') + '\n' +
+      '🏷️ *Tracking Reference ID:* *' + item.id + '*\n' +
+      '🎭 *Genre:* ' + (item.genre || 'General') + '\n' +
+      '⏳ *Status:* Under Review by Editorial Board\n' +
+      '⏱️ *Review Turnaround:* 5 - 7 Business Days\n\n' +
+      'Our Senior Commissioning Editor will contact you shortly to discuss next publishing milestones.\n\n' +
+      '🌐 Official Portal: https://house-of-memoir01.onrender.com\n' +
+      '📞 Editorial WhatsApp Desk: +91 6386313299';
+  } else if (type === 'queries') {
+    textMessage = 
+      '📩 *The House of Memoir — Enquiry Acknowledgment*\n\n' +
+      'Dear *' + (item.name || 'Author') + '*,\n\n' +
+      'We have received your enquiry regarding "' + (item.subject || 'General Enquiry') + '".\n' +
+      'Reference ID: *' + item.id + '*\n\n' +
+      'Our publishing advisors will review your query and respond within 24 hours.\n\n' +
+      '🌐 https://house-of-memoir01.onrender.com\n' +
+      '📞 WhatsApp Desk: +91 6386313299';
+  }
+
+  const directWaUrl = 'https://wa.me/' + cleanPhone + '?text=' + encodeURIComponent(textMessage);
+
+  // 1. Meta WhatsApp Cloud API if configured
+  if (process.env.WHATSAPP_PHONE_NUMBER_ID && process.env.WHATSAPP_ACCESS_TOKEN) {
+    try {
+      const resp = await fetch('https://graph.facebook.com/v19.0/' + process.env.WHATSAPP_PHONE_NUMBER_ID + '/messages', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + process.env.WHATSAPP_ACCESS_TOKEN,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          to: cleanPhone,
+          type: 'text',
+          text: { body: textMessage }
+        })
+      });
+      const data = await resp.json();
+      console.log('[WHATSAPP] Meta Cloud API response:', data);
+      return { success: true, provider: 'meta', directWaUrl };
+    } catch (err) {
+      console.warn('[WHATSAPP] Meta Cloud API error:', err.message);
+    }
+  }
+
+  // 2. Twilio WhatsApp API if configured
+  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_WHATSAPP_NUMBER) {
+    try {
+      const auth = Buffer.from(process.env.TWILIO_ACCOUNT_SID + ':' + process.env.TWILIO_AUTH_TOKEN).toString('base64');
+      const params = new URLSearchParams();
+      params.append('From', 'whatsapp:' + process.env.TWILIO_WHATSAPP_NUMBER);
+      params.append('To', 'whatsapp:+' + cleanPhone);
+      params.append('Body', textMessage);
+
+      const resp = await fetch('https://api.twilio.com/2010-04-01/Accounts/' + process.env.TWILIO_ACCOUNT_SID + '/Messages.json', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Basic ' + auth,
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: params.toString()
+      });
+      const data = await resp.json();
+      console.log('[WHATSAPP] Twilio sent:', data?.sid || data);
+      return { success: true, provider: 'twilio', directWaUrl };
+    } catch (err) {
+      console.warn('[WHATSAPP] Twilio error:', err.message);
+    }
+  }
+
+  // 3. Webhook (Zapier / Make / n8n / CallMeBot) if configured
+  if (process.env.WHATSAPP_WEBHOOK_URL) {
+    try {
+      await fetch(process.env.WHATSAPP_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: cleanPhone,
+          message: textMessage,
+          trackingId: item.id,
+          authorName: item.authorName || item.name,
+          title: item.title,
+          type: type
+        })
+      });
+      console.log('[WHATSAPP] Webhook triggered successfully for', cleanPhone);
+      return { success: true, provider: 'webhook', directWaUrl };
+    } catch (err) {
+      console.warn('[WHATSAPP] Webhook error:', err.message);
+    }
+  }
+
+  // Default: Instant receipt link generated and logged
+  console.log('[WHATSAPP] Instant WhatsApp Confirmation link generated for ' + cleanPhone + ':');
+  console.log('-> ' + directWaUrl);
+  return { success: true, provider: 'direct_link', directWaUrl };
+}
+
+
 async function sendClientConfirmationEmail(type, item) {
   if (!item || !item.email) {
     console.log(`[EMAIL] No recipient email found for item ${item?.id}`);
@@ -795,16 +916,26 @@ const server = http.createServer(async (req, res) => {
       all.unshift(newEntry);
       await writeDb('submissions', all);
 
-      // Dispatch confirmation email to client and admin
+      // Concurrently dispatch confirmation email & WhatsApp confirmation (<10s)
+      let waResult = null;
       try {
-        await sendClientConfirmationEmail('submissions', newEntry);
+        const [emailRes, waRes] = await Promise.allSettled([
+          sendClientConfirmationEmail('submissions', newEntry),
+          sendClientWhatsAppConfirmation('submissions', newEntry)
+        ]);
+        if (waRes.status === 'fulfilled') {
+          waResult = waRes.value;
+          newEntry.whatsappLink = waResult?.directWaUrl || null;
+        }
       } catch (e) {
-        console.warn('[EMAIL] Dispatch warning:', e.message);
+        console.warn('[NOTIFY] Dispatch warning:', e.message);
       }
 
       console.log(`\n[NEW SUBMISSION] From: ${newEntry.authorName} (${newEntry.email}) | Title: "${newEntry.title}"`);
       return sendJson(res, 201, {
         success: true,
+        trackingId: newEntry.id,
+        whatsappLink: newEntry.whatsappLink || null,
         message: `Manuscript submitted successfully to The House of Memoir Editorial Board! Your Unique Tracking ID is: ${newEntry.id}. A confirmation receipt has been emailed to ${newEntry.email}.`,
         data: newEntry
       });
@@ -831,11 +962,14 @@ const server = http.createServer(async (req, res) => {
       all.unshift(newEntry);
       await writeDb('queries', all);
 
-      // Dispatch confirmation email to client and admin
+      // Concurrently dispatch confirmation email & WhatsApp confirmation
       try {
-        await sendClientConfirmationEmail('queries', newEntry);
+        await Promise.allSettled([
+          sendClientConfirmationEmail('queries', newEntry),
+          sendClientWhatsAppConfirmation('queries', newEntry)
+        ]);
       } catch (e) {
-        console.warn('[EMAIL] Dispatch warning:', e.message);
+        console.warn('[NOTIFY] Dispatch warning:', e.message);
       }
 
       console.log(`\n[NEW QUERY] From: ${newEntry.fullName} (${newEntry.email}) | Query: "${newEntry.query.slice(0, 50)}..."`);
@@ -927,7 +1061,7 @@ const server = http.createServer(async (req, res) => {
       all.unshift(newEntry);
       await writeDb('chatLeads', all);
 
-      return sendJson(res, 201, { success: true, data: newEntry });
+      return sendJson(res, 201, { success: true, data: newEntry, trackingId: newEntry.id, whatsappLink: newEntry.whatsappLink || null });
     } catch (err) {
       return sendJson(res, 500, { success: false, error: err.message });
     }

@@ -2881,7 +2881,15 @@
           </td>
           <td class="py-3 px-4 font-semibold text-gray-900">${item.authorName}</td>
           <td class="py-3 px-4 text-gray-600">
-            <a href="mailto:${item.email}" class="text-[#1978e5] hover:underline">${item.email}</a>
+            <a href="mailto:${item.email}" class="text-[#1978e5] hover:underline block text-xs font-medium">${item.email}</a>
+            ${item.phone && item.phone !== 'N/A' ? `
+              <div class="mt-1 flex items-center gap-1">
+                <a href="https://wa.me/${String(item.phone).replace(/[^0-9]/g, '')}?text=${encodeURIComponent('🏛️ *The House of Memoir*\nDear ' + (item.authorName || 'Author') + ',\nWe have received your manuscript "' + (item.title || 'Untitled') + '" (Tracking ID: ' + item.id + '). Our Editorial Board has commenced review.\nhttps://house-of-memoir01.onrender.com')}" target="_blank" class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-[11px] font-bold transition-colors">
+                  <span class="material-symbols-outlined text-[13px] text-emerald-600">chat</span>
+                  <span>WhatsApp: ${item.phone}</span>
+                </a>
+              </div>
+            ` : `<span class="text-[10px] text-gray-400">No phone</span>`}
           </td>
           <td class="py-3 px-4">
             <span class="font-bold text-gray-900">${item.title}</span><br/>
@@ -2893,8 +2901,13 @@
           <td class="py-3 px-4">
             <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">${item.status || 'Under Review'}</span>
           </td>
-          <td class="py-3 px-4 text-right">
-            <button onclick="deleteItem('submissions', '${item.id}')" class="text-red-500 hover:text-red-700 p-1" title="Delete">
+          <td class="py-3 px-4 text-right whitespace-nowrap">
+            ${item.phone && item.phone !== 'N/A' ? `
+              <a href="https://wa.me/${String(item.phone).replace(/[^0-9]/g, '')}?text=${encodeURIComponent('🏛️ *The House of Memoir*\nDear ' + (item.authorName || 'Author') + ',\nWe have received your manuscript "' + (item.title || 'Untitled') + '" (Tracking ID: ' + item.id + '). Our Editorial Board has commenced review.\nhttps://house-of-memoir01.onrender.com')}" target="_blank" class="text-emerald-600 hover:text-emerald-800 p-1 inline-block align-middle" title="Send WhatsApp Message">
+                <span class="material-symbols-outlined text-base">chat</span>
+              </a>
+            ` : ''}
+            <button onclick="deleteItem('submissions', '${item.id}')" class="text-red-500 hover:text-red-700 p-1 inline-block align-middle" title="Delete">
               <span class="material-symbols-outlined text-base">delete</span>
             </button>
           </td>

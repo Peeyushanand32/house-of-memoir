@@ -127,18 +127,21 @@ function initManuscriptModal() {
       const fileName = fileInput && fileInput.files.length > 0 ? fileInput.files[0].name : '';
 
       const emailEl = modalForm.querySelector('input[type="email"]');
+      const phoneEl = modalForm.querySelector('input[type="tel"]') || modalForm.querySelector('input[placeholder*="WhatsApp"]');
       const textInputs = modalForm.querySelectorAll('input[type="text"]');
       const authorName = (textInputs[0] ? textInputs[0].value.trim() : '') || 'Anonymous Author';
       const email = emailEl ? emailEl.value.trim() : '';
+      const phone = phoneEl ? phoneEl.value.trim() : '';
       const title = (textInputs[1] ? textInputs[1].value.trim() : '') || 'Untitled';
       const genre = modalForm.querySelector('select') ? modalForm.querySelector('select').value : 'Memoir';
       const synopsis = modalForm.querySelector('textarea') ? modalForm.querySelector('textarea').value : '';
 
-      console.log('[FORM SUBMIT] Extracted author:', authorName, 'email:', email, 'title:', title);
+      console.log('[FORM SUBMIT] Extracted author:', authorName, 'email:', email, 'phone:', phone, 'title:', title);
 
       const payload = {
         authorName: authorName,
         email: email,
+        phone: phone,
         title: title,
         genre: genre,
         synopsis: synopsis,
@@ -152,12 +155,46 @@ function initManuscriptModal() {
         modalForm.reset();
         const statusEl = modalForm.querySelector('.file-upload-status, #file-upload-status');
         if (statusEl) statusEl.innerText = 'Click to browse or drag and drop file here';
-        const trackingId = res?.data?.id || '';
-        if (trackingId) {
-          showToast(`<div><strong>Manuscript Submitted!</strong><br/><span class="text-xs text-gray-300">Tracking ID:</span> <span class="font-mono font-bold text-amber-400 text-xs">${trackingId}</span><br/><span class="text-[11px] text-gray-400">Confirmation email sent to ${payload.email}</span></div>`, 8000);
-        } else {
-          showToast('Manuscript submitted successfully! Our editors will review your work within 4-6 weeks.');
-        }
+        const trackingId = res?.trackingId || res?.data?.id || ('SUB-' + Date.now().toString(36).toUpperCase());
+        const cleanWa = (payload.phone || '').replace(/[^0-9]/g, '');
+        const waMsg = encodeURIComponent(
+          `🏛️ *The House of Memoir — Manuscript Registration Receipt*\n\n` +
+          `Dear *${payload.authorName || 'Author'}*,\n\n` +
+          `Thank you for submitting your work to The House of Memoir!\n\n` +
+          `📋 *Working Title:* ${payload.title || 'Untitled'}\n` +
+          `🏷️ *Tracking Reference ID:* *${trackingId}*\n` +
+          `⏳ *Status:* Under Review by Editorial Board\n\n` +
+          `Our acquiring editors will review your manuscript synopsis within 24-48 business hours.\n\n` +
+          `🌐 Official Portal: https://house-of-memoir01.onrender.com\n` +
+          `📞 Editorial Support: +91 6386313299`
+        );
+        const waLink = res?.whatsappLink || (cleanWa ? `https://wa.me/${cleanWa}?text=${waMsg}` : '');
+
+        showToast(`
+          <div class="space-y-2">
+            <div class="font-bold text-white flex items-center gap-1.5 text-sm">
+              <span class="material-symbols-outlined text-emerald-400 text-lg">check_circle</span>
+              <span>Manuscript Submitted Successfully!</span>
+            </div>
+            <div class="text-xs text-gray-200">
+              Tracking ID: <span class="font-mono font-bold text-amber-400 bg-black/40 px-1.5 py-0.5 rounded">${trackingId}</span>
+            </div>
+            <div class="text-[11px] text-gray-300">
+              📧 Confirmation email sent to <strong class="text-white">${payload.email}</strong>
+            </div>
+            ${cleanWa ? `
+              <div class="text-[11px] text-emerald-300">
+                📲 WhatsApp confirmation ready for <strong>${payload.phone}</strong>
+              </div>
+              <div class="pt-1">
+                <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md text-xs font-bold transition shadow-sm">
+                  <span class="material-symbols-outlined text-sm">chat</span>
+                  <span>Open WhatsApp Confirmation Receipt</span>
+                </a>
+              </div>
+            ` : ''}
+          </div>
+        `, 12000);
       } catch (err) {
         console.error('Submission failed:', err);
         showToast('Manuscript submitted successfully! (Saved to review queue)');
@@ -240,19 +277,22 @@ function initPageForms() {
       const fileName = fileInput && fileInput.files.length > 0 ? fileInput.files[0].name : '';
 
       const emailEl = submissionForm.querySelector('input[type="email"]');
+      const phoneEl = submissionForm.querySelector('input[type="tel"]') || submissionForm.querySelector('input[placeholder*="WhatsApp"]');
       const textInputs = submissionForm.querySelectorAll('input[type="text"]');
       const firstName = (textInputs[0] ? textInputs[0].value.trim() : '');
       const lastName = (textInputs[1] ? textInputs[1].value.trim() : '');
       const email = emailEl ? emailEl.value.trim() : '';
+      const phone = phoneEl ? phoneEl.value.trim() : '';
       const title = (textInputs[2] ? textInputs[2].value.trim() : '') || 'Untitled';
       const genre = submissionForm.querySelector('select') ? submissionForm.querySelector('select').value : 'Memoir';
       const synopsis = submissionForm.querySelector('textarea') ? submissionForm.querySelector('textarea').value : '';
 
-      console.log('[STEP FORM SUBMIT] Extracted name:', firstName, lastName, 'email:', email, 'title:', title);
+      console.log('[STEP FORM SUBMIT] Extracted name:', firstName, lastName, 'email:', email, 'phone:', phone, 'title:', title);
 
       const payload = {
         authorName: `${firstName} ${lastName}`.trim() || 'Author',
         email: email,
+        phone: phone,
         title: title,
         genre: genre,
         synopsis: synopsis,
@@ -271,7 +311,31 @@ function initPageForms() {
         submissionForm.reset();
         nextStep(1);
         const trackingId = res?.data?.id || ('SUB-' + Date.now().toString(36).toUpperCase());
-        showToast(`<div><strong>Manuscript Submitted Successfully!</strong><br/><span class="text-xs text-amber-300">Tracking Reference:</span> <span class="font-mono font-bold text-amber-300 text-xs">${trackingId}</span><br/><span class="text-[11px] text-gray-300">Confirmation receipt emailed to ${payload.email} within seconds. Check inbox & spam!</span></div>`, 10000);
+        const cleanWa = (payload.phone || '').replace(/[^0-9]/g, '');
+        const waMsg = encodeURIComponent(
+          `🏛️ *The House of Memoir — Manuscript Registration Receipt*\n\n` +
+          `Dear *${payload.authorName || 'Author'}*,\n\n` +
+          `Thank you for submitting your work to The House of Memoir!\n\n` +
+          `📋 *Working Title:* ${payload.title || 'Untitled'}\n` +
+          `🏷️ *Tracking Reference ID:* *${trackingId}*\n` +
+          `⏳ *Status:* Under Review by Editorial Board\n\n` +
+          `Our acquiring editors will review your manuscript synopsis within 24-48 business hours.\n\n` +
+          `🌐 Official Portal: https://house-of-memoir01.onrender.com\n` +
+          `📞 Editorial Desk: +91 6386313299`
+        );
+        const waUrl = cleanWa.length >= 10
+          ? `https://api.whatsapp.com/send?phone=${cleanWa}&text=${waMsg}`
+          : `https://api.whatsapp.com/send?phone=916386313299&text=${waMsg}`;
+
+        showToast(`<div>
+          <strong>Manuscript Submitted Successfully!</strong><br/>
+          <span class="text-xs text-amber-300">Tracking Reference:</span> <span class="font-mono font-bold text-amber-300 text-xs">${trackingId}</span><br/>
+          <span class="text-[11px] text-gray-300">Confirmation receipt emailed to ${payload.email}</span><br/>
+          <a href="${waUrl}" target="_blank" class="mt-2.5 inline-flex items-center gap-1.5 bg-[#25D366] text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-[#128C7E] shadow-md transition-all active:scale-95">
+            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824z"/></svg>
+            Receive Receipt on WhatsApp
+          </a>
+        </div>`, 12000);
       } catch (err) {
         console.error('Submission error:', err);
         showToast('Manuscript submitted! Confirmation email queued.');

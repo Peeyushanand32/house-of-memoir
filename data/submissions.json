@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": "SUB-MWRPQ562-0CC7",
+    "submittedAt": "2026-11-22T10:47:21.770Z",
+    "authorName": "Aarav Sharma",
+    "email": "aarav.sharma.test@gmail.com",
+    "phone": "+91 9876543210",
+    "title": "The Whispering Hills",
+    "genre": "Memoir",
+    "synopsis": "A heartfelt journey through northern valleys.",
+    "fileName": "No file attached",
+    "status": "Under Review"
+  }
+]
